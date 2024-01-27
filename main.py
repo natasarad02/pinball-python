@@ -3,11 +3,6 @@ from ball import *
 
 pygame.init()
 import tkinter as tk
-
-
-HEIGHT = 800
-WIDTH = 400
-
 root = tk.Tk()
 
 screen_width = root.winfo_screenwidth()
