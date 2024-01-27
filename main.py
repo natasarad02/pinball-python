@@ -1,9 +1,9 @@
 import pygame
-
+from ball import Ball
 pygame.init()
 
-HEIGHT = 1000
-WIDTH = 600
+HEIGHT = 800
+WIDTH = 400
 
 screen = pygame.display.set_mode([WIDTH, HEIGHT])
 wall_thickness = 10
@@ -15,6 +15,7 @@ def draw_walls():
     wall_list = [left, right, top, bottom]
     return wall_list
 
+ball = Ball(50, 50, 30, 'blue', 100, .75, 0, 0, 1, 0.02, 800, 400)
 fps = 60
 timer = pygame.time.Clock()
 run = True
@@ -22,6 +23,8 @@ while run:
     timer.tick(fps)
     screen.fill('black')
     walls = draw_walls()
+
+    ball.draw()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
