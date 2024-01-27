@@ -19,25 +19,25 @@ class Ball:
         self.circle = pygame.draw.circle(self.screen, self.color, (self.x_pos, self.y_pos), self.radius)
 
     def check_gravity(self, HEIGHT, WIDTH, wall_thickness):
-        if not self.selected:
-            if self.y_pos < HEIGHT - self.radius - (wall_thickness / 2):
-                self.y_speed += 0.5
+
+        if self.y_pos < HEIGHT - self.radius - (wall_thickness / 2):
+            self.y_speed += 0.5
+        else:
+            if self.y_speed > 0.3:
+                self.y_speed = self.y_speed * -1 * self.retention
             else:
-                if self.y_speed > 0.3:
-                    self.y_speed = self.y_speed * -1 * self.retention
-                else:
-                    if abs(self.y_speed) <= 0.3:
-                        self.y_speed = 0
-            if (self.x_pos < self.radius + (wall_thickness / 2) and self.x_speed < 0) or \
-                    (self.x_pos > WIDTH - self.radius - (wall_thickness / 2) and self.x_speed > 0):
-                self.x_speed *= -1 * self.retention
-                if abs(self.x_speed) < 0.3:
-                    self.x_speed = 0
-            if self.y_speed == 0 and self.x_speed != 0:
-                if self.x_speed > 0:
-                    self.x_speed -= self.friction
-                elif self.x_speed < 0:
-                    self.x_speed += self.friction
+                if abs(self.y_speed) <= 0.3:
+                    self.y_speed = 0
+        if (self.x_pos < self.radius + (wall_thickness / 2) and self.x_speed < 0) or \
+                (self.x_pos > WIDTH - self.radius - (wall_thickness / 2) and self.x_speed > 0):
+            self.x_speed *= -1 * self.retention
+            if abs(self.x_speed) < 0.3:
+                self.x_speed = 0
+        if self.y_speed == 0 and self.x_speed != 0:
+            if self.x_speed > 0:
+                self.x_speed -= self.friction
+            elif self.x_speed < 0:
+                self.x_speed += self.friction
 
         return self.y_speed
 

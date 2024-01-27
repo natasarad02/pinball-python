@@ -1,9 +1,21 @@
 import pygame
 from ball import Ball
+
 pygame.init()
+import tkinter as tk
+
 
 HEIGHT = 800
 WIDTH = 400
+
+root = tk.Tk()
+
+screen_width = root.winfo_screenwidth()
+screen_height = root.winfo_screenheight()
+
+HEIGHT = screen_height*0.9;
+WIDTH = screen_width*0.35;
+
 
 screen = pygame.display.set_mode([WIDTH, HEIGHT])
 wall_thickness = 10
@@ -15,7 +27,7 @@ def draw_walls():
     wall_list = [left, right, top, bottom]
     return wall_list
 
-ball = Ball(50, 50, 30, 'blue', 100, .75, 0, 0, 1, 0.02, 800, 400)
+ball = Ball(50, 50, 15, 'blue', 100, .75, 0, 0, 1, 0.02, 800, 400)
 fps = 60
 timer = pygame.time.Clock()
 run = True
@@ -25,6 +37,7 @@ while run:
     walls = draw_walls()
 
     ball.draw()
+    ball.y_speed = ball.check_gravity(HEIGHT, WIDTH, wall_thickness)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
