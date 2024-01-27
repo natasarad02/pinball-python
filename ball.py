@@ -1,7 +1,7 @@
 import pygame
 
 class Ball:
-    def __init__(self, x_pos, y_pos, radius, color, mass, retention, y_speed, x_speed, id, friction):
+    def __init__(self, x_pos, y_pos, radius, color, mass, retention, y_speed, x_speed, id, friction, HEIGHT, WIDTH):
         self.x_pos = x_pos
         self.y_pos = y_pos
         self.radius = radius
@@ -12,16 +12,32 @@ class Ball:
         self.x_speed = x_speed
         self.id = id
         self.circle = ''
-        self.selected = False
         self.friction = friction
+        self.screen = pygame.display.set_mode([WIDTH, HEIGHT])
 
     def draw(self):
-        self.circle = pygame.draw.circle(screen, self.color, (self.x_pos, self.y_pos), self.radius)
+        self.circle = pygame.draw.circle(self.screen, self.color, (self.x_pos, self.y_pos), self.radius)
 
-    def check_gravity(self):
+
+    def update_pos(self, mouse):
+        if not self.selected:
+            self.y_pos += self.y_speed
+            self.x_pos += self.x_speed
+        else:
+            self.x_pos = mouse[0]
+            self.y_pos = mouse[1]
+
+    def check_select(self, pos):
+        self.selected = False
+        if self.circle.collidepoint(pos):
+            self.selected = True
+        return self.selected
+    
+'''
+    def check_gravity(self, HEIGHT, WIDTH, wall_thickness):
         if not self.selected:
             if self.y_pos < HEIGHT - self.radius - (wall_thickness / 2):
-                self.y_speed += gravity
+                self.y_speed; # += gravity
             else:
                 if self.y_speed > bounce_stop:
                     self.y_speed = self.y_speed * -1 * self.retention
@@ -41,18 +57,6 @@ class Ball:
         else:
             self.x_speed = x_push
             self.y_speed = y_push
-        return self.y_speed
+        return self.y_speed'''
 
-    def update_pos(self, mouse):
-        if not self.selected:
-            self.y_pos += self.y_speed
-            self.x_pos += self.x_speed
-        else:
-            self.x_pos = mouse[0]
-            self.y_pos = mouse[1]
 
-    def check_select(self, pos):
-        self.selected = False
-        if self.circle.collidepoint(pos):
-            self.selected = True
-        return self.selected
