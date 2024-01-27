@@ -45,7 +45,7 @@ class Ball:
     
 
     def update_pos(self):
-        dt = 1.0 / fps  # Time step
+        dt = 1.0 / 60  # Time step
 
         # RK4 integration for both x and y positions
         k1x, k1y = self._get_derivative()
@@ -71,7 +71,7 @@ class Ball:
         friction_force = -self.friction * self.x_speed  # Friction force (adjust as needed)
 
         dx_dt = self.x_speed + friction_force  # Change this based on your physics model
-        dy_dt = self.y_speed - gravity  # Change this based on your physics model
+        dy_dt = self.y_speed + gravity  # Change this based on your physics model
 
         return dx_dt, dy_dt
 
