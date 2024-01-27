@@ -23,9 +23,10 @@ def draw_walls():
     return wall_list
 
 fps = 60
-ball = Ball(60, 50, 20, 'blue', 100, 50, .75, 0, 0, 1, 0.02, HEIGHT, WIDTH, fps)
+ball = Ball(210, 50, 20, 'blue', 100, 50, .75, 0, 0, 1, 0.02, HEIGHT, WIDTH, fps)
 timer = pygame.time.Clock()
 brick = Brick(50, 500, 20, 40, HEIGHT, WIDTH)
+triangle = Triangle(200, 500, 100, 20, HEIGHT, WIDTH)
 run = True
 while run:
     timer.tick(fps)
@@ -33,6 +34,7 @@ while run:
     walls = draw_walls()
 
     brick.show_and_update("green")
+    triangle.show_and_update('purple')
     ball.draw()
     ball.check_gravity()
     ball.update_pos()

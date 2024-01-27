@@ -35,6 +35,17 @@ class Ball:
                 else:
                     if abs(self.y_speed) <= 0.3:
                         self.y_speed = 0
+        elif self.x_pos >= 200 and self.x_pos <= 220:
+            if self.y_pos < 500 - self.radius - (10 / 2):
+                self.y_speed += self.acceleration * 0.5
+            else:
+                if self.y_speed > 0.3:
+                    self.y_speed = self.y_speed * -1 * self.retention
+                else:
+                    if abs(self.y_speed) <= 0.3:
+                        self.y_speed = 0
+        #elif self.x_pos >= 220 and self.x_pos <= 250:
+
         else:
             if self.y_pos < self.HEIGHT - self.radius - (10 / 2):
                 self.y_speed += self.acceleration * 0.5
@@ -72,67 +83,34 @@ class Brick:
     def show_and_update(self, color):
         pygame.draw.rect(self.screen, color, pygame.Rect((self.x, self.y), (self.w, self.h)))
 
-    '''
-    def check_gravity(self, HEIGHT, WIDTH, wall_thickness):
-        if self.y_pos < HEIGHT - self.radius - (wall_thickness / 2):
-            # No direct modification of self.y_speed here, as gravity is handled in _get_derivative
-            pass
-        else:
-            if self.y_speed > 0.3:
-                self.y_speed = self.y_speed * -1 * self.retention
-            else:
-                if abs(self.y_speed) <= 0.3:
-                    self.y_speed = 0
+class Triangle:
+    def __init__(self, x, y, base, height, HEIGHT, WIDTH):
+        self.x = x
+        self.y = y
+        self.base = base
+        self.height = height
+        self.screen = pygame.display.set_mode([WIDTH, HEIGHT])
+        self.angle = 0
 
-        if (self.x_pos < self.radius + (wall_thickness / 2) and self.x_speed < 0) or \
-                (self.x_pos > WIDTH - self.radius - (wall_thickness / 2) and self.x_speed > 0):
-            self.x_speed *= -1 * self.retention
-            if abs(self.x_speed) < 0.3:
-                self.x_speed = 0
+    def show_and_update(self, color):
+        # Calculate the coordinates of the vertices of the triangle
+        x1, y1 = self.x, self.y
+        x2, y2 = self.x + self.base, self.y + self.height
+        x3, y3 = self.x + self.base / 2, self.y
 
-        if self.y_speed == 0 and self.x_speed != 0:
-            if self.x_speed > 0:
-                self.x_speed -= self.friction
-            elif self.x_speed < 0:
-                self.x_speed += self.friction
+        rotated_triangle = pygame.transform.rotate(pygame.Surface((self.base, self.height)),
+                                                   self.angle)
 
+        # Get the rectangle of the rotated triangle
+        rotated_rect = rotated_triangle.get_rect(center=(self.x + self.base / 2, self.y + self.height / 2))
 
-    def update_pos(self):
-        dt = 1.0 / 60  # Time step
-        dt = 1.0 / 120 # Time step
+        # Draw the rotated triangle
+        self.screen.blit(pygame.transform.rotate(pygame.Surface((self.base, self.height)),
+                                                 self.angle),
+                         rotated_rect.topleft)
 
+        # Increment the rotation angle
+        self.angle += 1
 
-        # RK4 integration for both x and y positions
-        k1x, k1y = self._get_derivative()
-        k2x, k2y = self._get_derivative(x=self.x_pos + 0.5 * k1x * dt, y=self.y_pos + 0.5 * k1y * dt)
-        k3x, k3y = self._get_derivative(x=self.x_pos + 0.5 * k2x * dt, y=self.y_pos + 0.5 * k2y * dt)
-        k4x, k4y = self._get_derivative(x=self.x_pos + k3x * dt, y=self.y_pos + k3y * dt)
-
-        # Update positions
-        self.x_pos += (k1x + 2 * k2x + 2 * k3x + k4x) * dt / 6
-        self.y_pos += (k1y + 2 * k2y + 2 * k3y + k4y) * dt / 6
-
-
-    def _get_derivative(self, x=None, y=None):
-        # Compute derivatives for RK4 integration
-        if x is None:
-            x = self.x_pos
-        if y is None:
-            y = self.y_pos
-
-        # Your physics calculations go here
-        # For example, include gravity, friction, and other forces
-
-        gravity = 9.8  # Acceleration due to gravity (adjust as needed)
-        friction_force = -self.friction * self.x_speed  # Friction force (adjust as needed)
-
-        dx_dt = self.x_speed + friction_force  # Change this based on your physics model
-
-        dy_dt = self.y_speed + gravity  # Change this based on your physics model
-
-        dy_dt = (self.y_speed if self.y_speed is not None else 0) + gravity  # Change this based on your physics model
-
-
-        return dx_dt, dy_dt
-
-'''
+        # Draw the triangle
+        pygame.draw.polygon(self.screen, color, [(x1, y1), (x2, y2), (x3, y3)])
