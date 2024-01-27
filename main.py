@@ -1,9 +1,16 @@
 import pygame
-
+from ball import Ball
+import turtle
 pygame.init()
+import tkinter as tk
 
-HEIGHT = 1000
-WIDTH = 600
+root = tk.Tk()
+
+screen_width = root.winfo_screenwidth()
+screen_height = root.winfo_screenheight()
+
+HEIGHT = screen_height*0.9;
+WIDTH = screen_width*0.35;
 
 screen = pygame.display.set_mode([WIDTH, HEIGHT])
 wall_thickness = 10
