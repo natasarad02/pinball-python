@@ -1,7 +1,7 @@
 import pygame
 
 class Ball:
-    def __init__(self, x_pos, y_pos, radius, color, mass, retention, y_speed, x_speed, id, friction, HEIGHT, WIDTH, fps):
+    def __init__(self, x_pos, y_pos, radius, color, mass, force, retention, y_speed, x_speed, id, friction, HEIGHT, WIDTH, fps):
         self.x_pos = x_pos
         self.y_pos = y_pos
         self.radius = radius
@@ -14,6 +14,7 @@ class Ball:
         self.circle = ''
         self.friction = friction ##dodati parametar trenja i za podlogu
         self.screen = pygame.display.set_mode([WIDTH, HEIGHT])
+        self.force = force
         self.fps = fps
 
     def draw(self):
@@ -45,11 +46,9 @@ class Ball:
 
 
     def update_pos(self):
-<<<<<<< HEAD
         dt = 1.0 / 60  # Time step
-=======
         dt = 1.0 / 120 # Time step
->>>>>>> c0fa9a87e60fd4f41968ebbc941d74168798ae45
+
 
         # RK4 integration for both x and y positions
         k1x, k1y = self._get_derivative()

@@ -28,7 +28,7 @@ def draw_walls():
     return wall_list
 
 fps = 60
-ball = Ball(50, 50, 20, 'blue', 100, .75, 0, 0, 1, 0.02, HEIGHT, WIDTH, fps)
+ball = Ball(50, 50, 20, 'blue', 100, 50, .75, 0, 0, 1, 0.02, HEIGHT, WIDTH, fps)
 timer = pygame.time.Clock()
 run = True
 while run:
