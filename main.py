@@ -123,9 +123,9 @@ def draw_walls():
     return wall_list
 
 fps = 60
-ball = Ball(50, 50, 20, 'blue', 100, 50, .75, 0, 0, 1, 0.02, HEIGHT, WIDTH, fps)
+ball = Ball(60, 50, 20, 'blue', 100, 50, .75, 0, 0, 1, 0.02, HEIGHT, WIDTH, fps)
 timer = pygame.time.Clock()
-brick = Brick(50, 500, 20, 20, HEIGHT, WIDTH)
+brick = Brick(50, 500, 20, 40, HEIGHT, WIDTH)
 run = True
 while run:
     timer.tick(fps)
