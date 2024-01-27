@@ -26,7 +26,7 @@ class Ball:
         self.circle = pygame.draw.circle(self.screen, self.color, (self.x_pos, self.y_pos), self.radius)
 
     def check_gravity(self):
-        if self.y_pos < self.HEIGHT - self.radius - (10 / 2):
+        if self.y_pos < 500 - self.radius - (10 / 2):
             self.y_speed += self.acceleration * 0.5
         else:
             if self.y_speed > 0.3:
