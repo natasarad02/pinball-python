@@ -50,6 +50,18 @@ class Ball:
        self.x_pos += self.x_speed * 0.5
 
 
+class Brick:
+    
+    def __init__(self, x, y, height, weight, HEIGHT, WIDTH):
+        self.x = x
+        self.y = y
+        self.h = height
+        self.w = weight
+        self.screen = pygame.display.set_mode([WIDTH, HEIGHT])
+    
+    def show_and_update(self, color):
+        
+        pygame.draw.rect(self.screen, color, pygame.Rect((self.x, self.y), (self.w, self.h)))
 
 
     '''
@@ -78,6 +90,7 @@ class Ball:
 
 
     def update_pos(self):
+        dt = 1.0 / 1000 # Time step
         dt = 1.0 / 60  # Time step
         dt = 1.0 / 120 # Time step
 

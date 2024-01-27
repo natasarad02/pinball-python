@@ -1,5 +1,5 @@
 import pygame
-from ball import Ball
+from ball import *
 
 pygame.init()
 import tkinter as tk
@@ -30,12 +30,14 @@ def draw_walls():
 fps = 60
 ball = Ball(50, 50, 20, 'blue', 100, 50, .75, 0, 0, 1, 0.02, HEIGHT, WIDTH, fps)
 timer = pygame.time.Clock()
+brick = Brick(50, 500, 20, 20, HEIGHT, WIDTH)
 run = True
 while run:
     timer.tick(fps)
     screen.fill('black')
     walls = draw_walls()
 
+    brick.show_and_update("green")
     ball.draw()
     ball.check_gravity()
     ball.update_pos()
