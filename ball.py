@@ -45,7 +45,7 @@ class Ball:
 
 
     def update_pos(self):
-        dt = 1.0 / 120 # Time step
+        dt = 1.0 / 1000 # Time step
 
         # RK4 integration for both x and y positions
         k1x, k1y = self._get_derivative()
