@@ -26,14 +26,25 @@ class Ball:
         self.circle = pygame.draw.circle(self.screen, self.color, (self.x_pos, self.y_pos), self.radius)
 
     def check_gravity(self):
-        if self.y_pos < 500 - self.radius - (10 / 2):
-            self.y_speed += self.acceleration * 0.5
-        else:
-            if self.y_speed > 0.3:
-                self.y_speed = self.y_speed * -1 * self.retention
+        if self.x_pos >= 50 and self.x_pos <= 100:
+            if self.y_pos < 500 - self.radius - (10 / 2):
+                self.y_speed += self.acceleration * 0.5
             else:
-                if abs(self.y_speed) <= 0.3:
-                    self.y_speed = 0
+                if self.y_speed > 0.3:
+                    self.y_speed = self.y_speed * -1 * self.retention
+                else:
+                    if abs(self.y_speed) <= 0.3:
+                        self.y_speed = 0
+        else:
+            if self.y_pos < self.HEIGHT - self.radius - (10 / 2):
+                self.y_speed += self.acceleration * 0.5
+            else:
+                if self.y_speed > 0.3:
+                    self.y_speed = self.y_speed * -1 * self.retention
+                else:
+                    if abs(self.y_speed) <= 0.3:
+                        self.y_speed = 0
+
         if (self.x_pos < self.radius + (10 / 2) and self.x_speed < 0) or \
                 (self.x_pos > self.WIDTH - self.radius - (0.3 / 2) and self.x_speed > 0):
             self.x_speed *= -1 * self.retention
@@ -49,20 +60,17 @@ class Ball:
        self.y_pos += self.y_speed * 0.5
        self.x_pos += self.x_speed * 0.5
 
-
 class Brick:
-    
+
     def __init__(self, x, y, height, weight, HEIGHT, WIDTH):
         self.x = x
         self.y = y
         self.h = height
         self.w = weight
         self.screen = pygame.display.set_mode([WIDTH, HEIGHT])
-    
-    def show_and_update(self, color):
-        
-        pygame.draw.rect(self.screen, color, pygame.Rect((self.x, self.y), (self.w, self.h)))
 
+    def show_and_update(self, color):
+        pygame.draw.rect(self.screen, color, pygame.Rect((self.x, self.y), (self.w, self.h)))
 
     '''
     def check_gravity(self, HEIGHT, WIDTH, wall_thickness):
@@ -90,7 +98,6 @@ class Brick:
 
 
     def update_pos(self):
-        dt = 1.0 / 1000 # Time step
         dt = 1.0 / 60  # Time step
         dt = 1.0 / 120 # Time step
 
