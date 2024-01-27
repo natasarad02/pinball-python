@@ -13,7 +13,7 @@ root = tk.Tk()
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
 
-HEIGHT = screen_height*0.9;
+HEIGHT = screen_height*0.9
 WIDTH = screen_width*0.35;
 
 
@@ -27,8 +27,8 @@ def draw_walls():
     wall_list = [left, right, top, bottom]
     return wall_list
 
-ball = Ball(50, 50, 20, 'blue', 100, .75, 0, 0, 1, 0.02, HEIGHT, WIDTH)
 fps = 60
+ball = Ball(50, 50, 20, 'blue', 100, .75, 0, 0, 1, 0.02, HEIGHT, WIDTH, fps)
 timer = pygame.time.Clock()
 run = True
 while run:
