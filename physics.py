@@ -1,20 +1,43 @@
-import numpy as np
+import matplotlib.pyplot as plt
 
+def linear_motion_euler(m, F, x0, v0, dt, num_steps):
+    # Initialize arrays to store position and velocity values
+    positions = [x0]
+    velocities = [v0]
 
-def ojler(x0,xn,y0,h,odj):
-    x = np.arange(x0,xn+h,h)
-    n = len(x)
-    y = np.zeros(n)
-    y[0] = y0
-    for i in range(1,n):
-        y[i] = y[i-1] + h * odj(x[i-1], y[i-1])
-    return y
+    # Euler's method loop
+    for _ in range(num_steps):
+        # Calculate acceleration using Newton's second law
+        acceleration = F / m
 
-ode=lambda x,y: 2 - np.exp(-4*x) - 2*y
-fun=lambda x: 1 + 1/2 * np.exp(-4*x) - 1/2*np.exp(-2*x) #analiticko resenje ode
-x0=0
-y0=1
-xn=1
-h=0.1
-y=ojler(x0,xn,y0,h,ode)
-print(y)
+        # Update velocity and position using Euler's method
+        v_new = velocities[-1] + acceleration * dt
+        x_new = positions[-1] + v_new * dt
+
+        # Append the new values to the arrays
+        velocities.append(v_new)
+        positions.append(x_new)
+
+    return positions, velocities
+
+# Parameters
+mass = 1.0  # Mass of the object
+net_force = 10.0  # Net force acting on the object
+initial_position = 0.0  # Initial position
+initial_velocity = 0.0  # Initial velocity
+time_step = 0.1  # Time step for Euler's method
+num_steps = 100  # Number of steps
+
+# Solve the ODE using Euler's method
+positions, velocities = linear_motion_euler(mass, net_force, initial_position, initial_velocity, time_step, num_steps)
+
+# Plot the results
+time_values = [i * time_step for i in range(num_steps + 1)]
+
+plt.plot(time_values, positions, label='Position')
+plt.plot(time_values, velocities, label='Velocity')
+plt.xlabel('Time')
+plt.ylabel('Value')
+plt.legend()
+plt.title('Linear Motion ODE Solution using Euler\'s Method')
+plt.show()

@@ -37,8 +37,10 @@ while run:
     walls = draw_walls()
 
     ball.draw()
-    ball.y_speed = ball.check_gravity(HEIGHT, WIDTH, wall_thickness)
+    ball.check_gravity()
     ball.update_pos()
+    #ball.y_speed = ball.check_gravity(HEIGHT, WIDTH, wall_thickness)
+    #ball.update_pos()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
