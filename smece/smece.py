@@ -53,14 +53,22 @@ class Ball:
 
         if distance_squared <= sum_radii_squared:
             print("Circle circle")
-            self.direction[0] *= -1
-            self.direction[1] *= -1
+            normal_vector = [self.x_pos - circle.kwargs['x'], self.y_pos - circle.kwargs['y']]
+            magnitude = math.sqrt(normal_vector[0]**2 + normal_vector[1]**2)
+            normal_vector = [normal_vector[0] / magnitude, normal_vector[1] / magnitude]
+
+            # Calculate the reflection vector
+            dot_product = self.direction[0] * normal_vector[0] + self.direction[1] * normal_vector[1]
+            reflection = [self.direction[0] - 2 * dot_product * normal_vector[0],
+                          self.direction[1] - 2 * dot_product * normal_vector[1]]
+
+            self.direction = reflection
 
         # Collision with the rectangle
         if self.x_pos - self.radius < rectangle.kwargs['x'] + rectangle.kwargs['width'] and \
-        self.x_pos + self.radius > rectangle.kwargs['x'] and \
-        self.y_pos - self.radius < rectangle.kwargs['y'] + rectangle.kwargs['height'] and \
-        self.y_pos + self.radius > rectangle.kwargs['y']:
+           self.x_pos + self.radius > rectangle.kwargs['x'] and \
+           self.y_pos - self.radius < rectangle.kwargs['y'] + rectangle.kwargs['height'] and \
+           self.y_pos + self.radius > rectangle.kwargs['y']:
             print("Circle rectangle")
             self.direction[0] *= -1
             self.direction[1] *= -1
@@ -166,8 +174,8 @@ def overlap(projection1, projection2):
 
 
 # Create shapes
-rectangle = Shape("rectangle", RED, x=200, y=400, width=100, height=50)
-circle = Shape("circle", RED, x=200, y=200, radius=30)
+rectangle = Shape("rectangle", RED, x=200, y=150, width=50, height=150)
+circle = Shape("circle", RED, x=600, y=500, radius=30)
 
 # Create ball
 ball = Ball(50, 50, 20, WHITE)
