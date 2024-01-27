@@ -27,7 +27,7 @@ def draw_walls():
     wall_list = [left, right, top, bottom]
     return wall_list
 
-ball = Ball(50, 50, 15, 'blue', 100, .75, 0, 0, 1, 0.02, 800, 400)
+ball = Ball(50, 50, 20, 'blue', 100, .75, 0, 0, 1, 0.02, HEIGHT, WIDTH)
 fps = 60
 timer = pygame.time.Clock()
 run = True
@@ -38,6 +38,7 @@ while run:
 
     ball.draw()
     ball.y_speed = ball.check_gravity(HEIGHT, WIDTH, wall_thickness)
+    ball.update_pos()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False

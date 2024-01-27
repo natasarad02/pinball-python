@@ -28,6 +28,7 @@ class Ball:
             else:
                 if abs(self.y_speed) <= 0.3:
                     self.y_speed = 0
+        '''
         if (self.x_pos < self.radius + (wall_thickness / 2) and self.x_speed < 0) or \
                 (self.x_pos > WIDTH - self.radius - (wall_thickness / 2) and self.x_speed > 0):
             self.x_speed *= -1 * self.retention
@@ -38,8 +39,14 @@ class Ball:
                 self.x_speed -= self.friction
             elif self.x_speed < 0:
                 self.x_speed += self.friction
-
+        '''
         return self.y_speed
+
+    def update_pos(self):
+
+        self.y_pos += self.y_speed
+        self.x_pos += self.x_speed
+
 
 
 '''
