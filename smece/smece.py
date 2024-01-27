@@ -66,12 +66,28 @@ class Ball:
 
         # Collision with the rectangle
         if self.x_pos - self.radius < rectangle.kwargs['x'] + rectangle.kwargs['width'] and \
-           self.x_pos + self.radius > rectangle.kwargs['x'] and \
-           self.y_pos - self.radius < rectangle.kwargs['y'] + rectangle.kwargs['height'] and \
-           self.y_pos + self.radius > rectangle.kwargs['y']:
-            print("Circle rectangle")
-            self.direction[0] *= -1
-            self.direction[1] *= -1
+            self.x_pos + self.radius > rectangle.kwargs['x'] and \
+            self.y_pos - self.radius < rectangle.kwargs['y'] + rectangle.kwargs['height'] and \
+            self.y_pos + self.radius > rectangle.kwargs['y']:
+                print("Circle rectangle")
+
+                # Calculate normal vector for the rectangle
+                normal_vector = [0, 0]
+                if self.x_pos < rectangle.kwargs['x']:
+                    normal_vector[0] = -1
+                elif self.x_pos > rectangle.kwargs['x'] + rectangle.kwargs['width']:
+                    normal_vector[0] = 1
+                if self.y_pos < rectangle.kwargs['y']:
+                    normal_vector[1] = -1
+                elif self.y_pos > rectangle.kwargs['y'] + rectangle.kwargs['height']:
+                    normal_vector[1] = 1
+
+                # Calculate the reflection vector
+                dot_product = self.direction[0] * normal_vector[0] + self.direction[1] * normal_vector[1]
+                reflection = [self.direction[0] - 2 * dot_product * normal_vector[0],
+                            self.direction[1] - 2 * dot_product * normal_vector[1]]
+
+                self.direction = reflection
 
         # Collision with window edges
         if self.x_pos - self.radius < 0 or self.x_pos + self.radius > WIDTH:
