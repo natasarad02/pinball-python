@@ -16,6 +16,47 @@ screen = pygame.display.set_mode([WIDTH, HEIGHT])
 wall_thickness = 10
 
 fps = 60
+
+
+
+class Line:
+    def __init__(self, a_x, a_y, b_x, b_y, color, width):
+        self.a_x = a_x
+        self.a_y = a_y
+        self.b_x = b_x
+        self.b_y = b_y
+        self.color = color
+        self.width = width
+
+
+    def draw(self):
+        pygame.draw.line(screen, self.color, (self.a_x, self.a_y), (self.b_x, self.b_y), self.width)
+
+    def is_collided(self, ball):
+        if ball.x_pos > self.a_x and ball.x_pos < self.b_x:
+            line_vector = pygame.math.Vector2(self.b_x - self.a_x, self.b_y - self.a_y)
+            point_vector = pygame.math.Vector2(ball.x_pos - self.a_x, ball.y_pos - self.a_y)
+
+        # Calculate the projection of point_vector onto line_vector
+            t = point_vector.dot(line_vector) / line_vector.length_squared()
+
+        # Calculate the closest point on the line to the ball center
+            closest_point = pygame.math.Vector2(self.a_x + t * line_vector.x, self.a_y + t * line_vector.y)
+
+        # Check if the distance between the closest point and the ball center is less than the ball radius
+            distance = math.sqrt((closest_point.x - ball.x_pos) ** 2 + (closest_point.y - ball.y_pos) ** 2)
+
+            normal_vector = pygame.math.Vector2(-line_vector.y, line_vector.x)
+            incident_angle = point_vector.angle_to(normal_vector)
+            if point_vector.y > line_vector.y:
+                incident_angle = 360 - incident_angle
+
+        # print(distance <= ball.radius)
+            return math.radians(incident_angle), distance <= ball.radius
+        else:
+            return None, False
+
+
 class Circle:
     def __init__(self, x_pos, y_pos, radius, color):
         self.x_pos = x_pos
@@ -56,9 +97,26 @@ class Ball(Circle):
         #self.positions = [self.x_pos, self.y_pos]
         #self.speed = [self.x_speed, self.y_speed]
 
-    def update(self, flippers, circle_obstacles):
+    def update(self, flippers, circle_obstacles, line):
         # Collision with obstacle_circle
+        incident_angle, isCollided = line.is_collided(self)
+        #print(incident_angle)
 
+        if isCollided == True:
+
+            reflection_angle =  incident_angle + math.radians(180)
+            print(math.degrees(reflection_angle))
+            self.direction = [math.cos(reflection_angle), math.sin(reflection_angle)]
+            length = math.sqrt(self.direction[0] ** 2 + self.direction[1] ** 2)
+            reflection = [self.direction[0] / length, self.direction[1] / length]
+            self.direction = reflection
+
+
+
+
+
+            #reflection_vector = pygame.math.Vector2()
+            #reflection_vector.from_polar((self.x_speed , incident_angle + 180))
         for i in range(len(circle_obstacles)):
 
             distance_squared1 = (self.x_pos - circle_obstacles[i].x_pos)**2 + (self.y_pos - circle_obstacles[i].y_pos)**2
@@ -248,6 +306,7 @@ circle_obstacle2 = Circle(380, 200, 50, 'green')
 circle_obstacle3 = Circle(550, 400, 50, 'green')
 circle_obstacles = [circle_obstacle1, circle_obstacle2, circle_obstacle3]
 
+line = Line(100, 700, 380, 850, 'red', 2)
 timer = pygame.time.Clock()
 left_flipper = Left_Flipper(150, 1000, 35, 200, Vector2(150, 1000), HEIGHT, WIDTH)
 right_flipper = Right_Flipper(400, 1000, 35, 200, Vector2(500, 1000), HEIGHT, WIDTH)
@@ -262,8 +321,9 @@ while run:
     circle_obstacle1.draw()
     circle_obstacle2.draw()
     circle_obstacle3.draw()
+    line.draw()
      # Check collision with the right flipper
-    ball.update(flippers, circle_obstacles)
+    ball.update(flippers, circle_obstacles, line)
 
 
    # brick.update_pivot()
