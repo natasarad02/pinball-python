@@ -24,18 +24,18 @@ def collision_ball_brick(ball, brick):
     
     p = 0
 
-    if ball.x < brick.x: # 2 or 3 or 5
-        tempX = brick.x
+    if ball.x_pos < brick.x_pos: # 2 or 3 or 5
+        tempX = brick.x_pos
         p = 10
-    elif ball.x > brick.x + brick.w:  # 4 or 2 or 6
-        tempX = brick.x + brick.w
+    elif ball.x_pos > brick.x_pos + brick.y_pos:  # 4 or 2 or 6
+        tempX = brick.x_pos + brick.y_pos
         p = 12
     else:
-        tempX = ball.x
+        tempX = ball.x_pos
         p = 1
     
     if p != 1:
-        if ball.y < brick.y: # 3 or 1 or 4
+        if ball.y_pos < brick.y_pos: # 3 or 1 or 4
             tempY = brick.y
             if p == 10:
                 p = 3
@@ -125,7 +125,7 @@ def draw_walls():
 fps = 60
 ball = Ball(60, 50, 20, 'blue', 100, 50, .75, 0, 0, 1, 0.02, HEIGHT, WIDTH, fps)
 timer = pygame.time.Clock()
-brick = Brick(50, 500, 20, 40, HEIGHT, WIDTH)
+brick = Brick(50, 400, 20, 40, HEIGHT, WIDTH)
 run = True
 while run:
     timer.tick(fps)
