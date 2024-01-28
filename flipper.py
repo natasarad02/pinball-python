@@ -2,13 +2,13 @@ import pygame
 from pygame import Vector2
 #from ball import *
 import tkinter as tk
-
+import math
 root = tk.Tk()
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
 
 HEIGHT = screen_height*0.9
-WIDTH = screen_width*0.5;
+WIDTH = screen_width*0.3;
 
 pygame.init()
 
@@ -38,57 +38,114 @@ class Ball:
         self.wall_thickness = 10
         self.acceleration = self.force / self.mass
         self.in_free_fall = True
+        self.direction = [1, 1]
         #self.positions = [self.x_pos, self.y_pos]
         #self.speed = [self.x_speed, self.y_speed]
 
-    def update_pos(self):
-        self.y_pos += self.y_speed * 0.5
-        self.x_pos += self.x_speed * 0.5
-    def handle_collision_with_flipper(self, left_flipper, right_flipper):
+    def update(self, left_flipper, right_flipper, obstacle_circle1, obstacle_circle2, obstacle_circle3):
+        # Collision with obstacle_circle1
+        distance_squared1 = (self.x_pos - obstacle_circle1.x_pos)**2 + (self.y_pos - obstacle_circle1.y_pos)**2
+        sum_radii_squared1 = (self.radius + obstacle_circle1.radius)**2
 
-            # Check collision with the left flipper
-           if self.x_pos >= left_flipper.x and self.x_pos <= (left_flipper.x + left_flipper.w)/2 and self.y_pos == 1000:
-               if left_flipper.angle != -45:
+        if distance_squared1 <= sum_radii_squared1:
+            normal_vector = [self.x_pos - obstacle_circle1.x_pos, self.y_pos - obstacle_circle1.y_pos]
+            magnitude = math.sqrt(normal_vector[0] ** 2 + normal_vector[1] ** 2)
+            normal_vector = [normal_vector[0] / magnitude, normal_vector[1] / magnitude]
 
-                   self.y_speed = -1 * self.y_speed
-                  # self.y_speed += self.acceleration * 0.5
-               else:
-                   if self.y_pos < self.HEIGHT - self.radius - (10 / 2):
-                       self.y_speed += self.acceleration * 0.5
-                   else:
-                       if self.y_speed > 0.3:
-                           self.y_speed = self.y_speed * -1 * self.retention
-                       else:
-                           if abs(self.y_speed) <= 0.3:
-                               self.y_speed = 0
-           elif self.x_pos >= (left_flipper.x + left_flipper.w)/2 and self.x_pos <= (left_flipper.x + left_flipper.w) and self.y_pos == 1000:
-               if left_flipper.angle != -45:
-                   #self.force += 30
-                #   self.acceleration = self.force / self.mass
-                   self.y_speed = -1 * (self.y_speed)
-                  # self.y_speed += self.acceleration * 0.5
-               else:
-                   if self.y_pos < self.HEIGHT - self.radius - (10 / 2):
-                       self.y_speed += self.acceleration * 0.5
-                   else:
-                       if self.y_speed > 0.3:
-                           self.y_speed = self.y_speed * -1 * self.retention
-                       else:
-                           if abs(self.y_speed) <= 0.3:
-                               self.y_speed = 0
-           else:
-               if self.y_pos < self.HEIGHT - self.radius - (10 / 2):
-                   self.y_speed += self.acceleration * 0.5
-               else:
-                   if self.y_speed > 0.3:
-                       self.y_speed = self.y_speed * -1 * self.retention
-                   else:
-                       if abs(self.y_speed) <= 0.3:
-                           self.y_speed = 0
+            # Calculate the reflection vector
+            dot_product = self.direction[0] * normal_vector[0] + self.direction[1] * normal_vector[1]
+            reflection = [self.direction[0] - 2 * dot_product * normal_vector[0],
+                          self.direction[1] - 2 * dot_product * normal_vector[1]]
+
+            self.direction = reflection
+        # Collision with obstacle_circle2
+        distance_squared2 = (self.x_pos - obstacle_circle2.x_pos) ** 2 + (self.y_pos - obstacle_circle2.y_pos) ** 2
+        sum_radii_squared2 = (self.radius + obstacle_circle2.radius) ** 2
+
+        if distance_squared2 <= sum_radii_squared2:
+            normal_vector = [self.x_pos - obstacle_circle2.x_pos, self.y_pos - obstacle_circle2.y_pos]
+            magnitude = math.sqrt(normal_vector[0] ** 2 + normal_vector[1] ** 2)
+            normal_vector = [normal_vector[0] / magnitude, normal_vector[1] / magnitude]
+
+            # Calculate the reflection vector
+            dot_product = self.direction[0] * normal_vector[0] + self.direction[1] * normal_vector[1]
+            reflection = [self.direction[0] - 2 * dot_product * normal_vector[0],
+                              self.direction[1] - 2 * dot_product * normal_vector[1]]
+
+            self.direction = reflection
+        # Collision with obstacle_circle2
+        distance_squared3 = (self.x_pos - obstacle_circle3.x_pos) ** 2 + (self.y_pos - obstacle_circle3.y_pos) ** 2
+        sum_radii_squared3 = (self.radius + obstacle_circle3.radius) ** 2
+
+        if distance_squared3 <= sum_radii_squared3:
+            normal_vector = [self.x_pos - obstacle_circle3.x_pos, self.y_pos - obstacle_circle3.y_pos]
+            magnitude = math.sqrt(normal_vector[0] ** 2 + normal_vector[1] ** 2)
+            normal_vector = [normal_vector[0] / magnitude, normal_vector[1] / magnitude]
+
+            # Calculate the reflection vector
+            dot_product = self.direction[0] * normal_vector[0] + self.direction[1] * normal_vector[1]
+            reflection = [self.direction[0] - 2 * dot_product * normal_vector[0],
+                              self.direction[1] - 2 * dot_product * normal_vector[1]]
+
+            self.direction = reflection
+
+        if self.x_pos - self.radius < left_flipper.x + left_flipper.w and \
+            self.x_pos + self.radius > left_flipper.x and \
+            self.y_pos - self.radius < left_flipper.y + left_flipper.h and \
+            self.y_pos + self.radius > left_flipper.y:
+              #  print("Circle rectangle")
+
+                # Calculate normal vector for the rectangle
+                normal_vector = [0, 0]
+                if self.x_pos < left_flipper.x:
+                    normal_vector[0] = -1
+                elif self.x_pos > left_flipper.x + left_flipper.w:
+                    normal_vector[0] = 1
+                if self.y_pos < left_flipper.y:
+                    normal_vector[1] = -1
+                elif self.y_pos > left_flipper.y + left_flipper.h:
+                    normal_vector[1] = 1
+
+                # Calculate the reflection vector
+                dot_product = self.direction[0] * normal_vector[0] + self.direction[1] * normal_vector[1]
+                reflection = [self.direction[0] - 2 * dot_product * normal_vector[0],
+                            self.direction[1] - 2 * dot_product * normal_vector[1]]
+
+                self.direction = reflection
+        if self.x_pos - self.radius < right_flipper.x + right_flipper.w and \
+                self.x_pos + self.radius > right_flipper.x and \
+                self.y_pos - self.radius < right_flipper.y + right_flipper.h and \
+                self.y_pos + self.radius > right_flipper.y:
+            #  print("Circle rectangle")
+
+            # Calculate normal vector for the rectangle
+            normal_vector = [0, 0]
+            if self.x_pos < right_flipper.x:
+                normal_vector[0] = -1
+            elif self.x_pos > right_flipper.x + right_flipper.w:
+                normal_vector[0] = 1
+            if self.y_pos < right_flipper.y:
+                normal_vector[1] = -1
+            elif self.y_pos > right_flipper.y + right_flipper.h:
+                normal_vector[1] = 1
+
+            # Calculate the reflection vector
+            dot_product = self.direction[0] * normal_vector[0] + self.direction[1] * normal_vector[1]
+            reflection = [self.direction[0] - 2 * dot_product * normal_vector[0],
+                          self.direction[1] - 2 * dot_product * normal_vector[1]]
+
+            self.direction = reflection
 
 
+        # Collision with window edges
+        if self.x_pos - self.radius < 0 or self.x_pos + self.radius > WIDTH:
+            self.direction[0] *= -1
 
+        if self.y_pos - self.radius < 0 or self.y_pos + self.radius > HEIGHT:
+            self.direction[1] *= -1
 
+        self.y_pos += self.direction[1] * self.acceleration * 0.5
+        self.x_pos += self.direction[0] * self.acceleration * 0.5
 
 
 
@@ -176,6 +233,8 @@ class Right_Flipper:
             self.update_right(elapsed_time)
             self.draw_brick('purple')
             pygame.display.flip()
+           # print(self.y)
+
 
     def reset_rotation(self, timer):
         while self.angle < -135:
@@ -183,6 +242,7 @@ class Right_Flipper:
             self.update_reset(elapsed_time)
             self.draw_brick('purple')
             pygame.display.flip()
+
 
 
 def draw_walls():
@@ -194,7 +254,10 @@ def draw_walls():
     return wall_list
 
 
-ball = Ball(250, 50, 20, 'blue', 100, 50, .75, 0, 0, 1, 0.02, HEIGHT, WIDTH, fps)
+ball = Ball(250, 50, 30, 'blue', 100, 1500, .75, 2, 2, 1, 0.02, HEIGHT, WIDTH, fps)
+circle_obstacle1 = Ball(200, 400, 50, 'green', 100, 1000, .75, 2, 2, 1, 0.02, HEIGHT, WIDTH, fps)
+circle_obstacle2 = Ball(380, 200, 50, 'green', 100, 1000, .75, 2, 2, 1, 0.02, HEIGHT, WIDTH, fps)
+circle_obstacle3 = Ball(550, 400, 50, 'green', 100, 1000, .75, 2, 2, 1, 0.02, HEIGHT, WIDTH, fps)
 timer = pygame.time.Clock()
 left_flipper = Left_Flipper(150, 1000, 35, 200, Vector2(150, 1000), HEIGHT, WIDTH)
 right_flipper = Right_Flipper(400, 1000, 35, 200, Vector2(500, 1000), HEIGHT, WIDTH)
@@ -205,9 +268,11 @@ while run:
     screen.fill('black')
     walls = draw_walls()
     ball.draw()
-
-    ball.handle_collision_with_flipper(left_flipper, right_flipper)  # Check collision with the right flipper
-    ball.update_pos()
+    circle_obstacle1.draw()
+    circle_obstacle2.draw()
+    circle_obstacle3.draw()
+     # Check collision with the right flipper
+    ball.update(left_flipper, right_flipper, circle_obstacle1, circle_obstacle2, circle_obstacle3)
 
 
    # brick.update_pivot()
