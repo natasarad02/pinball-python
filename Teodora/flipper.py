@@ -8,7 +8,7 @@ screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
 
 HEIGHT = screen_height*0.9
-WIDTH = screen_width*0.3;
+WIDTH = screen_width*0.3
 
 pygame.init()
 
@@ -51,7 +51,7 @@ class Line:
 
         # Check if the distance between the closest point and the ball center is less than the ball radius
         distance = math.sqrt((closest_point.x - ball.x_pos) ** 2 + (closest_point.y - ball.y_pos) ** 2)
-        if ball.x_pos >= self.a_x and ball.x_pos <= self.b_x:
+        if ball.x_pos > self.a_x and ball.x_pos < self.b_x:
 
             incident_vector = pygame.math.Vector2(ball.direction[0], ball.direction[1])
             normal_vector = pygame.math.Vector2(-line_vector.y, line_vector.x)
@@ -70,9 +70,15 @@ class Line:
             # Normalizacija reflection_vector
             #if abs(reflection_vector.x) == 74999.4:
             #    reflection_vector.x == 74998
-            print(incident_vector, normal_vector, point_vector)
-
+          #  print(incident_vector)
+            if incident_angle == 180 or incident_angle == 0:
+                reflection_vector = -normal_vector
+            if incident_angle == 90:
+                reflection_vector = line_vector
             reflection_vector.normalize()
+            #if (reflection_vector.x == -74999.4 and reflection_vector.y == 99999.2) or (reflection_vector.x == 74999.4 and reflection_vector.y == -99999.2) or (reflection_vector.x == -74999.4 and reflection_vector.y == -99999.2) or (reflection_vector.x == 74999.4 and reflection_vector.y == 99999.2):
+             #   reflection_vector = -normal_vector
+
 
 
             # if incident_angle < 0:
@@ -151,20 +157,10 @@ class Ball(Circle):
             #print(incident_angle)
 
             if isCollided == True:
-               # print(math.degrees(incident_angle))
-              #  reflection_angle = incident_angle
-               # print(math.degrees(reflection_angle))
-                print(reflection_vector.x, reflection_vector.y)
-               #granicni slucaj
-
                 self.direction = [reflection_vector.x, reflection_vector.y]#[math.cos(reflection_angle), math.sin(reflection_angle)]
                 length = math.sqrt(self.direction[0] ** 2 + self.direction[1] ** 2)
                 reflection = [self.direction[0] / length, self.direction[1] / length]
                 self.direction = reflection
-
-
-
-
 
             #reflection_vector = pygame.math.Vector2()
             #reflection_vector.from_polar((self.x_speed , incident_angle + 180))
@@ -172,8 +168,6 @@ class Ball(Circle):
 
             distance_squared1 = (self.x_pos - circle_obstacles[i].x_pos)**2 + (self.y_pos - circle_obstacles[i].y_pos)**2
             sum_radii_squared1 = (self.radius + circle_obstacles[i].radius)**2
-        #self.x_speed += self.acceleration * 0.5
-       # self.y_speed += self.acceleration * 0.5
             if distance_squared1 <= sum_radii_squared1:
                 normal_vector = [self.x_pos - circle_obstacles[i].x_pos, self.y_pos - circle_obstacles[i].y_pos]
                 magnitude = math.sqrt(normal_vector[0] ** 2 + normal_vector[1] ** 2)
@@ -259,18 +253,17 @@ def draw_walls():
     return wall_list
 
 
-ball = Ball(250, 50, 30, 'blue', 100, 4000, .9, 2, 2, 1, 0.02, HEIGHT, WIDTH, fps)
+ball = Ball(WIDTH * 0.32, HEIGHT * 0.038, 0.039*WIDTH, 'blue', 100, 4000, .9, 2, 2, 1, 0.02, HEIGHT, WIDTH, fps)
 
-
-circle_obstacle1 = Circle(200, 400, 50, 'green')
-circle_obstacle2 = Circle(380, 200, 50, 'green')
-circle_obstacle3 = Circle(550, 400, 50, 'green')
+circle_obstacle1 = Circle(WIDTH * 0.26, 0.308 * HEIGHT, 0.065 * WIDTH, 'green')
+circle_obstacle2 = Circle(0.494 * WIDTH, 0.154 * HEIGHT, 0.065 * WIDTH, 'green')
+circle_obstacle3 = Circle(0.716 * WIDTH, 0.308 * HEIGHT, 0.065 * WIDTH, 'green')
 circle_obstacles = [circle_obstacle1, circle_obstacle2, circle_obstacle3]
 
-line = Line(100, 700, 380, 850, 'red', 6)
+line = Line(100, 500, 380, 500, 'red', 6)
 timer = pygame.time.Clock()
-left_flipper = Line(100, 1000, 300, 1150, 'purple', 30)
-right_flipper = Line(480, 1150, 680, 1000, 'purple', 30)
+left_flipper = Line(0.13 * WIDTH, 0.771 * HEIGHT, 0.39 * WIDTH, 0.887 * HEIGHT, 'purple', 30)
+right_flipper = Line(0.625 * WIDTH, 0.887 * HEIGHT, 0.885 * WIDTH, 0.771 * HEIGHT, 'purple', 30)
 flippers = [left_flipper, right_flipper]
 run = True
 while run:
@@ -291,6 +284,7 @@ while run:
    # brick.draw_brick('purple')
     left_flipper.draw()
     right_flipper.draw()
+    line.draw()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -299,7 +293,7 @@ while run:
             if event.key == pygame.K_LEFT:
                 left_flipper.rotate_left()
               # left_flipper.rotate_left(timer)
-            else:
+            elif event.key == pygame.K_RIGHT:
 
                 right_flipper.rotate_right()
 
@@ -307,7 +301,7 @@ while run:
             if event.key == pygame.K_LEFT:
                 left_flipper.rotate_reset_left()
                 #left_flipper.reset_rotation(timer)
-            else:
+            elif event.key == pygame.K_RIGHT:
 
                right_flipper.rotate_reset_right()
     #elapsed_time = timer.tick(30) / 1000.0
