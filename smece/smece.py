@@ -1,7 +1,7 @@
 import pygame
 import sys
 import math
-import numpy as np
+
 # Initialize Pygame
 pygame.init()
 
@@ -80,8 +80,6 @@ class Ball:
         for line in lines:
             print("Usao u for")
             print(line1)
-            print("-------------------")
-            print(line2)
             if check_collision_circle_line(ball.kwargs, line.kwargs, (ball.x_pos, ball.y_pos)):
                 print("Circle line")
                 line_collision = True
@@ -147,30 +145,20 @@ class Ball:
 
 #------------------------------------------------------------------------------------------------------------------
 
+# Helper function to check collision with circle and line
 def check_collision_circle_line(circle, line, ball_pos):
     # Calculate the closest point on the line to the circle
     closest_point = closest_point_on_line(circle['x'], circle['y'], line['start'][0], line['start'][1], line['end'][0], line['end'][1], ball_pos)
-
-    print(f"Checking collision circle line")
-    print(f"Closest Point: {closest_point}")
-    print(f"Line Start: {line['start']}")
-    print(f"Line End: {line['end']}")
-
+    
+    
     # Check if the closest point is within the line segment
     if is_point_on_line_segment(closest_point, line['start'], line['end'], ball_pos):
-        print("Point is on line segment")
-        # Check if the distance between the circle's center and the closest point is within the circle's radius
+        # Check if the closest point is within the circle's radius
         distance_squared = (circle['x'] - closest_point[0])**2 + (circle['y'] - closest_point[1])**2
-        radius_squared = circle['radius']**2
-        if distance_squared <= radius_squared:
-            print("Collision detected!")
-            return True
-        else:
-            print("Distance not within circle's radius")
-    else:
-        print("Point not on line segment")
+        return distance_squared <= circle['radius']**2
 
     return False
+
 
 
 
@@ -184,8 +172,6 @@ def is_point_on_line_segment(point, start, end, ball_pos):
 
     # Include ball's position in the check
     return min_x <= point[0] <= max_x and min_y <= point[1] <= max_y and ball_pos[0] != point[0] and ball_pos[1] != point[1]
-
-
 
 
 # Helper function to find the closest point on a line to a given point
@@ -298,9 +284,9 @@ def overlap(projection1, projection2):
 
 
 # Create shapes
-rectangle = Shape("rectangle", RED, x=500, y=150, width=50, height=150)
+rectangle = Shape("rectangle", RED, x=200, y=150, width=50, height=150)
 circle = Shape("circle", RED, x=600, y=500, radius=30)
-line1 = Line((100, 200), (300, 200), WHITE)
+line1 = Line((100, 200), (200, 200), WHITE)
 line2 = Line((300, 400), (400, 300), WHITE)
 lines = [line1, line2]
 # Create ball

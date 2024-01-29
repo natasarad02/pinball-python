@@ -26,10 +26,17 @@ class Shape:
             pygame.draw.rect(screen, self.color, pygame.Rect(self.kwargs['x'], self.kwargs['y'], self.kwargs['width'], self.kwargs['height']))
         elif self.shape_type == "circle":
             pygame.draw.circle(screen, self.color, (self.kwargs['x'], self.kwargs['y']), self.kwargs['radius'])
-        elif self.shape_type == "triangle":
-            pygame.draw.polygon(screen, self.color, self.kwargs['vertices'])
-        elif self.shape_type == "line":
-            pygame.draw.line(screen, self.color, self.kwargs['start'], self.kwargs['end'])
+
+class Line:
+    def __init__(self, start, end, color):
+        self.shape_type = "line"
+        self.start = start
+        self.end = end
+        self.color = color
+        self.kwargs = {'start': start, 'end': end}
+
+    def draw(self):
+        pygame.draw.line(screen, self.color, self.start, self.end)
 
 # Ball class
 class Ball:
@@ -41,45 +48,48 @@ class Ball:
         self.speed = 5
         self.direction = [1, 1]  # Movement direction
         self.shape_type = "circle"
-        self.kwargs = {'x': x, 'y': y, 'radius': radius}  # Add this line
+        self.kwargs = {'x': x, 'y': y, 'radius': radius} 
 
     def draw(self):
         pygame.draw.circle(screen, self.color, (int(self.x_pos), int(self.y_pos)), self.radius)
 
+    def reflect_off_line(self, line):
+        # Calculate the vector representing the line
+        line_vector = (line.end[0] - line.start[0], line.end[1] - line.start[1])
+
+        # Calculate the vector representing the ball's velocity
+        ball_vector = (self.direction[0], self.direction[1])
+
+        # Calculate the dot product of the two vectors
+        dot_product = line_vector[0] * ball_vector[0] + line_vector[1] * ball_vector[1]
+
+        # Calculate the length of the line vector squared
+        line_length_squared = line_vector[0] ** 2 + line_vector[1] ** 2
+
+        # Calculate the reflection vector
+        reflection_vector = (
+            2 * dot_product * line_vector[0] / line_length_squared - ball_vector[0],
+            2 * dot_product * line_vector[1] / line_length_squared - ball_vector[1]
+        )
+
+        # Update the ball's direction with the reflection vector
+        self.direction = [reflection_vector[0], reflection_vector[1]]
+
     def update(self):
-        # Collision with the circle
-        distance_squared = (self.x_pos - circle.kwargs['x'])**2 + (self.y_pos - circle.kwargs['y'])**2
-        sum_radii_squared = (self.radius + circle.kwargs['radius'])**2
-
-        if distance_squared <= sum_radii_squared:
-            self.direction[0] *= -1
-            self.direction[1] *= -1
-
         # Collision with the rectangle
-        if self.x_pos - self.radius < rectangle.kwargs['x'] + rectangle.kwargs['width'] and \
-        self.x_pos + self.radius > rectangle.kwargs['x'] and \
-        self.y_pos - self.radius < rectangle.kwargs['y'] + rectangle.kwargs['height'] and \
-        self.y_pos + self.radius > rectangle.kwargs['y']:
-            self.direction[0] *= -1
-            self.direction[1] *= -1
+        if check_collision(self, rectangle):
+            self.reflect_off_line(Line((rectangle.kwargs['x'], rectangle.kwargs['y']),
+                                       (rectangle.kwargs['x'] + rectangle.kwargs['width'], rectangle.kwargs['y'])))
 
-        # Collision with the lines
-        for line in lines:
-            if check_collision_circle_line(self.kwargs, line.kwargs):
-                self.direction[0] *= -1
-                self.direction[1] *= -1
-
-        # Collision with window edges
-        if self.x_pos - self.radius < 0 or self.x_pos + self.radius > WIDTH:
-            self.direction[0] *= -1
-
-        if self.y_pos - self.radius < 0 or self.y_pos + self.radius > HEIGHT:
-            self.direction[1] *= -1
+        # Collision with the circle
+        if check_collision(self, circle):
+            print("usao u if")
+            self.reflect_off_line(Line((circle.kwargs['x'], circle.kwargs['y']),
+                                       (circle.kwargs['x'] + 2 * circle.kwargs['radius'], circle.kwargs['y'])))
 
         # Update position after collisions
         self.y_pos += self.direction[1] * self.speed * 0.5
         self.x_pos += self.direction[0] * self.speed * 0.5
-
 
 # Helper function to check collision
 def check_collision(shape1, shape2):
@@ -88,32 +98,12 @@ def check_collision(shape1, shape2):
             return check_collision_circle_circle(shape1.kwargs, shape2.kwargs)
         elif shape1.shape_type == "circle" and shape2.shape_type == "rectangle":
             return check_collision_rect_circle(shape2.kwargs, shape1.kwargs)
-        elif shape1.shape_type == "rectangle" and shape2.shape_type == "rectangle":
-            return check_collision_rect_rect(shape1.kwargs, shape2.kwargs)
-    elif hasattr(shape1, 'radius') and hasattr(shape2, 'radius'):
-        # Handle the case where shape1 and shape2 are Ball objects
-        return check_collision_circle_circle(shape1.__dict__, shape2.__dict__)
     return False
-
-
-def check_collision_rect_rect(rect1, rect2):
-    # Check overlap along the x-axis
-    if rect1['x'] + rect1['width'] < rect2['x'] or rect1['x'] > rect2['x'] + rect2['width']:
-        return False
-
-    # Check overlap along the y-axis
-    if rect1['y'] + rect1['height'] < rect2['y'] or rect1['y'] > rect2['y'] + rect2['height']:
-        return False
-
-    # If there is overlap along both axes, it's a collision
-    return True
-
 
 def check_collision_circle_circle(circle1, circle2):
     distance_squared = (circle1["x"] - circle2["x"])**2 + (circle1["y"] - circle2["y"])**2
     sum_radii_squared = (circle1["radius"] + circle2["radius"])**2
     return distance_squared <= sum_radii_squared
-
 
 def check_collision_rect_circle(rect, circle):
     # Calculate the closest point on the rectangle to the circle
@@ -128,88 +118,19 @@ def check_collision_rect_circle(rect, circle):
     if math.sqrt(distance_x**2 + distance_y**2) <= circle['radius']:
         return True
 
-    # Check overlap along the separating axes formed by the sides of the rectangle
-    axes = [(1, 0), (0, 1)]  # The axes are the normals of the sides of the rectangle
-    for axis in axes:
-        projection_rect = project_rectangle(rect, axis)
-        projection_circle = project_circle(circle, axis)
-
-        if not overlap(projection_rect, projection_circle):
-            return False
-
-    return True
-
-
-def check_collision_circle_line(circle, line):
-    # Calculate the closest point on the line to the circle
-    closest_point = closest_point_on_line(circle['x'], circle['y'], line['start'][0], line['start'][1], line['end'][0], line['end'][1])
-
-    # Calculate the distance between the circle's center and the closest point on the line
-    distance_squared = (circle['x'] - closest_point[0])**2 + (circle['y'] - closest_point[1])**2
-
-    # Check if the distance is less than the circle's radius
-    return distance_squared <= circle['radius']**2
-
-
-def closest_point_on_line(px, py, x1, y1, x2, y2):
-    # Calculate the projection of point onto the line
-    dx = x2 - x1
-    dy = y2 - y1
-    t = ((px - x1) * dx + (py - y1) * dy) / (dx**2 + dy**2)
-    t = max(0, min(1, t))  # Clamp t to the interval [0, 1]
-
-    closest_x = x1 + t * dx
-    closest_y = y1 + t * dy
-
-    return closest_x, closest_y
-
+    return False
 
 def clamp(value, min_value, max_value):
     return max(min(value, max_value), min_value)
 
-
-def project_rectangle(rect, axis):
-    # Project the rectangle onto the axis
-    vertices = [
-        (rect['x'], rect['y']),
-        (rect['x'] + rect['width'], rect['y']),
-        (rect['x'] + rect['width'], rect['y'] + rect['height']),
-        (rect['x'], rect['y'] + rect['height'])
-    ]
-    projections = [dot_product(vertex, axis) for vertex in vertices]
-    return min(projections), max(projections)
-
-
-def project_circle(circle, axis):
-    # Project the circle onto the axis
-    center_projection = dot_product((circle['x'], circle['y']), axis)
-    radius_projection = circle['radius']
-    return center_projection - radius_projection, center_projection + radius_projection
-
-
-def dot_product(v1, v2):
-    return v1[0] * v2[0] + v1[1] * v2[1]
-
-
-def overlap(projection1, projection2):
-    # Check if two 1D projections overlap
-    return projection1[1] >= projection2[0] and projection2[1] >= projection1[0]
-
-
 # Create shapes
-rectangle = Shape("rectangle", RED, x=200, y=400, width=100, height=50)
-circle = Shape("circle", RED, x=600, y=400, radius=30)
+rectangle = Shape("rectangle", RED, x=500, y=150, width=50, height=150)
+circle = Shape("circle", RED, x=600, y=500, radius=30)
 
 # Create ball
 ball = Ball(50, 50, 20, WHITE)
 
-# Create lines
-line1 = Shape("line", WHITE, start=(300, 100), end=(500, 100))
-line2 = Shape("line", WHITE, start=(300, 200), end=(500, 200))
-lines = [line1, line2]
-
 # Game loop
-# Inside the game loop
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -219,27 +140,11 @@ while True:
     # Update ball position
     ball.update()
 
-    # Check collisions
-    if check_collision(ball, rectangle):
-        ball.direction[0] *= -1  # Reverse direction on collision
-        ball.direction[1] *= -1
-
-    if check_collision(ball, circle):
-        ball.direction[0] *= -1
-        ball.direction[1] *= -1
-
-    for line in lines:
-        if check_collision_circle_line(ball.kwargs, line.kwargs):
-            ball.direction[0] *= -1
-            ball.direction[1] *= -1
-
     # Draw everything
     screen.fill((0, 0, 0))  # Clear the screen
     ball.draw()
     rectangle.draw()
     circle.draw()
-    for line in lines:
-        line.draw()
 
     # Update the display
     pygame.display.flip()

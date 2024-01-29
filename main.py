@@ -23,7 +23,7 @@ def collision_ball_brick(ball, brick):
     '''
     
     p = 0
-
+    
     if ball.x_pos < brick.x_pos: # 2 or 3 or 5
         tempX = brick.x_pos
         p = 10
