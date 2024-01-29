@@ -51,7 +51,7 @@ class Line:
 
         # Check if the distance between the closest point and the ball center is less than the ball radius
         distance = math.sqrt((closest_point.x - ball.x_pos) ** 2 + (closest_point.y - ball.y_pos) ** 2)
-        if ball.x_pos > self.a_x and ball.x_pos < self.b_x:
+        if ball.x_pos > self.a_x and ball.x_pos < self.b_x and distance <= ball.radius:
 
             incident_vector = pygame.math.Vector2(ball.direction[0], ball.direction[1])
             normal_vector = pygame.math.Vector2(-line_vector.y, line_vector.x)
@@ -261,7 +261,7 @@ def draw_walls():
     return wall_list
 
 
-ball = Ball(WIDTH * 0.32, HEIGHT * 0.038, 0.039*WIDTH, 'blue', 100, 4000, .9, 2, 2, 1, 0.02, HEIGHT, WIDTH, fps)
+ball = Ball(WIDTH * 0.32, HEIGHT * 0.038, 0.039*WIDTH, 'blue', 100, 6000, .9, 2, 2, 1, 0.02, HEIGHT, WIDTH, fps)
 '''
 print(250/WIDTH, 50/HEIGHT)
 print(200/WIDTH, 400/HEIGHT)
@@ -280,7 +280,12 @@ line = Line(100, 700, 380, 850, 'red', 6)
 timer = pygame.time.Clock()
 left_flipper = Line(0.13 * WIDTH, 0.771 * HEIGHT, 0.39 * WIDTH, 0.887 * HEIGHT, 'purple', 30)
 right_flipper = Line(0.625 * WIDTH, 0.887 * HEIGHT, 0.885 * WIDTH, 0.771 * HEIGHT, 'purple', 30)
-flippers = [left_flipper, right_flipper]
+line_wall_left = Line(0, 0.7 * HEIGHT, 0.13 * WIDTH, 0.771 * HEIGHT, 'white', 20)
+line_wall_right = Line(0.885 * WIDTH, 0.771 * HEIGHT,WIDTH, 0.7 * HEIGHT, 'white', 20)
+tunnel_wall_left = Line(2*0.05*WIDTH, 0.4 * HEIGHT, 2*0.05*WIDTH, 0.65 * HEIGHT, 'white', 20)
+tunnel_left = Line(2*0.05*WIDTH, 0.65 * HEIGHT, 4*0.05*WIDTH, 0.7 * HEIGHT, 'white', 20)
+flippers_and_line_obstacles = [left_flipper, right_flipper, line_wall_left, line_wall_right, tunnel_wall_left, tunnel_left]
+
 run = True
 while run:
 
@@ -291,15 +296,18 @@ while run:
     circle_obstacle1.draw()
     circle_obstacle2.draw()
     circle_obstacle3.draw()
-    #line.draw()
+    line_wall_left.draw()
+    line_wall_right.draw()
      # Check collision with the right flipper
-    ball.update(flippers, circle_obstacles)
+    ball.update(flippers_and_line_obstacles, circle_obstacles)
 
 
    # brick.update_pivot()
    # brick.draw_brick('purple')
     left_flipper.draw()
     right_flipper.draw()
+    tunnel_wall_left.draw()
+    tunnel_left.draw()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
