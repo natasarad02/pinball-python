@@ -8,7 +8,7 @@ screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
 
 HEIGHT = screen_height*0.9
-WIDTH = screen_width*0.3;
+WIDTH = screen_width*0.3
 
 pygame.init()
 
@@ -157,12 +157,7 @@ class Ball(Circle):
             #print(incident_angle)
 
             if isCollided == True:
-               # print(math.degrees(incident_angle))
-              #  reflection_angle = incident_angle
-               # print(math.degrees(reflection_angle))
-               # print(reflection_vector.x, reflection_vector.y)
-                print(math.degrees(incident_angle))
-               #granicni slucaj
+
 
                 self.direction = [reflection_vector.x, reflection_vector.y]#[math.cos(reflection_angle), math.sin(reflection_angle)]
                 length = math.sqrt(self.direction[0] ** 2 + self.direction[1] ** 2)
@@ -266,18 +261,25 @@ def draw_walls():
     return wall_list
 
 
-ball = Ball(250, 50, 30, 'blue', 100, 4000, .9, 2, 2, 1, 0.02, HEIGHT, WIDTH, fps)
-
-
-circle_obstacle1 = Circle(200, 400, 50, 'green')
-circle_obstacle2 = Circle(380, 200, 50, 'green')
-circle_obstacle3 = Circle(550, 400, 50, 'green')
+ball = Ball(WIDTH * 0.32, HEIGHT * 0.038, 0.039*WIDTH, 'blue', 100, 4000, .9, 2, 2, 1, 0.02, HEIGHT, WIDTH, fps)
+'''
+print(250/WIDTH, 50/HEIGHT)
+print(200/WIDTH, 400/HEIGHT)
+print(380/WIDTH, 200/HEIGHT)
+print(550/WIDTH, 400/HEIGHT)
+print(100/WIDTH, 1000/HEIGHT, 300/WIDTH, 1150/HEIGHT)
+print(480/WIDTH, 1150/HEIGHT, 680/WIDTH, 1000/HEIGHT)
+print(30/WIDTH, 50/WIDTH)
+'''
+circle_obstacle1 = Circle(WIDTH * 0.26, 0.308 * HEIGHT, 0.065 * WIDTH, 'green')
+circle_obstacle2 = Circle(0.494 * WIDTH, 0.154 * HEIGHT, 0.065 * WIDTH, 'green')
+circle_obstacle3 = Circle(0.716 * WIDTH, 0.308 * HEIGHT, 0.065 * WIDTH, 'green')
 circle_obstacles = [circle_obstacle1, circle_obstacle2, circle_obstacle3]
 
 line = Line(100, 700, 380, 850, 'red', 6)
 timer = pygame.time.Clock()
-left_flipper = Line(100, 1000, 300, 1150, 'purple', 30)
-right_flipper = Line(480, 1150, 680, 1000, 'purple', 30)
+left_flipper = Line(0.13 * WIDTH, 0.771 * HEIGHT, 0.39 * WIDTH, 0.887 * HEIGHT, 'purple', 30)
+right_flipper = Line(0.625 * WIDTH, 0.887 * HEIGHT, 0.885 * WIDTH, 0.771 * HEIGHT, 'purple', 30)
 flippers = [left_flipper, right_flipper]
 run = True
 while run:
@@ -306,7 +308,7 @@ while run:
             if event.key == pygame.K_LEFT:
                 left_flipper.rotate_left()
               # left_flipper.rotate_left(timer)
-            else:
+            elif event.key == pygame.K_RIGHT:
 
                 right_flipper.rotate_right()
 
@@ -314,7 +316,7 @@ while run:
             if event.key == pygame.K_LEFT:
                 left_flipper.rotate_reset_left()
                 #left_flipper.reset_rotation(timer)
-            else:
+            elif event.key == pygame.K_RIGHT:
 
                right_flipper.rotate_reset_right()
     #elapsed_time = timer.tick(30) / 1000.0
