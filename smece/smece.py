@@ -1,7 +1,7 @@
 import pygame
 import sys
 import math
-
+import numpy as np
 # Initialize Pygame
 pygame.init()
 
@@ -31,6 +31,17 @@ class Shape:
         elif self.shape_type == "hexagon":
             pygame.draw.polygon(screen, self.color, self.kwargs['vertices'])
 
+class Line:
+    def __init__(self, start, end, color):
+        self.shape_type = "line"
+        self.start = start
+        self.end = end
+        self.color = color
+        self.kwargs = {'start': start, 'end': end}
+
+    def draw(self):
+        pygame.draw.line(screen, self.color, self.start, self.end)
+
 # Ball class
 class Ball:
     def __init__(self, x, y, radius, color):
@@ -41,7 +52,7 @@ class Ball:
         self.speed = 5
         self.direction = [1, 1]  # Movement direction
         self.shape_type = "circle"
-        self.kwargs = {'x': x, 'y': y, 'radius': radius}  # Add this line
+        self.kwargs = {'x': x, 'y': y, 'radius': radius} 
 
     def draw(self):
         pygame.draw.circle(screen, self.color, (int(self.x_pos), int(self.y_pos)), self.radius)
@@ -63,6 +74,40 @@ class Ball:
                           self.direction[1] - 2 * dot_product * normal_vector[1]]
 
             self.direction = reflection
+
+        # Collision with the lines
+        line_collision = False
+        for line in lines:
+            print("Usao u for")
+            print(line1)
+            print("-------------------")
+            print(line2)
+            if check_collision_circle_line(ball.kwargs, line.kwargs, (ball.x_pos, ball.y_pos)):
+                print("Circle line")
+                line_collision = True
+                line_start = line.kwargs['start']
+                line_end = line.kwargs['end']
+
+                # Calculate the normal vector of the line
+                line_vector = [line_end[0] - line_start[0], line_end[1] - line_start[1]]
+                magnitude = math.sqrt(line_vector[0] ** 2 + line_vector[1] ** 2)
+                normal_vector = [line_vector[1] / magnitude, -line_vector[0] / magnitude]
+
+                # Calculate the reflection vector
+                dot_product = ball.direction[0] * normal_vector[0] + ball.direction[1] * normal_vector[1]
+                reflection = [ball.direction[0] - 2 * dot_product * normal_vector[0],
+                            ball.direction[1] - 2 * dot_product * normal_vector[1]]
+
+                ball.direction = reflection
+
+        # Update position after collisions
+        if line_collision:
+            # Only update the position if there was a line collision
+            ball.y_pos += ball.direction[1] * ball.speed * 0.5
+            ball.x_pos += ball.direction[0] * ball.speed * 0.5
+
+
+
 
         # Collision with the rectangle
         if self.x_pos - self.radius < rectangle.kwargs['x'] + rectangle.kwargs['width'] and \
@@ -100,10 +145,70 @@ class Ball:
         self.y_pos += self.direction[1] * self.speed * 0.5
         self.x_pos += self.direction[0] * self.speed * 0.5
 
+#------------------------------------------------------------------------------------------------------------------
+
+def check_collision_circle_line(circle, line, ball_pos):
+    # Calculate the closest point on the line to the circle
+    closest_point = closest_point_on_line(circle['x'], circle['y'], line['start'][0], line['start'][1], line['end'][0], line['end'][1], ball_pos)
+
+    print(f"Checking collision circle line")
+    print(f"Closest Point: {closest_point}")
+    print(f"Line Start: {line['start']}")
+    print(f"Line End: {line['end']}")
+
+    # Check if the closest point is within the line segment
+    if is_point_on_line_segment(closest_point, line['start'], line['end'], ball_pos):
+        print("Point is on line segment")
+        # Check if the distance between the circle's center and the closest point is within the circle's radius
+        distance_squared = (circle['x'] - closest_point[0])**2 + (circle['y'] - closest_point[1])**2
+        radius_squared = circle['radius']**2
+        if distance_squared <= radius_squared:
+            print("Collision detected!")
+            return True
+        else:
+            print("Distance not within circle's radius")
+    else:
+        print("Point not on line segment")
+
+    return False
+
+
+
+# Helper function to check if a point is on a line segment
+def is_point_on_line_segment(point, start, end, ball_pos):
+    # Check if the point is within the bounding box of the line segment
+    min_x = min(start[0], end[0])
+    max_x = max(start[0], end[0])
+    min_y = min(start[1], end[1])
+    max_y = max(start[1], end[1])
+
+    # Include ball's position in the check
+    return min_x <= point[0] <= max_x and min_y <= point[1] <= max_y and ball_pos[0] != point[0] and ball_pos[1] != point[1]
+
+
+
+
+# Helper function to find the closest point on a line to a given point
+def closest_point_on_line(px, py, x1, y1, x2, y2, ball_pos):
+    A = px - x1
+    B = py - y1
+    C = x2 - x1
+    D = y2 - y1
+
+    dot = A * C + B * D
+    len_sq = C * C + D * D
+    param = -1 if len_sq == 0 else dot / len_sq
+
+    if param < 0:
+        return x1, y1
+    elif param > 1:
+        return x2, y2
+    else:
+        return x1 + param * C, y1 + param * D
 
 
 # Helper function to check collision
-def check_collision(shape1, shape2):
+def check_collision(shape1, shape2, ball_pos=None):
     if hasattr(shape1, 'shape_type') and hasattr(shape2, 'shape_type'):
         if shape1.shape_type == "circle" and shape2.shape_type == "circle":
             return check_collision_circle_circle(shape1.kwargs, shape2.kwargs)
@@ -111,10 +216,13 @@ def check_collision(shape1, shape2):
             return check_collision_rect_circle(shape2.kwargs, shape1.kwargs)
         elif shape1.shape_type == "rectangle" and shape2.shape_type == "rectangle":
             return check_collision_rect_rect(shape1.kwargs, shape2.kwargs)
+        elif shape1.shape_type == "circle" and shape2.shape_type == "line":
+            return check_collision_circle_line(shape1.kwargs, shape2.kwargs, ball_pos)
     elif hasattr(shape1, 'radius') and hasattr(shape2, 'radius'):
         # Handle the case where shape1 and shape2 are Ball objects
         return check_collision_circle_circle(shape1.__dict__, shape2.__dict__)
     return False
+
 
 
 def check_collision_rect_rect(rect1, rect2):
@@ -190,9 +298,11 @@ def overlap(projection1, projection2):
 
 
 # Create shapes
-rectangle = Shape("rectangle", RED, x=200, y=150, width=50, height=150)
+rectangle = Shape("rectangle", RED, x=500, y=150, width=50, height=150)
 circle = Shape("circle", RED, x=600, y=500, radius=30)
-
+line1 = Line((100, 200), (300, 200), WHITE)
+line2 = Line((300, 400), (400, 300), WHITE)
+lines = [line1, line2]
 # Create ball
 ball = Ball(50, 50, 20, WHITE)
 
@@ -216,15 +326,22 @@ while True:
         ball.direction[0] *= -1
         ball.direction[1] *= -1
 
+    for line in lines:
+        if check_collision(ball, line, (ball.x_pos, ball.y_pos)):
+            print("Game loop")
+            ball.direction[0] *= -1
+            ball.direction[1] *= -1
+
     # Draw everything
     screen.fill((0, 0, 0))  # Clear the screen
     ball.draw()
     rectangle.draw()
     circle.draw()
+    for line in lines:
+        line.draw()
 
     # Update the display
     pygame.display.flip()
 
     # Cap the frame rate
     pygame.time.Clock().tick(60)
-
