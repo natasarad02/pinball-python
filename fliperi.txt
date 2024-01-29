@@ -1,0 +1,91 @@
+class Left_Flipper:
+
+    def __init__(self, x, y, height, width, pivot, HEIGHT, WIDTH, starting_angle = -45):
+        self.x = x
+        self.y = y
+        self.h = height
+        self.w = width
+        self.pivot = pivot
+        self.image = pygame.Surface((width, height), pygame.SRCALPHA)
+        pygame.draw.rect(self.image, 'purple', (0, 0, width, height))
+        self.angle = starting_angle
+        self.is_rotated = False
+
+       # self.screen = pygame.display.set_mode([WIDTH, HEIGHT])
+        #self.brick_screen = pygame.display.set_mode([width, height])
+
+    def update_left(self, elapsed_time):
+        rotation_speed = 100
+        self.angle += rotation_speed * 0.5
+    def update_reset(self, elapsed_time):
+        rotation_speed = 100
+        self.angle -= rotation_speed * 0.5
+
+    def draw_brick(self, color):
+        rotated_surface = pygame.transform.rotate(self.image, self.angle)
+        rotated_rect = rotated_surface.get_rect(topleft=(self.x, self.y))
+        screen.blit(rotated_surface, rotated_rect.topleft)
+
+    def rotate_left(self, timer):
+        while self.angle < 0:
+            elapsed_time = timer.tick(30) / 1000.0
+            self.update_left(elapsed_time)
+            #self.image.fill('purple')
+            #self.screen.fill('black')
+            self.is_rotated = True
+            self.draw_brick('purple')
+            pygame.display.flip()
+
+
+    def reset_rotation(self, timer):
+        while self.angle > -45:
+            elapsed_time = timer.tick(30) / 1000.0
+            self.update_reset(elapsed_time)
+            #self.image.fill('purple')
+           # self.screen.fill('black')
+            self.is_rotated = False
+            self.draw_brick('purple')
+            pygame.display.flip()
+
+class Right_Flipper:
+    def __init__(self, x, y, height, width, pivot, HEIGHT, WIDTH, starting_angle=-135):
+        self.x = x
+        self.y = y
+        self.h = height
+        self.w = width
+        self.pivot = pivot
+        self.flipper_surface = pygame.Surface((width, height), pygame.SRCALPHA)
+        pygame.draw.rect(self.flipper_surface, 'purple', (0, 0, width, height))
+        self.is_rotated = False
+        self.angle = starting_angle
+
+    def update_right(self, elapsed_time):
+        rotation_speed = 100
+        self.angle -= rotation_speed * 0.5
+
+    def update_reset(self, elapsed_time):
+        rotation_speed = 100
+        self.angle += rotation_speed * 0.5
+
+    def draw_brick(self, color):
+        rotated_surface = pygame.transform.rotate(self.flipper_surface, self.angle)
+        rotated_rect = rotated_surface.get_rect(topright=(self.x + self.w, self.y))
+        screen.blit(rotated_surface, rotated_rect.topleft)
+
+    def rotate_right(self, timer):
+        while self.angle > -180:
+            elapsed_time = timer.tick(30) / 1000.0
+            self.update_right(elapsed_time)
+            self.draw_brick('purple')
+            self.is_rotated = True
+            pygame.display.flip()
+           # print(self.y)
+
+
+    def reset_rotation(self, timer):
+        while self.angle < -135:
+            elapsed_time = timer.tick(30) / 1000.0
+            self.update_reset(elapsed_time)
+            self.is_rotated = False
+            self.draw_brick('purple')
+            pygame.display.flip()
