@@ -40,29 +40,49 @@ class Line:
         pygame.draw.line(screen, self.color, (self.a_x, self.a_y), (self.b_x, self.b_y), self.width)
 
     def is_collided(self, ball):
-        if ball.x_pos > self.a_x and ball.x_pos < self.b_x:
-            line_vector = pygame.math.Vector2(self.b_x - self.a_x, self.b_y - self.a_y)
-            point_vector = pygame.math.Vector2(ball.x_pos - self.a_x, ball.y_pos - self.a_y)
+        line_vector = pygame.math.Vector2(self.b_x - self.a_x, self.b_y - self.a_y)
+        point_vector = pygame.math.Vector2(ball.x_pos - self.a_x, ball.y_pos - self.a_y)
 
         # Calculate the projection of point_vector onto line_vector
-            t = point_vector.dot(line_vector) / line_vector.length_squared()
+        t = point_vector.dot(line_vector) / line_vector.length_squared()
 
         # Calculate the closest point on the line to the ball center
-            closest_point = pygame.math.Vector2(self.a_x + t * line_vector.x, self.a_y + t * line_vector.y)
+        closest_point = pygame.math.Vector2(self.a_x + t * line_vector.x, self.a_y + t * line_vector.y)
 
         # Check if the distance between the closest point and the ball center is less than the ball radius
-            distance = math.sqrt((closest_point.x - ball.x_pos) ** 2 + (closest_point.y - ball.y_pos) ** 2)
+        distance = math.sqrt((closest_point.x - ball.x_pos) ** 2 + (closest_point.y - ball.y_pos) ** 2)
+        if ball.x_pos >= self.a_x and ball.x_pos <= self.b_x:
 
+            incident_vector = pygame.math.Vector2(ball.direction[0], ball.direction[1])
             normal_vector = pygame.math.Vector2(-line_vector.y, line_vector.x)
-            incident_angle = point_vector.angle_to(normal_vector)
+            incident_angle = incident_vector.angle_to(normal_vector)
 
-            if incident_angle < 0:
-                incident_angle += 360
+            reflection_vector = incident_vector - 2 * incident_vector.dot(normal_vector) * normal_vector
+
+            def normalize_vector(vector):
+                length = math.sqrt(vector[0] ** 2 + vector[1] ** 2)
+                if length == 0:
+                    return [0, 0]
+                return [vector[0] / length, vector[1] / length]
+
+            # ...
+
+            # Normalizacija reflection_vector
+            #if abs(reflection_vector.x) == 74999.4:
+            #    reflection_vector.x == 74998
+            print(incident_vector, normal_vector, point_vector)
+
+            reflection_vector.normalize()
+
+
+            # if incident_angle < 0:
+            #    incident_angle += 360
+
 
         # print(distance <= ball.radius)
-            return math.radians(incident_angle), distance <= ball.radius
+            return math.radians(incident_angle), distance <= ball.radius, reflection_vector
         else:
-            return None, False
+            return None, False, None
     def rotate_left(self):
         self.b_x = self.a_x + self.distance#math.tan(self.rotation_angle) * (self.b_y - self.a_y)
         self.b_y = self.a_y
@@ -127,14 +147,17 @@ class Ball(Circle):
     def update(self, flippers, circle_obstacles):
         # Collision with obstacle_circle
         for i in range(len(flippers)):
-            incident_angle, isCollided = flippers[i].is_collided(self)
+            incident_angle, isCollided, reflection_vector = flippers[i].is_collided(self)
             #print(incident_angle)
 
             if isCollided == True:
+               # print(math.degrees(incident_angle))
+              #  reflection_angle = incident_angle
+               # print(math.degrees(reflection_angle))
+                print(reflection_vector.x, reflection_vector.y)
+               #granicni slucaj
 
-                reflection_angle =  incident_angle + math.radians(180)
-                print(math.degrees(reflection_angle))
-                self.direction = [math.cos(reflection_angle), math.sin(reflection_angle)]
+                self.direction = [reflection_vector.x, reflection_vector.y]#[math.cos(reflection_angle), math.sin(reflection_angle)]
                 length = math.sqrt(self.direction[0] ** 2 + self.direction[1] ** 2)
                 reflection = [self.direction[0] / length, self.direction[1] / length]
                 self.direction = reflection
