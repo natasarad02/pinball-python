@@ -23,12 +23,18 @@ g = 9.81
 pushing_force = 100
 gravity_vector = pygame.math.Vector2(0, 1)
 pushing_force_vector = pygame.math.Vector2(1, 1)
-ball_mass = 2.5
+ball_mass = 2
 dt = 0.5
 force_at_beginning = pushing_force + ball_mass * g * math.sqrt(2)/2
 acceleration_0 = force_at_beginning / ball_mass
+
 x_speed_0 = acceleration_0 * math.sqrt(2)/2 * dt
 y_speed_0 = acceleration_0 * math.sqrt(2)/2 * dt
+
+y_speed_vector = pygame.math.Vector2(y_speed_0)
+x_speed_vector = pygame.math.Vector2(x_speed_0)
+direction = x_speed_vector + y_speed_vector
+direction = direction.normalize()
 class Line:
     def __init__(self, a_x, a_y, b_x, b_y, color, width):
         self.a_x = a_x
@@ -235,7 +241,7 @@ class Circle:
         self.circle = pygame.draw.circle(screen, self.color, (self.x_pos, self.y_pos), self.radius)
 
 class Ball(Circle):
-    def __init__(self,  x_pos, y_pos, radius, color, mass, force, retention, y_speed, x_speed, id, friction, HEIGHT, WIDTH, fps, acceleration, dt):
+    def __init__(self,  x_pos, y_pos, radius, color, mass, force, retention, y_speed, x_speed, id, friction, HEIGHT, WIDTH, fps, acceleration, dt, direction):
 
         super().__init__(x_pos, y_pos, radius, color)
         #self.x_pos = x_pos
@@ -264,7 +270,7 @@ class Ball(Circle):
         self.in_free_fall = True
         #self.x_speed += self.acceleration * 0.5 * math.sqrt(2)/2
        # self.y_speed += self.acceleration * 0.5 * math.sqrt(2)/2
-        self.direction = [1, 1]
+        self.direction = direction
 
 
         #self.positions = [self.x_pos, self.y_pos]
@@ -288,6 +294,7 @@ class Ball(Circle):
                 length = math.sqrt(self.direction[0] ** 2 + self.direction[1] ** 2)
                 reflection = [self.direction[0] / length, self.direction[1] / length]
                 self.direction = reflection
+                
 
 
             #  direction_vector = pygame.math.Vector2(self.direction)
@@ -295,7 +302,7 @@ class Ball(Circle):
                # self.acceleration = self.force/self.mass
                # self.x_speed = self.acceleration * self.dt * math.sin(direction_vector.angle_to(gravity_vector))
                # self.y_speed = self.acceleration * self.dt * math.cos(direction_vector.angle_to(gravity_vector))
-            
+
         for i in range(len(flippers)):
             incident_angle, isCollidedLine,  reflection_vector, isCollidedCircle = flippers[i].is_collided_flipper(self)
             if isCollidedLine:
@@ -383,7 +390,7 @@ class Ball(Circle):
      #   self.circle = pygame.draw.circle(self.screen, self.color, (self.x_pos, self.y_pos), self.radius)
 
 
-ball = Ball(WIDTH * 0.15, HEIGHT * 0.045, 0.039*WIDTH, 'blue', ball_mass, force_at_beginning, .9, y_speed_0, x_speed_0, 1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt)
+ball = Ball(WIDTH * 0.15, HEIGHT * 0.045, 0.039*WIDTH, 'blue', ball_mass, force_at_beginning, .9, y_speed_0, x_speed_0, 1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt, direction)
 #ball = Ball(250, 550, 0.03*WIDTH, 'blue', 100, 6000, .9, 2, 2, 1, 0.02, HEIGHT, WIDTH, fps)
 '''
 print(250/WIDTH, 50/HEIGHT)
