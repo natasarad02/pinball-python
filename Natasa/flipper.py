@@ -67,7 +67,7 @@ class Line:
             if abs(projection) <= ball.radius:
                 incident_vector = pygame.math.Vector2(ball.direction[0], ball.direction[1])
                 incident_angle = incident_vector.angle_to(normal_vector)
-                reflection_vector = incident_vector - 2 * incident_vector.dot(normal_vector) * normal_vector
+                reflection_vector = incident_vector - 2 * incident_vector.dot(normal_vector.normalize()) * normal_vector.normalize()
 
                 if incident_angle == 180 or incident_angle == 0:
                     reflection_vector = -normal_vector
