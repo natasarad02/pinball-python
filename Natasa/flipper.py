@@ -17,8 +17,18 @@ wall_thickness = 10
 
 fps = 60
 
+# pocetni uslovi
 
-
+g = 9.81
+pushing_force = 100
+gravity_vector = pygame.math.Vector2(0, 1)
+pushing_force_vector = pygame.math.Vector2(1, 1)
+ball_mass = 2.5
+dt = 0.5
+force_at_beginning = pushing_force + ball_mass * g * math.sqrt(2)/2
+acceleration_0 = force_at_beginning / ball_mass
+x_speed_0 = acceleration_0 * math.sqrt(2)/2 * dt
+y_speed_0 = acceleration_0 * math.sqrt(2)/2 * dt
 class Line:
     def __init__(self, a_x, a_y, b_x, b_y, color, width):
         self.a_x = a_x
@@ -225,7 +235,7 @@ class Circle:
         self.circle = pygame.draw.circle(screen, self.color, (self.x_pos, self.y_pos), self.radius)
 
 class Ball(Circle):
-    def __init__(self,  x_pos, y_pos, radius, color, mass, force, retention, y_speed, x_speed, id, friction, HEIGHT, WIDTH, fps):
+    def __init__(self,  x_pos, y_pos, radius, color, mass, force, retention, y_speed, x_speed, id, friction, HEIGHT, WIDTH, fps, acceleration, dt):
 
         super().__init__(x_pos, y_pos, radius, color)
         #self.x_pos = x_pos
@@ -242,15 +252,20 @@ class Ball(Circle):
         self.friction = friction ##dodati parametar trenja i za podlogu
         self.screen = pygame.display.set_mode([WIDTH, HEIGHT])
         self.force = force
+        self.x_speed = x_speed
+        self.y_speed = y_speed
+        self.dt = dt
         self.fps = fps
         self.HEIGHT = HEIGHT
         self.WIDTH= WIDTH
         self.wall_thickness = 10
-        self.acceleration = self.force / self.mass
+        self.acceleration = acceleration
+        self.force = force
         self.in_free_fall = True
-        self.direction = [0, 1]
-        self.x_speed = self.acceleration * 0.5
-        self.y_speed = self.acceleration * 0.5
+        #self.x_speed += self.acceleration * 0.5 * math.sqrt(2)/2
+       # self.y_speed += self.acceleration * 0.5 * math.sqrt(2)/2
+        self.direction = [1, 1]
+
 
         #self.positions = [self.x_pos, self.y_pos]
         #self.speed = [self.x_speed, self.y_speed]
@@ -273,6 +288,13 @@ class Ball(Circle):
                 length = math.sqrt(self.direction[0] ** 2 + self.direction[1] ** 2)
                 reflection = [self.direction[0] / length, self.direction[1] / length]
                 self.direction = reflection
+
+
+            #  direction_vector = pygame.math.Vector2(self.direction)
+               # self.force += self.mass * g * math.cos(direction_vector.angle_to(gravity_vector))
+               # self.acceleration = self.force/self.mass
+               # self.x_speed = self.acceleration * self.dt * math.sin(direction_vector.angle_to(gravity_vector))
+               # self.y_speed = self.acceleration * self.dt * math.cos(direction_vector.angle_to(gravity_vector))
         for i in range(len(flippers)):
             incident_angle, isCollidedLine,  reflection_vector, isCollidedCircle = flippers[i].is_collided_flipper(self)
             if isCollidedLine:
@@ -282,8 +304,15 @@ class Ball(Circle):
                 length = math.sqrt(self.direction[0] ** 2 + self.direction[1] ** 2)
                 reflection = [self.direction[0] / length, self.direction[1] / length]
                 self.direction = reflection
+               # direction_vector = pygame.math.Vector2(self.direction)
+               # self.force += self.mass * g * math.cos(direction_vector.angle_to(gravity_vector))
+              #  self.acceleration = self.force / self.mass
+              #  self.x_speed = self.acceleration * self.dt * math.sin(direction_vector.angle_to(gravity_vector))
+              #  self.y_speed = self.acceleration * self.dt * math.cos(direction_vector.angle_to(gravity_vector))
             if isCollidedCircle:
                 self.direction = reflection_vector
+
+
 
 
 
@@ -292,8 +321,8 @@ class Ball(Circle):
             #reflection_vector = pygame.math.Vector2()
             #reflection_vector.from_polar((self.x_speed , incident_angle + 180))
 
-        self.x_pos += self.direction[0] * self.x_speed * 0.5
-        self.y_pos += self.direction[1] * self.y_speed * 0.5
+        self.x_pos += self.direction[0] * self.x_speed * self.dt
+        self.y_pos += self.direction[1] * self.y_speed * self.dt
 
 
         for i in range(len(poly_obstacles)):
@@ -309,6 +338,11 @@ class Ball(Circle):
                 length = math.sqrt(self.direction[0] ** 2 + self.direction[1] ** 2)
                 reflection = [self.direction[0] / length, self.direction[1] / length]
                 self.direction = reflection
+              #  direction_vector = pygame.math.Vector2(self.direction)
+              #  self.force += self.mass * g * math.cos(direction_vector.angle_to(gravity_vector))
+              #  self.acceleration = self.force / self.mass
+             #   self.x_speed += self.acceleration * self.dt * math.sin(direction_vector.angle_to(gravity_vector))
+             #   self.y_speed += self.acceleration * self.dt * math.cos(direction_vector.angle_to(gravity_vector))
 
 
         for i in range(len(circle_obstacles)):
@@ -328,6 +362,11 @@ class Ball(Circle):
                           self.direction[1] - 2 * dot_product * normal_vector[1]]
 
                 self.direction = reflection
+              #  direction_vector = pygame.math.Vector2(self.direction)
+              #  self.force += self.mass * g * math.cos(direction_vector.angle_to(gravity_vector))
+             #   self.acceleration = self.force / self.mass
+             #   self.x_speed = self.acceleration * self.dt * math.sin(direction_vector.angle_to(gravity_vector))
+             #   self.y_speed = self.acceleration * self.dt * math.cos(direction_vector.angle_to(gravity_vector))
 
 
 
@@ -343,8 +382,8 @@ class Ball(Circle):
      #   self.circle = pygame.draw.circle(self.screen, self.color, (self.x_pos, self.y_pos), self.radius)
 
 
-#ball = Ball(WIDTH * 0.5, HEIGHT * 0.045, 0.03*WIDTH, 'blue', 100, 6000, .9, 2, 2, 1, 0.02, HEIGHT, WIDTH, fps)
-ball = Ball(50, 70, 0.03*WIDTH, 'blue', 100, 6000, .9, 2, 2, 1, 0.02, HEIGHT, WIDTH, fps)
+ball = Ball(WIDTH * 0.15, HEIGHT * 0.045, 0.039*WIDTH, 'blue', ball_mass, force_at_beginning, .9, y_speed_0, x_speed_0, 1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt)
+#ball = Ball(250, 550, 0.03*WIDTH, 'blue', 100, 6000, .9, 2, 2, 1, 0.02, HEIGHT, WIDTH, fps)
 '''
 print(250/WIDTH, 50/HEIGHT)
 print(200/WIDTH, 400/HEIGHT)
