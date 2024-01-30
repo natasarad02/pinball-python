@@ -42,89 +42,46 @@ class Line:
 
 
     def is_collided(self, ball):
-        line_vector = pygame.math.Vector2(self.b_x - self.a_x, self.b_y - self.a_y)
-        midpoint_y = (self.a_y + self.b_y)/2
-        tmp_line_vector = line_vector
-        point_vector = pygame.math.Vector2(ball.x_pos - self.a_x, ball.y_pos - self.a_y)
-          #0, 0.7 * HEIGHT, 0.13 * WIDTH, 0.771 * HEIGHT
-        # Calculate the projection of point_vector onto line_vector
-        t = point_vector.dot(line_vector) / line_vector.length_squared()
+        if ball.x_pos >= self.a_x - ball.radius and ball.x_pos <= self.b_x + ball.radius:
+            midpoint_y = (self.a_y + self.b_y) / 2
+           # midpoint_x = (self.a_x + self.b_x) / 2
+            line_vector = pygame.math.Vector2(self.b_x - self.a_x, self.b_y - self.a_y)
+            circle_to_line = pygame.math.Vector2(ball.x_pos - self.a_x, ball.y_pos - self.a_y)
+            cross_product = line_vector.x * circle_to_line.y - line_vector.y * circle_to_line.x
+            isLeft = False
+            isRight = False
 
-        # Calculate the closest point on the line to the ball center
-        closest_point = pygame.math.Vector2(self.a_x + t * line_vector.x, self.a_y + t * line_vector.y)
-        #print(closest_point)
-        # Check if the distance between the closest point and the ball center is less than the ball radius
-        distance = math.sqrt((closest_point.x - ball.x_pos) ** 2 + (closest_point.y - ball.y_pos) ** 2)
+            if cross_product > 0:
 
-        if self.a_x != self.b_x:
-            if ball.x_pos >= self.a_x and ball.x_pos <= self.b_x:
+                normal_vector = line_vector.rotate(-90)
 
-                incident_vector = pygame.math.Vector2(ball.direction[0], ball.direction[1])
-                normal_vector = pygame.math.Vector2(-line_vector.y, line_vector.x)
-            #print(incident_vector)
-                incident_angle = incident_vector.angle_to(normal_vector)
-                print(ball.direction)
-                if incident_angle < 0:
-                    incident_angle += 360
-
-                reflection_vector = incident_vector - 2 * normal_vector.dot(incident_vector) * normal_vector
-
-
-
-                if (incident_angle == 180 or incident_angle == 0) and ball.y_pos < midpoint_y or (ball.y_pos > midpoint_y and ball.y_pos < min(self.a_y, self.b_y)):
-                    reflection_vector = -normal_vector
-                if (incident_angle == 180 or incident_angle == 0) and ball.y_pos > midpoint_y or (ball.y_pos > midpoint_y and ball.y_pos > max(self.a_y, self.b_y)):
-                    reflection_vector = normal_vector
-                if incident_angle == 90:
-                    reflection_vector = line_vector
-                reflection_vector.normalize()
-                return math.radians(incident_angle), distance <= ball.radius, reflection_vector
+            elif cross_product < 0:
+                normal_vector = line_vector.rotate(90)
             else:
-               return None, False, None
+                normal_vector = None
 
-        else:
-            if ball.y_pos >= self.a_y and ball.y_pos <= self.b_y:
 
+            projection = circle_to_line.dot(normal_vector.normalize())
+
+
+            if abs(projection) <= ball.radius:
                 incident_vector = pygame.math.Vector2(ball.direction[0], ball.direction[1])
-                normal_vector = pygame.math.Vector2(-line_vector.y, line_vector.x)
-                # print(incident_vector)
                 incident_angle = incident_vector.angle_to(normal_vector)
-                print(ball.direction)
-                if incident_angle < 0:
-                    incident_angle += 360
+                reflection_vector = incident_vector - 2 * incident_vector.dot(normal_vector) * normal_vector
 
-                reflection_vector = incident_vector - 2 * normal_vector.dot(incident_vector) * normal_vector
-
-                if (incident_angle == 180 or incident_angle == 0) and ball.x_pos > self.a_x:
+                if incident_angle == 180 or incident_angle == 0:
                     reflection_vector = -normal_vector
-                if (incident_angle == 180 or incident_angle == 0) and ball.x_pos < self.a_x:
-                    reflection_vector = normal_vector
                 if incident_angle == 90:
                     reflection_vector = line_vector
 
 
-
-
                 reflection_vector.normalize()
-                return math.radians(incident_angle), distance <= ball.radius, reflection_vector
+                return math.radians(incident_angle), True, reflection_vector
+
             else:
                 return None, False, None
-            #if (reflection_vector.x == -74999.4 and reflection_vector.y == 99999.2) or (reflection_vector.x == 74999.4 and reflection_vector.y == -99999.2) or (reflection_vector.x == -74999.4 and reflection_vector.y == -99999.2) or (reflection_vector.x == 74999.4 and reflection_vector.y == 99999.2):
-             #   reflection_vector = -normal_vector
-
-
-
-
-
-
-        # print(distance <= ball.radius)
-
-
-
-
-
-
-
+        else:
+            return None, False, None
 
 
 class Poly:
@@ -185,24 +142,77 @@ class Poly:
 class Flipper(Line):
     def __init__(self, a_x, a_y, b_x, b_y, color, width):
         super().__init__(a_x, a_y, b_x, b_y, color, width)
+        self.circle_start = Circle(a_x, a_y, width/2, color)
+        self.circle_end = Circle(b_x, b_y, width/2, color)
+        self.tmp_circle_x = self.circle_end.x_pos
+        self.tmp_circle_y = self.circle_end.y_pos
+        self.tmp2_circle_x = self.circle_start.x_pos
+        self.tmp2_circle_y = self.circle_start.y_pos
+        self.edges = [self.circle_start, self.circle_end]
 
+    def draw_flipper(self):
+        self.draw()
+        self.circle_start.draw()
+        self.circle_end.draw()
     def rotate_left(self):
         self.b_x = self.a_x + self.distance  # math.tan(self.rotation_angle) * (self.b_y - self.a_y)
         self.b_y = self.a_y
+        self.circle_end.x_pos = self.a_x + self.distance
+        self.circle_end.y_pos = self.a_y
         self.draw()
 
     def rotate_reset_left(self):
         self.b_x = self.tmp_b_x
         self.b_y = self.tmp_b_y
+        self.circle_end.x_pos =  self.tmp_circle_x
+        self.circle_end.y_pos =  self.tmp_circle_y
 
     def rotate_right(self):
         self.a_x = self.b_x - self.distance  # math.tan(self.rotation_angle) * (self.a_y - self.b_y)
         self.a_y = self.b_y
+        self.circle_start.x_pos = self.b_x - self.distance
+        self.circle_start.y_pos = self.b_y
         self.draw()
 
     def rotate_reset_right(self):
         self.a_x = self.tmp_a_x
         self.a_y = self.tmp_a_y
+        self.circle_start.x_pos = self.tmp2_circle_x
+        self.circle_start.y_pos = self.tmp2_circle_y
+
+    def is_collided_flipper(self, ball):
+        isCollidedCircle = False
+        isCollidedLine = False
+        if ball.x_pos >= self.a_x + self.circle_start.radius - ball.radius or ball.x_pos <= self.b_x - self.circle_start.radius + ball.radius:
+            incident_angle, isCollidedLine, reflection_vector = self.is_collided(ball)
+            return incident_angle, isCollidedLine, reflection_vector, isCollidedCircle
+        elif ball.x_pos == self.circle_start.x_pos - ball.radius or ball.x_pos == self.circle_start.x_pos + ball.radius:
+            for i in range(len(self.edges)):
+
+                distance_squared1 = (ball.x_pos - self.edges[i].x_pos) ** 2 + (
+                            ball.y_pos - self.edges[i].y_pos) ** 2
+                sum_radii_squared1 = (ball.radius + self.edges[i].radius) ** 2
+                # self.x_speed += self.acceleration * 0.5
+                # self.y_speed += self.acceleration * 0.5
+                if distance_squared1 <= sum_radii_squared1:
+                    isCollidedCircle = True
+                    normal_vector = [ball.x_pos - self.edges[i].x_pos, ball.y_pos - self.edges[i].y_pos]
+                    magnitude = math.sqrt(normal_vector[0] ** 2 + normal_vector[1] ** 2)
+                    normal_vector = [normal_vector[0] / magnitude, normal_vector[1] / magnitude]
+
+                    # Calculate the reflection vector
+                    dot_product = ball.direction[0] * normal_vector[0] + ball.direction[1] * normal_vector[1]
+                    reflection = [ball.direction[0] - 2 * dot_product * normal_vector[0],
+                                  ball.direction[1] - 2 * dot_product * normal_vector[1]]
+
+                    return None, isCollidedLine, reflection, isCollidedCircle
+        else:
+            return None, isCollidedLine, None, isCollidedCircle
+
+                    #self.direction = reflection
+
+
+
 
 class Circle:
     def __init__(self, x_pos, y_pos, radius, color):
@@ -222,6 +232,7 @@ class Ball(Circle):
         #self.y_pos = y_pos
         #self.radius = radius
         #self.color = color
+
         self.mass = mass
         self.retention = retention
         self.y_speed = y_speed
@@ -237,28 +248,42 @@ class Ball(Circle):
         self.wall_thickness = 10
         self.acceleration = self.force / self.mass
         self.in_free_fall = True
-        self.direction = [1, 1]
+        self.direction = [0, 1]
         self.x_speed = self.acceleration * 0.5
         self.y_speed = self.acceleration * 0.5
 
         #self.positions = [self.x_pos, self.y_pos]
         #self.speed = [self.x_speed, self.y_speed]
 
-    def update(self, flippers, circle_obstacles, poly_obstacles):
+    def update(self, line_obstacles, circle_obstacles, poly_obstacles, flippers):
         # Collision with obstacle_circle
 
-        for i in range(len(flippers)):
-            incident_angle, isCollided, reflection_vector = flippers[i].is_collided(self)
+        for i in range(len(line_obstacles)):
+            incident_angle, isCollided, reflection_vector = line_obstacles[i].is_collided(self)
             #print(incident_angle)
 
             if isCollided:
+                print("Collision")
 
 
-               # print(math.degrees(incident_angle))
+
+                print(math.degrees(incident_angle))
+                print(reflection_vector)
                 self.direction = [reflection_vector.x, reflection_vector.y]#[math.cos(reflection_angle), math.sin(reflection_angle)]
                 length = math.sqrt(self.direction[0] ** 2 + self.direction[1] ** 2)
                 reflection = [self.direction[0] / length, self.direction[1] / length]
                 self.direction = reflection
+        for i in range(len(flippers)):
+            incident_angle, isCollidedLine,  reflection_vector, isCollidedCircle = flippers[i].is_collided_flipper(self)
+            if isCollidedLine:
+                print("Collision")
+                self.direction = [reflection_vector.x,
+                                  reflection_vector.y]  # [math.cos(reflection_angle), math.sin(reflection_angle)]
+                length = math.sqrt(self.direction[0] ** 2 + self.direction[1] ** 2)
+                reflection = [self.direction[0] / length, self.direction[1] / length]
+                self.direction = reflection
+            if isCollidedCircle:
+                self.direction = reflection_vector
 
 
 
@@ -318,22 +343,8 @@ class Ball(Circle):
      #   self.circle = pygame.draw.circle(self.screen, self.color, (self.x_pos, self.y_pos), self.radius)
 
 
-
-
-
-
-
-
-def draw_walls():
-    left = pygame.draw.line(screen, 'purple', (0, 0), (0, HEIGHT), wall_thickness)
-    right = pygame.draw.line(screen, 'purple', (WIDTH, 0), (WIDTH, HEIGHT), wall_thickness)
-    top = pygame.draw.line(screen, 'purple', (0, 0), (WIDTH, 0), wall_thickness)
-    bottom = pygame.draw.line(screen, 'purple', (0, HEIGHT), (WIDTH, HEIGHT), wall_thickness)
-    wall_list = [left, right, top, bottom]
-    return wall_list
-
-
-ball = Ball(WIDTH * 0.5, HEIGHT * 0.045, 0.03*WIDTH, 'blue', 100, 6000, .9, 2, 2, 1, 0.02, HEIGHT, WIDTH, fps)
+#ball = Ball(WIDTH * 0.5, HEIGHT * 0.045, 0.03*WIDTH, 'blue', 100, 6000, .9, 2, 2, 1, 0.02, HEIGHT, WIDTH, fps)
+ball = Ball(50, 70, 0.03*WIDTH, 'blue', 100, 6000, .9, 2, 2, 1, 0.02, HEIGHT, WIDTH, fps)
 '''
 print(250/WIDTH, 50/HEIGHT)
 print(200/WIDTH, 400/HEIGHT)
@@ -346,7 +357,7 @@ print(30/WIDTH, 50/WIDTH)
 circle_obstacle1 = Circle(WIDTH * 0.26, 0.308 * HEIGHT, 0.065 * WIDTH, 'green')
 circle_obstacle2 = Circle(0.494 * WIDTH, 0.154 * HEIGHT, 0.065 * WIDTH, 'green')
 circle_obstacle3 = Circle(0.716 * WIDTH, 0.308 * HEIGHT, 0.065 * WIDTH, 'green')
-circle_obstacles = [circle_obstacle1, circle_obstacle2, circle_obstacle3]
+circle_obstacles =  [circle_obstacle1, circle_obstacle2, circle_obstacle3]#[circle_obstacle1, circle_obstacle2, circle_obstacle3]
 
 
 line1 = Line(100, 700, 380, 850, 'red', 6)
@@ -375,8 +386,8 @@ tunnel_window_right = Line(WIDTH, 0.4 * HEIGHT, WIDTH, 0.7 * HEIGHT, 'white', 20
 #tunnel_left = Line(2*0.05*WIDTH, 0.65 * HEIGHT, 4*0.045*WIDTH, 0.7 * HEIGHT, 'white', 20)
 #left_tunnel = [tunnel_wall_left, line_wall_left, tunnel_window_left]
 
-flippers_and_line_obstacles = [left_flipper, right_flipper, line_wall_left, line_wall_right, left, right, top, bottom] #, line1, line2, line3, line4]
-
+line_obstacles = [line_wall_left, line_wall_right, left, right, top, bottom]#[line4, left, right, top, bottom]#[left_flipper, right_flipper, line_wall_left, line_wall_right, left, right, top, bottom] #, line1, line2, line3, line4]
+flippers = [left_flipper, right_flipper]
 trapezoid_points_left = [(0.05 * WIDTH, 0.6 * HEIGHT), (0.1 * WIDTH, 0.55 * HEIGHT), (0.2 * WIDTH, 0.7 * HEIGHT), (0.13 * WIDTH, 0.7 * HEIGHT)]
 trapezoid_points_right = [(WIDTH - x, y) for x, y in trapezoid_points_left]
 hexagon_points = [
@@ -391,13 +402,13 @@ hexagon_points = [
 trapezoid_left = Poly(trapezoid_points_left, 'red')
 trapezoid_right = Poly(trapezoid_points_right, 'red')
 hexagon = Poly(hexagon_points, 'yellow')
-poly_obstacles = [trapezoid_left, trapezoid_right, hexagon]
+poly_obstacles = [trapezoid_left, trapezoid_right, hexagon]#[trapezoid_left, trapezoid_right, hexagon]
 run = True
 while run:
 
     timer.tick(fps)
     screen.fill('black')
-    walls = draw_walls()
+
     ball.draw()
     '''
     line1.draw()
@@ -419,19 +430,23 @@ while run:
     trapezoid_right.draw()
     hexagon.draw()
     #trapezoid.create_lines()
-
+    
+    
 
      # Check collision with the right flipper
-    ball.update(flippers_and_line_obstacles, circle_obstacles, poly_obstacles)
+    
 
 
    # brick.update_pivot()
    # brick.draw_brick('purple')
-    left_flipper.draw()
-    right_flipper.draw()
+    left_flipper.draw_flipper()
+    right_flipper.draw_flipper()
 
     tunnel_window_left.draw()
     tunnel_window_right.draw()
+
+    #line4.draw()
+    ball.update(line_obstacles, circle_obstacles, poly_obstacles, flippers)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
