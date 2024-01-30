@@ -333,7 +333,7 @@ def draw_walls():
     return wall_list
 
 
-ball = Ball(WIDTH * 0.32, HEIGHT * 0.045, 0.03*WIDTH, 'blue', 100, 6000, .9, 2, 2, 1, 0.02, HEIGHT, WIDTH, fps)
+ball = Ball(WIDTH * 0.5, HEIGHT * 0.045, 0.03*WIDTH, 'blue', 100, 6000, .9, 2, 2, 1, 0.02, HEIGHT, WIDTH, fps)
 '''
 print(250/WIDTH, 50/HEIGHT)
 print(200/WIDTH, 400/HEIGHT)
@@ -375,7 +375,7 @@ tunnel_window_right = Line(WIDTH, 0.4 * HEIGHT, WIDTH, 0.7 * HEIGHT, 'white', 20
 #tunnel_left = Line(2*0.05*WIDTH, 0.65 * HEIGHT, 4*0.045*WIDTH, 0.7 * HEIGHT, 'white', 20)
 #left_tunnel = [tunnel_wall_left, line_wall_left, tunnel_window_left]
 
-flippers_and_line_obstacles = [left_flipper, right_flipper, line_wall_left, line_wall_right, tunnel_window_right, tunnel_window_left, left, right, top, bottom] #, line1, line2, line3, line4]
+flippers_and_line_obstacles = [left_flipper, right_flipper, line_wall_left, line_wall_right, left, right, top, bottom] #, line1, line2, line3, line4]
 
 trapezoid_points_left = [(0.05 * WIDTH, 0.6 * HEIGHT), (0.1 * WIDTH, 0.55 * HEIGHT), (0.2 * WIDTH, 0.7 * HEIGHT), (0.13 * WIDTH, 0.7 * HEIGHT)]
 trapezoid_points_right = [(WIDTH - x, y) for x, y in trapezoid_points_left]
