@@ -295,6 +295,7 @@ class Ball(Circle):
                # self.acceleration = self.force/self.mass
                # self.x_speed = self.acceleration * self.dt * math.sin(direction_vector.angle_to(gravity_vector))
                # self.y_speed = self.acceleration * self.dt * math.cos(direction_vector.angle_to(gravity_vector))
+            
         for i in range(len(flippers)):
             incident_angle, isCollidedLine,  reflection_vector, isCollidedCircle = flippers[i].is_collided_flipper(self)
             if isCollidedLine:
