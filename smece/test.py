@@ -1,132 +1,90 @@
 import pygame
-import sys
+
 import math
-
-# Initialize Pygame
 pygame.init()
+import tkinter as tk
+root = tk.Tk()
+import numpy as np
 
-# Set up the screen
-WIDTH, HEIGHT = 800, 600
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Shape Collision Test")
+screen_width = root.winfo_screenwidth()
+screen_height = root.winfo_screenheight()
 
-# Colors
-WHITE = (255, 255, 255)
-RED = (255, 0, 0)
+HEIGHT = screen_height*0.9
+WIDTH = screen_width*0.35;
 
-# Shape class
-class Shape:
-    def __init__(self, shape_type, color, **kwargs):
-        self.shape_type = shape_type
-        self.color = color
-        self.kwargs = kwargs
-
-    def draw(self):
-        if self.shape_type == "rectangle":
-            pygame.draw.rect(screen, self.color, pygame.Rect(self.kwargs['x'], self.kwargs['y'], self.kwargs['width'], self.kwargs['height']))
-        elif self.shape_type == "circle":
-            pygame.draw.circle(screen, self.color, (self.kwargs['x'], self.kwargs['y']), self.kwargs['radius'])
-        elif self.shape_type == "triangle":
-            pygame.draw.polygon(screen, self.color, self.kwargs['vertices'])
-        elif self.shape_type == "hexagon":
-            pygame.draw.polygon(screen, self.color, self.kwargs['vertices'])
-
-class Line:
-    def __init__(self, start, end, color):
-        self.shape_type = "line"
-        self.start = start
-        self.end = end
-        self.color = color
-        self.kwargs = {'start': start, 'end': end}
-
-    def draw(self):
-        pygame.draw.line(screen, self.color, self.start, self.end)
-
-    def intersects(self, x, y, radius):
-        # Calculate the distance from the center of the ball to the line
-        distance = abs((self.end[1] - self.start[1]) * x - (self.end[0] - self.start[0]) * y + self.end[0] * self.start[1] - self.end[1] * self.start[0]) / math.dist(self.start, self.end)
-        
-        # Check if the distance is less than the radius of the ball
-        return distance <= radius
+screen = pygame.display.set_mode([WIDTH, HEIGHT])
 
 
-# Ball class
+
+import pygame
+from pygame import Vector2
 class Ball:
-    def __init__(self, x, y, radius, color):
-        self.x_pos = x
-        self.y_pos = y
+    def __init__(self, x_pos, y_pos, radius, color, mass, force, retention, y_speed, x_speed, id, friction, HEIGHT, WIDTH, fps):
+        self.x_pos = x_pos
+        self.y_pos = y_pos
         self.radius = radius
         self.color = color
-        self.speed = 5
-        self.direction = [1, 1]  # Movement direction
-        self.shape_type = "circle"
-        self.kwargs = {'x': x, 'y': y, 'radius': radius} 
-
+        self.mass = mass
+        self.retention = retention
+        self.y_speed = y_speed
+        self.x_speed = x_speed
+        self.id = id
+        self.circle = ''
+        self.friction = friction ##dodati parametar trenja i za podlogu
+        self.screen = pygame.display.set_mode([WIDTH, HEIGHT])
+        self.force = force
+        self.fps = fps
+        self.HEIGHT = HEIGHT
+        self.WIDTH= WIDTH
+        self.wall_thickness = 10
+        self.acceleration = self.force / self.mass
+       
     def draw(self):
-        pygame.draw.circle(screen, self.color, (int(self.x_pos), int(self.y_pos)), self.radius)
+        self.circle = pygame.draw.circle(self.screen, self.color, (self.x_pos, self.y_pos), self.radius)
 
-    def update(self):
-        # Update ball position based on direction and speed
-        self.x_pos += self.direction[0] * self.speed
-        self.y_pos += self.direction[1] * self.speed
-
-        if self.x_pos - self.radius < 0 or self.x_pos + self.radius > WIDTH:
-            self.direction[0] *= -1
-
-        if self.y_pos - self.radius < 0 or self.y_pos + self.radius > HEIGHT:
-            self.direction[1] *= -1
-
-        # Check for collisions with lines
-        for line in lines:
-            if line.intersects(self.x_pos, self.y_pos, self.radius):
-                # Calculate the normal vector of the line
-                line_vector = (line.end[0] - line.start[0], line.end[1] - line.start[1])
-                line_length = math.dist(line.start, line.end)
-                normal_vector = (-line_vector[1] / line_length, line_vector[0] / line_length)
-
-                # Calculate the dot product of the ball's direction and the line's normal
-                dot_product = self.direction[0] * normal_vector[0] + self.direction[1] * normal_vector[1]
-
-                # Reflect the ball's direction based on the line's normal
-                self.direction[0] -= 2 * dot_product * normal_vector[0]
-                self.direction[1] -= 2 * dot_product * normal_vector[1]
-
-                # Ensure the ball is outside the line to prevent immediate re-collision
-                self.x_pos += self.direction[0] * self.speed
-                self.y_pos += self.direction[1] * self.speed
-
-# ... (rest of your code remains unchanged)
+    def update_pos(self):
+        self.y_pos += self.y_speed * 0.5
+        self.x_pos += self.x_speed * 0.5
+        
+    def check_gravity(self):
+        if self.y_pos < self.HEIGHT - self.radius - (10 / 2):
+            self.y_speed += self.acceleration * 2
+        else:
+            if self.y_speed > 0.3:
+                self.y_speed = self.y_speed * -1 * self.retention
+            else:
+                if abs(self.y_speed) <= 0.3:
+                    self.y_speed = 0
 
 
-# ... (rest of your code remains unchanged)
 
 
-# Create shapes
-line1 = Line((100, 200), (200, 200), WHITE)
-line2 = Line((300, 400), (400, 300), WHITE)
-lines = [line1, line2]
+wall_thickness = 10
+def draw_walls():
+    left = pygame.draw.line(screen, 'purple', (0, 0), (0, HEIGHT), wall_thickness)
+    right = pygame.draw.line(screen, 'purple', (WIDTH, 0), (WIDTH, HEIGHT), wall_thickness)
+    top = pygame.draw.line(screen, 'purple', (0, 0), (WIDTH, 0), wall_thickness)
+    bottom = pygame.draw.line(screen, 'purple', (0, HEIGHT), (WIDTH, HEIGHT), wall_thickness)
+    wall_list = [left, right, top, bottom]
+    return wall_list
 
-# Create ball
-ball = Ball(50, 50, 20, WHITE)
+fps = 60
+ball = Ball(60, 50, 20, 'blue', 100, 50, .75, 0, 0, 1, 0.02, HEIGHT, WIDTH, fps)
+timer = pygame.time.Clock()
+run = True
+while run:
+    timer.tick(fps)
+    screen.fill('black')
+    walls = draw_walls()
 
-while True:
+    ball.draw()
+    ball.check_gravity()
+    ball.update_pos()
+    
+    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
+            run = False
 
-    # Update ball position and check for collisions
-    ball.update()
-
-    # Draw everything
-    screen.fill((0, 0, 0))  # Clear the screen
-    ball.draw()
-    
-    for line in lines:
-        line.draw()
-
-    # Update the display
     pygame.display.flip()
-
-    # Cap the frame rate
-    pygame.time.Clock().tick(60)
+pygame.quit()
