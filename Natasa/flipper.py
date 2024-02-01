@@ -19,22 +19,40 @@ fps = 60
 
 # pocetni uslovi
 
+board_angle = math.radians(60)
 g = 9.81
+ball_gravity = g * math.sin(board_angle)
 pushing_force = 100
-gravity_vector = pygame.math.Vector2(0, 1)
-pushing_force_vector = pygame.math.Vector2(1, 1)
+gravity_vector = pygame.math.Vector2(0, -ball_gravity)
+pushing_force_vector = pygame.math.Vector2(0, 1)
 ball_mass = 2
 dt = 0.5
-force_at_beginning = pushing_force + ball_mass * g * math.sqrt(2)/2
+force_at_beginning = pushing_force + ball_mass * ball_gravity * math.sqrt(2)/2
 acceleration_0 = force_at_beginning / ball_mass
-
-x_speed_0 = acceleration_0 * math.sqrt(2)/2 * dt
-y_speed_0 = acceleration_0 * math.sqrt(2)/2 * dt
+acceleration_0_x = acceleration_0 * math.sqrt(2)/2
+acceleration_0_y = acceleration_0 * math.sqrt(2)/2
+x_speed_0 = acceleration_0  * dt#* math.sqrt(2)/2
+y_speed_0 = acceleration_0 * dt
 
 y_speed_vector = pygame.math.Vector2(y_speed_0)
 x_speed_vector = pygame.math.Vector2(x_speed_0)
-direction = x_speed_vector + y_speed_vector
+direction = x_speed_vector + y_speed_vector + gravity_vector
 direction = direction.normalize()
+
+def gravity(acceleration, ball_gravity, direction, dt):
+
+    angle = direction.angle_to(pygame.math.Vector2(0, 1))
+    x_speed = acceleration * dt
+    y_speed = (acceleration + ball_gravity) * dt
+    return x_speed, y_speed
+
+
+
+def Sign(x):
+    if x != 0:
+        return x/abs(x)
+    else:
+        return 0
 class Line:
     def __init__(self, a_x, a_y, b_x, b_y, color, width):
         self.a_x = a_x
@@ -251,8 +269,7 @@ class Ball(Circle):
 
         self.mass = mass
         self.retention = retention
-        self.y_speed = y_speed
-        self.x_speed = x_speed
+
         self.id = id
         self.circle = ''
         self.friction = friction ##dodati parametar trenja i za podlogu
@@ -270,7 +287,9 @@ class Ball(Circle):
         self.in_free_fall = True
         #self.x_speed += self.acceleration * 0.5 * math.sqrt(2)/2
        # self.y_speed += self.acceleration * 0.5 * math.sqrt(2)/2
-        self.direction = direction
+        self.direction = [1,1]
+        self.y_speed =  y_speed
+        self.x_speed =  x_speed
 
 
         #self.positions = [self.x_pos, self.y_pos]
@@ -294,7 +313,13 @@ class Ball(Circle):
                 length = math.sqrt(self.direction[0] ** 2 + self.direction[1] ** 2)
                 reflection = [self.direction[0] / length, self.direction[1] / length]
                 self.direction = reflection
-                
+                direction = pygame.math.Vector2(self.direction)
+                self.x_speed, self.y_speed = gravity(self.acceleration, ball_gravity, direction, dt)
+
+
+                #self.acceleration = self.force / self.mass
+
+
 
 
             #  direction_vector = pygame.math.Vector2(self.direction)
@@ -312,25 +337,25 @@ class Ball(Circle):
                 length = math.sqrt(self.direction[0] ** 2 + self.direction[1] ** 2)
                 reflection = [self.direction[0] / length, self.direction[1] / length]
                 self.direction = reflection
-               # direction_vector = pygame.math.Vector2(self.direction)
+                direction = pygame.math.Vector2(self.direction)
+                self.x_speed, self.y_speed = gravity(self.acceleration, ball_gravity, direction, dt)
+            # direction_vector = pygame.math.Vector2(self.direction)
                # self.force += self.mass * g * math.cos(direction_vector.angle_to(gravity_vector))
               #  self.acceleration = self.force / self.mass
               #  self.x_speed = self.acceleration * self.dt * math.sin(direction_vector.angle_to(gravity_vector))
               #  self.y_speed = self.acceleration * self.dt * math.cos(direction_vector.angle_to(gravity_vector))
+
             if isCollidedCircle:
+                #self.direction = reflection_vector
                 self.direction = reflection_vector
 
+                direction = pygame.math.Vector2(self.direction)
+                self.x_speed, self.y_speed = gravity(self.acceleration, ball_gravity, direction, dt)
 
-
-
-
-
-
-            #reflection_vector = pygame.math.Vector2()
+        #reflection_vector = pygame.math.Vector2()
             #reflection_vector.from_polar((self.x_speed , incident_angle + 180))
 
-        self.x_pos += self.direction[0] * self.x_speed * self.dt
-        self.y_pos += self.direction[1] * self.y_speed * self.dt
+
 
 
         for i in range(len(poly_obstacles)):
@@ -345,8 +370,13 @@ class Ball(Circle):
                                   reflection_vector.y]  # [math.cos(reflection_angle), math.sin(reflection_angle)]
                 length = math.sqrt(self.direction[0] ** 2 + self.direction[1] ** 2)
                 reflection = [self.direction[0] / length, self.direction[1] / length]
+
                 self.direction = reflection
-              #  direction_vector = pygame.math.Vector2(self.direction)
+
+                direction = pygame.math.Vector2(self.direction)
+                self.x_speed, self.y_speed = gravity(self.acceleration, ball_gravity, direction, dt)
+
+        #  direction_vector = pygame.math.Vector2(self.direction)
               #  self.force += self.mass * g * math.cos(direction_vector.angle_to(gravity_vector))
               #  self.acceleration = self.force / self.mass
              #   self.x_speed += self.acceleration * self.dt * math.sin(direction_vector.angle_to(gravity_vector))
@@ -370,15 +400,18 @@ class Ball(Circle):
                           self.direction[1] - 2 * dot_product * normal_vector[1]]
 
                 self.direction = reflection
-              #  direction_vector = pygame.math.Vector2(self.direction)
+
+                direction = pygame.math.Vector2(self.direction)
+                self.x_speed, self.y_speed = gravity(self.acceleration, ball_gravity, direction, dt)
+
+        #  direction_vector = pygame.math.Vector2(self.direction)
               #  self.force += self.mass * g * math.cos(direction_vector.angle_to(gravity_vector))
              #   self.acceleration = self.force / self.mass
              #   self.x_speed = self.acceleration * self.dt * math.sin(direction_vector.angle_to(gravity_vector))
              #   self.y_speed = self.acceleration * self.dt * math.cos(direction_vector.angle_to(gravity_vector))
 
-
-
-
+        self.x_pos += self.direction[0] * self.x_speed * self.dt
+        self.y_pos += self.direction[1] * self.y_speed * self.dt
 
         # Collision with window edges
 
@@ -433,9 +466,9 @@ tunnel_window_right = Line(WIDTH, 0.4 * HEIGHT, WIDTH, 0.7 * HEIGHT, 'white', 20
 #tunnel_left = Line(2*0.05*WIDTH, 0.65 * HEIGHT, 4*0.045*WIDTH, 0.7 * HEIGHT, 'white', 20)
 #left_tunnel = [tunnel_wall_left, line_wall_left, tunnel_window_left]
 
-line_obstacles = [line_wall_left, line_wall_right, left, right, top, bottom]#[line4, left, right, top, bottom]#[left_flipper, right_flipper, line_wall_left, line_wall_right, left, right, top, bottom] #, line1, line2, line3, line4]
+line_obstacles = [left, right, top, line_wall_left, line_wall_right]#[line_wall_left, line_wall_right, left, right, top, bottom]#[line4, left, right, top, bottom]#[left_flipper, right_flipper, line_wall_left, line_wall_right, left, right, top, bottom] #, line1, line2, line3, line4]
 flippers = [left_flipper, right_flipper]
-trapezoid_points_left = [(0.05 * WIDTH, 0.6 * HEIGHT), (0.1 * WIDTH, 0.55 * HEIGHT), (0.2 * WIDTH, 0.7 * HEIGHT), (0.13 * WIDTH, 0.7 * HEIGHT)]
+trapezoid_points_left = [(0.1 * WIDTH, 0.6 * HEIGHT), (0.2 * WIDTH, 0.55 * HEIGHT), (0.3 * WIDTH, 0.7 * HEIGHT), (0.2 * WIDTH, 0.7 * HEIGHT)]
 trapezoid_points_right = [(WIDTH - x, y) for x, y in trapezoid_points_left]
 hexagon_points = [
     (WIDTH / 2 + 50, HEIGHT / 2 - 87),
@@ -449,7 +482,7 @@ hexagon_points = [
 trapezoid_left = Poly(trapezoid_points_left, 'red')
 trapezoid_right = Poly(trapezoid_points_right, 'red')
 hexagon = Poly(hexagon_points, 'yellow')
-poly_obstacles = [trapezoid_left, trapezoid_right, hexagon]#[trapezoid_left, trapezoid_right, hexagon]
+poly_obstacles = [trapezoid_left, trapezoid_right]#[trapezoid_left, trapezoid_right, hexagon]
 run = True
 while run:
 
@@ -457,6 +490,11 @@ while run:
     screen.fill('black')
 
     ball.draw()
+    if(ball.y_pos > HEIGHT):
+        ball = Ball(WIDTH * 0.15, HEIGHT * 0.045, 0.039 * WIDTH, 'blue', ball_mass, force_at_beginning, .9, y_speed_0,
+                    x_speed_0, 1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt, direction)
+
+        ball.draw()
     '''
     line1.draw()
     line2.draw()
@@ -475,7 +513,7 @@ while run:
     line_wall_right.draw()
     trapezoid_left.draw()
     trapezoid_right.draw()
-    hexagon.draw()
+    #hexagon.draw()
     #trapezoid.create_lines()
     
     
