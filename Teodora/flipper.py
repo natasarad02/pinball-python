@@ -18,12 +18,20 @@ wall_thickness = 10
 fps = 60
 
 background_image = pygame.transform.scale(pygame.image.load("pozadina.png"), (WIDTH, HEIGHT))
+sun_image = pygame.transform.scale(pygame.image.load("sun.png"), (64, 64))
+moon_image = pygame.transform.scale(pygame.image.load("moon_img.png"), (65, 65))
+neptune_image = pygame.transform.scale(pygame.image.load("neptune.png"), (68, 68))
+hexagon_image = pygame.transform.scale(pygame.image.load("yoda.png"), (83, 83))
+original_score_image = pygame.image.load("score.png")
+aspect_ratio = original_score_image.get_width() / original_score_image.get_height()
+new_height = int(WIDTH / aspect_ratio)
+score_image = pygame.transform.scale(original_score_image, (WIDTH, new_height))
 
 
 board_angle = math.radians(30)
 g = 9.81
 ball_gravity = g * math.sin(board_angle)
-pushing_force = 110
+pushing_force = 105
 gravity_vector = pygame.math.Vector2(0, ball_gravity)
 pushing_force_vector = pygame.math.Vector2(0, 1)
 ball_mass = 2
@@ -444,9 +452,9 @@ print(100/WIDTH, 1000/HEIGHT, 300/WIDTH, 1150/HEIGHT)
 print(480/WIDTH, 1150/HEIGHT, 680/WIDTH, 1000/HEIGHT)
 print(30/WIDTH, 50/WIDTH)
 '''
-circle_obstacle1 = Circle(WIDTH * 0.24, 0.33 * HEIGHT, 0.055 * WIDTH, 'green')
-circle_obstacle2 = Circle(0.494 * WIDTH, 0.159 * HEIGHT, 0.055 * WIDTH, 'green')
-circle_obstacle3 = Circle(0.71 * WIDTH, 0.333 * HEIGHT, 0.055 * WIDTH, 'green')
+circle_obstacle1 = Circle(WIDTH * 0.24, 0.33 * HEIGHT, 0.055 * WIDTH, (29, 7, 73))
+circle_obstacle2 = Circle(0.494 * WIDTH, 0.159 * HEIGHT, 0.055 * WIDTH, (29, 7, 73))
+circle_obstacle3 = Circle(0.71 * WIDTH, 0.333 * HEIGHT, 0.055 * WIDTH, (29, 7, 73))
 circle_obstacles =  [circle_obstacle1, circle_obstacle2, circle_obstacle3]#[circle_obstacle1, circle_obstacle2, circle_obstacle3]
 
 
@@ -491,7 +499,7 @@ hexagon_points = [(0.4 * WIDTH, 0.45 * HEIGHT), (0.44 * WIDTH, 0.4 * HEIGHT), (0
 
 trapezoid_left = Poly(trapezoid_points_left, (0, 102, 204))
 trapezoid_right = Poly(trapezoid_points_right, (0, 102, 204))
-hexagon = Poly(hexagon_points, 'yellow')
+hexagon = Poly(hexagon_points, 'dark gray')
 poly_obstacles = [trapezoid_left, trapezoid_right, hexagon]#[trapezoid_left, trapezoid_right, hexagon]
 run = True
 
@@ -514,16 +522,28 @@ while run:
     right.draw()
     top.draw()
     bottom.draw()
+
     circle_obstacle1.draw()
-    circle_obstacle2.draw()
+    sun_image_position = (WIDTH * 0.187, 0.287 * HEIGHT)
+    screen.blit(sun_image, sun_image_position)
+
     circle_obstacle3.draw()
+    moon_image_position = (WIDTH * 0.657, 0.29 * HEIGHT)
+    screen.blit(moon_image, moon_image_position)
+
+    circle_obstacle2.draw()
+    neptune_image_position = (WIDTH * 0.438, 0.115 * HEIGHT)
+    screen.blit(neptune_image, neptune_image_position)
 
     line_wall_left.draw()
     line_wall_right.draw()
     trapezoid_left.draw()
     trapezoid_right.draw()
     hexagon.draw()
-    
+    yoda_pos = (WIDTH * 0.423, 0.3975 * HEIGHT)
+    screen.blit(hexagon_image, yoda_pos)
+
+
     left_flipper.draw()
     #left_flipper.draw()
     right_flipper.draw()
@@ -534,6 +554,7 @@ while run:
     #tunnel_top_window_wall.draw()
     tunnel_top_window_wall_small.draw()
     score_board.draw()
+    screen.blit(score_image, (0, 0))
     #line4.draw()
     ball.update(line_obstacles, circle_obstacles, poly_obstacles, flippers)
 
