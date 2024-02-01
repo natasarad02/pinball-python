@@ -1,0 +1,98 @@
+class RoundedRectangle:
+    def __init__(self, x, y, width, height, color, corner_radius):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.color = color
+        self.corner_radius = corner_radius
+        self.increased_corner_radius = int(self.corner_radius * 1.5)
+
+    def draw(self):
+        # Calculate corner positions
+        top_left = (self.x + self.increased_corner_radius, self.y + self.increased_corner_radius)
+        top_right = (self.x + self.width - self.increased_corner_radius, self.y + self.increased_corner_radius)
+        bottom_left = (self.x + self.increased_corner_radius, self.y + self.height - self.increased_corner_radius)
+        bottom_right = (
+        self.x + self.width - self.increased_corner_radius, self.y + self.height - self.increased_corner_radius)
+
+        # Draw rounded corners using polygons
+        pygame.draw.polygon(screen, self.color, [top_left,
+                                                 (self.x, self.y + self.increased_corner_radius),
+                                                 (self.x, self.y + self.height - self.increased_corner_radius),
+                                                 bottom_left])
+        pygame.draw.polygon(screen, self.color, [top_right,
+                                                 (self.x + self.width, self.y + self.increased_corner_radius),
+                                                 (self.x + self.width,
+                                                  self.y + self.height - self.increased_corner_radius),
+                                                 bottom_right])
+        pygame.draw.polygon(screen, self.color, [top_left, top_right, bottom_right, bottom_left])
+
+        # Draw thinner rectangles connecting the polygons to form rounded edges
+        pygame.draw.rect(screen, self.color, (
+        self.x + self.increased_corner_radius, self.y, self.width - 2 * self.increased_corner_radius, self.height))
+        pygame.draw.rect(screen, self.color, (
+        self.x, self.y + self.increased_corner_radius, self.width, self.height - 2 * self.increased_corner_radius))
+
+        pygame.draw.circle(screen, self.color,
+                           (self.x + self.increased_corner_radius, self.y + self.increased_corner_radius),
+                           self.increased_corner_radius)
+        pygame.draw.circle(screen, self.color,
+                           (self.x + self.width - self.increased_corner_radius, self.y + self.increased_corner_radius),
+                           self.increased_corner_radius)
+        pygame.draw.circle(screen, self.color,
+                           (self.x + self.increased_corner_radius, self.y + self.height - self.increased_corner_radius),
+                           self.increased_corner_radius)
+        pygame.draw.circle(screen, self.color, (
+        self.x + self.width - self.increased_corner_radius, self.y + self.height - self.increased_corner_radius),
+                           self.increased_corner_radius)
+
+    def draw_rotated(self):
+        top_left = (self.x + self.increased_corner_radius, self.y + self.increased_corner_radius)
+        top_right = (self.x + self.width - self.increased_corner_radius, self.y + self.increased_corner_radius)
+        bottom_left = (self.x + self.increased_corner_radius, self.y + self.height - self.increased_corner_radius)
+        bottom_right = (
+        self.x + self.width - self.increased_corner_radius, self.y + self.height - self.increased_corner_radius)
+
+        # Rotate each point by 45 degrees
+        angle_rad = math.radians(45)
+        top_left = (self.x + self.increased_corner_radius * math.cos(angle_rad),
+                    self.y + self.increased_corner_radius * math.sin(angle_rad))
+        top_right = (self.x + (self.width - self.increased_corner_radius) * math.cos(angle_rad),
+                     self.y + self.increased_corner_radius * math.sin(angle_rad))
+        bottom_left = (self.x + self.increased_corner_radius * math.cos(angle_rad),
+                       self.y + (self.height - self.increased_corner_radius) * math.sin(angle_rad))
+        bottom_right = (self.x + (self.width - self.increased_corner_radius) * math.cos(angle_rad),
+                        self.y + (self.height - self.increased_corner_radius) * math.sin(angle_rad))
+
+        # Draw rounded corners using polygons
+        pygame.draw.polygon(screen, self.color, [top_left,
+                                                 (self.x, self.y + self.increased_corner_radius),
+                                                 (self.x, self.y + self.height - self.increased_corner_radius),
+                                                 bottom_left])
+        pygame.draw.polygon(screen, self.color, [top_right,
+                                                 (self.x + self.width, self.y + self.increased_corner_radius),
+                                                 (self.x + self.width,
+                                                  self.y + self.height - self.increased_corner_radius),
+                                                 bottom_right])
+        pygame.draw.polygon(screen, self.color, [top_left, top_right, bottom_right, bottom_left])
+
+        # Draw circles at the corners
+        pygame.draw.circle(screen, self.color,
+                           (self.x + self.increased_corner_radius, self.y + self.increased_corner_radius),
+                           self.increased_corner_radius)
+        pygame.draw.circle(screen, self.color,
+                           (self.x + self.width - self.increased_corner_radius, self.y + self.increased_corner_radius),
+                           self.increased_corner_radius)
+        pygame.draw.circle(screen, self.color,
+                           (self.x + self.increased_corner_radius, self.y + self.height - self.increased_corner_radius),
+                           self.increased_corner_radius)
+        pygame.draw.circle(screen, self.color, (
+        self.x + self.width - self.increased_corner_radius, self.y + self.height - self.increased_corner_radius),
+                           self.increased_corner_radius)
+
+        # Draw thinner rectangles connecting the polygons to form rounded edges
+        pygame.draw.rect(screen, self.color, (
+        self.x + self.increased_corner_radius, self.y, self.width - 2 * self.increased_corner_radius, self.height))
+        pygame.draw.rect(screen, self.color, (
+        self.x, self.y + self.increased_corner_radius, self.width, self.height - 2 * self.increased_corner_radius))

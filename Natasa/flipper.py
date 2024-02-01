@@ -42,9 +42,32 @@ direction = direction.normalize()
 def gravity(acceleration, ball_gravity, gravity_vector, direction, dt):
 
     angle = gravity_vector.angle_to(direction)
-    x_speed = acceleration  * dt # * math.sin(math.radians(angle))
+    acceleration *= 0.75
+    x_speed = acceleration * dt # * math.sin(math.radians(angle))
     y_speed = (acceleration + ball_gravity) * dt
-    return x_speed, y_speed
+    #direction += gravity_vector
+    #direction = [direction.x, direction.y]
+    return x_speed, y_speed, direction
+
+def gravity_poly(acceleration, ball_gravity, gravity_vector, direction, dt):
+
+    angle = gravity_vector.angle_to(direction)
+    acceleration *= 1.2
+    x_speed = acceleration * dt # * math.sin(math.radians(angle))
+    y_speed = (acceleration + ball_gravity) * dt
+    #direction += gravity_vector
+    #direction = [direction.x, direction.y]
+    return x_speed, y_speed, direction
+
+def gravity_flipper(acceleration, ball_gravity, gravity_vector, direction, dt):
+
+    angle = gravity_vector.angle_to(direction)
+    acceleration *= 1
+    x_speed = acceleration * dt # * math.sin(math.radians(angle))
+    y_speed = (acceleration + ball_gravity) * dt
+    #direction += gravity_vector
+    #direction = [direction.x, direction.y]
+    return x_speed, y_speed, direction
 
 
 
@@ -118,6 +141,8 @@ class Line:
             return None, False, None
 
 
+
+
 class Poly:
     def __init__(self, points, color):
         self.points = points
@@ -173,21 +198,32 @@ class Poly:
     def draw(self):
         pygame.draw.polygon(screen, self.color, self.points)
 
-class Flipper(Line):
-    def __init__(self, a_x, a_y, b_x, b_y, color, width):
-        super().__init__(a_x, a_y, b_x, b_y, color, width)
-        self.circle_start = Circle(a_x, a_y, width/2, color)
-        self.circle_end = Circle(b_x, b_y, width/2, color)
-        self.tmp_circle_x = self.circle_end.x_pos
-        self.tmp_circle_y = self.circle_end.y_pos
-        self.tmp2_circle_x = self.circle_start.x_pos
-        self.tmp2_circle_y = self.circle_start.y_pos
-        self.edges = [self.circle_start, self.circle_end]
+class Flipper(Poly):
+    def __init__(self, points, color):
+        super().__init__(self, points, color)
+        self.image = pygame.image.load("flipper.png")
+        self.image = pygame.transform.scale(image, (100, 100))
+        self.surface = pygame.Surface(self, pygame.SRCALPHA)
+        self.points = points
+        self.color = color
 
-    def draw_flipper(self):
+
+
+    def draw_left_flipper(self):
         self.draw()
-        self.circle_start.draw()
-        self.circle_end.draw()
+        self.blit(self.image, (0, 0))
+
+    def rotate_left(self):
+        pass
+
+
+    def draw_right_flipper(self):
+        pass
+
+
+
+
+    '''
     def rotate_left(self):
         self.b_x = self.a_x + self.distance  # math.tan(self.rotation_angle) * (self.b_y - self.a_y)
         self.b_y = self.a_y
@@ -245,7 +281,7 @@ class Flipper(Line):
 
                     #self.direction = reflection
 
-
+        '''
 
 
 class Circle:
@@ -314,7 +350,7 @@ class Ball(Circle):
                 reflection = [self.direction[0] / length, self.direction[1] / length]
                 self.direction = reflection
                 direction = pygame.math.Vector2(self.direction)
-                self.x_speed, self.y_speed = gravity(self.acceleration, ball_gravity, gravity_vector, direction, dt)
+                self.x_speed, self.y_speed, self.direction = gravity(self.acceleration, ball_gravity, gravity_vector, direction, dt)
 
 
                 #self.acceleration = self.force / self.mass
@@ -329,6 +365,8 @@ class Ball(Circle):
                # self.y_speed = self.acceleration * self.dt * math.cos(direction_vector.angle_to(gravity_vector))
 
         for i in range(len(flippers)):
+            pass
+        '''
             incident_angle, isCollidedLine,  reflection_vector, isCollidedCircle = flippers[i].is_collided_flipper(self)
             if isCollidedLine:
                 print("Collision")
@@ -338,7 +376,7 @@ class Ball(Circle):
                 reflection = [self.direction[0] / length, self.direction[1] / length]
                 self.direction = reflection
                 direction = pygame.math.Vector2(self.direction)
-                self.x_speed, self.y_speed = gravity(self.acceleration, ball_gravity, gravity_vector, direction, dt)
+                self.x_speed, self.y_speed, self.direction = gravity_flipper(self.acceleration, ball_gravity, gravity_vector, direction, dt)
             # direction_vector = pygame.math.Vector2(self.direction)
                # self.force += self.mass * g * math.cos(direction_vector.angle_to(gravity_vector))
               #  self.acceleration = self.force / self.mass
@@ -350,11 +388,12 @@ class Ball(Circle):
                 self.direction = reflection_vector
 
                 direction = pygame.math.Vector2(self.direction)
-                self.x_speed, self.y_speed = gravity(self.acceleration, ball_gravity, gravity_vector, direction, dt)
+                self.x_speed, self.y_speed, self.direction = gravity_flipper(self.acceleration, ball_gravity, gravity_vector, direction, dt)
 
         #reflection_vector = pygame.math.Vector2()
             #reflection_vector.from_polar((self.x_speed , incident_angle + 180))
-
+        
+    '''
 
 
 
@@ -374,7 +413,7 @@ class Ball(Circle):
                 self.direction = reflection
 
                 direction = pygame.math.Vector2(self.direction)
-                self.x_speed, self.y_speed = gravity(self.acceleration, ball_gravity, gravity_vector, direction, dt)
+                self.x_speed, self.y_speed, self.direction = gravity_poly(self.acceleration, ball_gravity, gravity_vector, direction, dt)
 
         #  direction_vector = pygame.math.Vector2(self.direction)
               #  self.force += self.mass * g * math.cos(direction_vector.angle_to(gravity_vector))
@@ -402,7 +441,7 @@ class Ball(Circle):
                 self.direction = reflection
 
                 direction = pygame.math.Vector2(self.direction)
-                self.x_speed, self.y_speed = gravity(self.acceleration, ball_gravity, gravity_vector, direction, dt)
+                self.x_speed, self.y_speed, self.direction = gravity(self.acceleration, ball_gravity, gravity_vector, direction, dt)
 
         #  direction_vector = pygame.math.Vector2(self.direction)
               #  self.force += self.mass * g * math.cos(direction_vector.angle_to(gravity_vector))
@@ -452,13 +491,16 @@ bottom = Line(0, HEIGHT, WIDTH, HEIGHT, 'purple', 6) #screen, 'purple', (0, HEIG
 
 timer = pygame.time.Clock()
 
-left_flipper = Flipper(0.13 * WIDTH, 0.771 * HEIGHT, 0.39 * WIDTH, 0.887 * HEIGHT, 'purple', 50)
-right_flipper = Flipper(0.625 * WIDTH, 0.887 * HEIGHT, 0.885 * WIDTH, 0.771 * HEIGHT, 'purple', 50)
-#left_flipper_points = [(0.13 * WIDTH, 0.771 * HEIGHT), (0.39 * WIDTH, 0.887 * HEIGHT),, (0.38 * WIDTH, 0.887 * HEIGHT + 30/HEIGHT)]
-#right_flipper_points = [(0.625 * WIDTH, 0.887 * HEIGHT), (0.885 * WIDTH, 0.771 * HEIGHT), ]
+print(200/WIDTH, 45/HEIGHT, 15/WIDTH)
+#left_flipper = Flipper(0.13 * WIDTH, 0.771 * HEIGHT, 0.347 * WIDTH, 0.046 * HEIGHT, 'orange', WIDTH * 0.026)
+#right_flipper = Flipper(0.55 * WIDTH, 0.771 * HEIGHT, 0.347 * WIDTH, 0.046 * HEIGHT, 'orange', WIDTH * 0.026)
+left_flipper_points = [(0.13 * WIDTH, 0.755 * HEIGHT), (0.48 * WIDTH, 0.887 * HEIGHT), (0.46 * WIDTH, 0.9 * HEIGHT), (0.1 * WIDTH, 0.78 * HEIGHT)]
+right_flipper_points = [(WIDTH - x, y) for x, y in left_flipper_points]
+left_flipper = Flipper(left_flipper_points, 'purple')
+right_flipper = Flipper(right_flipper_points, 'purple')
 
-line_wall_left = Line(0.01 * WIDTH, 0.7 * HEIGHT, 0.13 * WIDTH, 0.771 * HEIGHT, 'white', 20)
-line_wall_right = Line(0.885 * WIDTH, 0.771 * HEIGHT,WIDTH, 0.7 * HEIGHT, 'white', 20)
+line_wall_left = Line(0.01 * WIDTH, 0.695 * HEIGHT, 0.16 * WIDTH, 0.78 * HEIGHT, 'white', 20)
+line_wall_right = Line(0.875 * WIDTH, 0.78 * HEIGHT,WIDTH, 0.695 * HEIGHT, 'white', 20)
 
 #tunnel_wall_left = Line(2*0.05*WIDTH, 0.4 * HEIGHT, 2*0.05*WIDTH, 0.65 * HEIGHT, 'white', 20)
 tunnel_window_left = Line(0, 0.4 * HEIGHT, 0, 0.7 * HEIGHT, 'white', 20)
@@ -524,8 +566,9 @@ while run:
 
    # brick.update_pivot()
    # brick.draw_brick('purple')
-    left_flipper.draw_flipper()
-    right_flipper.draw_flipper()
+    left_flipper.draw_left_flipper()
+    #left_flipper.draw()
+    right_flipper.draw()
 
     tunnel_window_left.draw()
     tunnel_window_right.draw()
@@ -538,19 +581,22 @@ while run:
             run = False
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
-                left_flipper.rotate_left()
+                pass
+                #left_flipper.rotate_left()
               # left_flipper.rotate_left(timer)
             elif event.key == pygame.K_RIGHT:
+                pass
 
-                right_flipper.rotate_right()
+                #right_flipper.rotate_right()
 
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
-                left_flipper.rotate_reset_left()
+                pass
+                #left_flipper.rotate_reset_left()
                 #left_flipper.reset_rotation(timer)
             elif event.key == pygame.K_RIGHT:
-
-               right_flipper.rotate_reset_right()
+                pass
+               #right_flipper.rotate_reset_right()
     #elapsed_time = timer.tick(30) / 1000.0
     #brick.update(elapsed_time)
 
