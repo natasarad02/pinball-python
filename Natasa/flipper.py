@@ -19,11 +19,11 @@ fps = 60
 
 # pocetni uslovi
 
-board_angle = math.radians(60)
+board_angle = math.radians(30)
 g = 9.81
 ball_gravity = g * math.sin(board_angle)
 pushing_force = 100
-gravity_vector = pygame.math.Vector2(0, -ball_gravity)
+gravity_vector = pygame.math.Vector2(0, ball_gravity)
 pushing_force_vector = pygame.math.Vector2(0, 1)
 ball_mass = 2
 dt = 0.5
@@ -31,18 +31,18 @@ force_at_beginning = pushing_force + ball_mass * ball_gravity * math.sqrt(2)/2
 acceleration_0 = force_at_beginning / ball_mass
 acceleration_0_x = acceleration_0 * math.sqrt(2)/2
 acceleration_0_y = acceleration_0 * math.sqrt(2)/2
-x_speed_0 = acceleration_0  * dt#* math.sqrt(2)/2
-y_speed_0 = acceleration_0 * dt
+x_speed_0 = acceleration_0  * dt * math.sqrt(2)/2
+y_speed_0 = acceleration_0 * dt * math.sqrt(2)/2
 
 y_speed_vector = pygame.math.Vector2(y_speed_0)
 x_speed_vector = pygame.math.Vector2(x_speed_0)
 direction = x_speed_vector + y_speed_vector + gravity_vector
 direction = direction.normalize()
 
-def gravity(acceleration, ball_gravity, direction, dt):
+def gravity(acceleration, ball_gravity, gravity_vector, direction, dt):
 
-    angle = direction.angle_to(pygame.math.Vector2(0, 1))
-    x_speed = acceleration * dt
+    angle = gravity_vector.angle_to(direction)
+    x_speed = acceleration  * dt # * math.sin(math.radians(angle))
     y_speed = (acceleration + ball_gravity) * dt
     return x_speed, y_speed
 
@@ -314,7 +314,7 @@ class Ball(Circle):
                 reflection = [self.direction[0] / length, self.direction[1] / length]
                 self.direction = reflection
                 direction = pygame.math.Vector2(self.direction)
-                self.x_speed, self.y_speed = gravity(self.acceleration, ball_gravity, direction, dt)
+                self.x_speed, self.y_speed = gravity(self.acceleration, ball_gravity, gravity_vector, direction, dt)
 
 
                 #self.acceleration = self.force / self.mass
@@ -338,7 +338,7 @@ class Ball(Circle):
                 reflection = [self.direction[0] / length, self.direction[1] / length]
                 self.direction = reflection
                 direction = pygame.math.Vector2(self.direction)
-                self.x_speed, self.y_speed = gravity(self.acceleration, ball_gravity, direction, dt)
+                self.x_speed, self.y_speed = gravity(self.acceleration, ball_gravity, gravity_vector, direction, dt)
             # direction_vector = pygame.math.Vector2(self.direction)
                # self.force += self.mass * g * math.cos(direction_vector.angle_to(gravity_vector))
               #  self.acceleration = self.force / self.mass
@@ -350,7 +350,7 @@ class Ball(Circle):
                 self.direction = reflection_vector
 
                 direction = pygame.math.Vector2(self.direction)
-                self.x_speed, self.y_speed = gravity(self.acceleration, ball_gravity, direction, dt)
+                self.x_speed, self.y_speed = gravity(self.acceleration, ball_gravity, gravity_vector, direction, dt)
 
         #reflection_vector = pygame.math.Vector2()
             #reflection_vector.from_polar((self.x_speed , incident_angle + 180))
@@ -374,7 +374,7 @@ class Ball(Circle):
                 self.direction = reflection
 
                 direction = pygame.math.Vector2(self.direction)
-                self.x_speed, self.y_speed = gravity(self.acceleration, ball_gravity, direction, dt)
+                self.x_speed, self.y_speed = gravity(self.acceleration, ball_gravity, gravity_vector, direction, dt)
 
         #  direction_vector = pygame.math.Vector2(self.direction)
               #  self.force += self.mass * g * math.cos(direction_vector.angle_to(gravity_vector))
@@ -402,7 +402,7 @@ class Ball(Circle):
                 self.direction = reflection
 
                 direction = pygame.math.Vector2(self.direction)
-                self.x_speed, self.y_speed = gravity(self.acceleration, ball_gravity, direction, dt)
+                self.x_speed, self.y_speed = gravity(self.acceleration, ball_gravity, gravity_vector, direction, dt)
 
         #  direction_vector = pygame.math.Vector2(self.direction)
               #  self.force += self.mass * g * math.cos(direction_vector.angle_to(gravity_vector))
