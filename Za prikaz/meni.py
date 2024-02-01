@@ -23,11 +23,11 @@ title_font = pygame.font.SysFont('impact', 120, bold=True)
 
 # Load images and resize them
 background_image = pygame.transform.scale(pygame.image.load("space_background.jpg"), (WIDTH, HEIGHT))
-planet_image = pygame.transform.scale(pygame.image.load("planet.png"), (100, 100))
+planet_image = pygame.transform.scale(pygame.image.load("planet.png"), (250, 250))
 moon_image = pygame.transform.scale(pygame.image.load("moon.png"), (100, 100))
 rocket_image = pygame.transform.scale(pygame.image.load("rocket.png"), (100, 100))
 jupiter_image = pygame.transform.scale(pygame.image.load("jupiter.png"), (200, 200))
-saturn_image = pygame.transform.scale(pygame.image.load("saturn2.png"), (170, 100))
+saturn_image = pygame.transform.scale(pygame.image.load("saturn2.png"), (330, 180))
 text_image = pygame.transform.scale(pygame.image.load("Untitled.png"), (650, 350))
 
 # Button dimensions
@@ -80,17 +80,21 @@ while True:
     screen.blit(saturn_image, (3 * WIDTH // 4 - 100, 3 * HEIGHT // 4 - 100))
     screen.blit(jupiter_image, (WIDTH * 0.9, HEIGHT // 8))
     # Draw moon
-    screen.blit(moon_image, (WIDTH // 2 + 300, HEIGHT // 2 - 200))
+    screen.blit(moon_image, (WIDTH // 2 + 250, HEIGHT // 2 - 370))
 
     # Draw rocket
-    screen.blit(rocket_image, (WIDTH // 4, HEIGHT // 2 + 100))
+    screen.blit(rocket_image, (WIDTH // 5, HEIGHT // 2 + 250))
     text_image_rect = text_image.get_rect(center=(WIDTH // 2, HEIGHT // 4.5))
     screen.blit(text_image, text_image_rect.topleft)
 
     # Draw buttons
+    # Draw buttons
     for i, pos in enumerate(button_positions):
         x, y = pos
-        pygame.draw.rect(screen, (0, 102, 204), (x, y, button_width, button_height))
+        button_color = (0, 102, 204) #blue
+        if i == len(button_positions) - 1:  # Check if it's the last button
+            button_color = (255, 20, 147)  # Change the color to a different shade of pink for the last button
+        pygame.draw.rect(screen, button_color, (x, y, button_width, button_height))
         text = font.render(button_labels[i], True, WHITE)
         screen.blit(text, (x + button_width // 2 - text.get_width() // 2, y + button_height // 2 - text.get_height() // 2))
 
