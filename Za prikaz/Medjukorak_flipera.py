@@ -300,15 +300,15 @@ class Ball(Circle):
 
         for i in range(len(line_obstacles)):
             incident_angle, isCollided, reflection_vector = line_obstacles[i].is_collided(self)
-            #print(incident_angle)
+            ##print(incident_angle)
 
             if isCollided:
-                print("Collision")
+                #print("Collision")
 
 
 
-                print(math.degrees(incident_angle))
-                print(reflection_vector)
+                #print(math.degrees(incident_angle))
+                #print(reflection_vector)
                 self.direction = [reflection_vector.x, reflection_vector.y]#[math.cos(reflection_angle), math.sin(reflection_angle)]
                 length = math.sqrt(self.direction[0] ** 2 + self.direction[1] ** 2)
                 reflection = [self.direction[0] / length, self.direction[1] / length]
@@ -331,7 +331,7 @@ class Ball(Circle):
         for i in range(len(flippers)):
             incident_angle, isCollidedLine,  reflection_vector, isCollidedCircle = flippers[i].is_collided_flipper(self)
             if isCollidedLine:
-                print("Collision")
+                #print("Collision")
                 self.direction = [reflection_vector.x,
                                   reflection_vector.y]  # [math.cos(reflection_angle), math.sin(reflection_angle)]
                 length = math.sqrt(self.direction[0] ** 2 + self.direction[1] ** 2)
@@ -426,13 +426,13 @@ class Ball(Circle):
 ball = Ball(WIDTH * 0.15, HEIGHT * 0.045, 0.039*WIDTH, 'blue', ball_mass, force_at_beginning, .9, y_speed_0, x_speed_0, 1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt, direction)
 #ball = Ball(250, 550, 0.03*WIDTH, 'blue', 100, 6000, .9, 2, 2, 1, 0.02, HEIGHT, WIDTH, fps)
 '''
-print(250/WIDTH, 50/HEIGHT)
-print(200/WIDTH, 400/HEIGHT)
-print(380/WIDTH, 200/HEIGHT)
-print(550/WIDTH, 400/HEIGHT)
-print(100/WIDTH, 1000/HEIGHT, 300/WIDTH, 1150/HEIGHT)
-print(480/WIDTH, 1150/HEIGHT, 680/WIDTH, 1000/HEIGHT)
-print(30/WIDTH, 50/WIDTH)
+#print(250/WIDTH, 50/HEIGHT)
+#print(200/WIDTH, 400/HEIGHT)
+#print(380/WIDTH, 200/HEIGHT)
+#print(550/WIDTH, 400/HEIGHT)
+#print(100/WIDTH, 1000/HEIGHT, 300/WIDTH, 1150/HEIGHT)
+#print(480/WIDTH, 1150/HEIGHT, 680/WIDTH, 1000/HEIGHT)
+#print(30/WIDTH, 50/WIDTH)
 '''
 circle_obstacle1 = Circle(WIDTH * 0.26, 0.308 * HEIGHT, 0.065 * WIDTH, 'green')
 circle_obstacle2 = Circle(0.494 * WIDTH, 0.154 * HEIGHT, 0.065 * WIDTH, 'green')
@@ -479,34 +479,12 @@ hexagon_points = [
     (WIDTH / 2 - 50, HEIGHT / 2 - 87)
 ]
 
-class RoundedRectangle:
-    def __init__(self, x, y, width, height, color, corner_radius):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.color = color
-        self.corner_radius = corner_radius
-
-    def draw(self):
-        # Increase corner radius for more rounded corners
-        increased_corner_radius = int(self.corner_radius * 1.5)
-
-        # Draw larger circles at the corners
-        pygame.draw.circle(screen, self.color, (self.x + increased_corner_radius, self.y + increased_corner_radius), increased_corner_radius)
-        pygame.draw.circle(screen, self.color, (self.x + self.width - increased_corner_radius, self.y + increased_corner_radius), increased_corner_radius)
-        pygame.draw.circle(screen, self.color, (self.x + increased_corner_radius, self.y + self.height - increased_corner_radius), increased_corner_radius)
-        pygame.draw.circle(screen, self.color, (self.x + self.width - increased_corner_radius, self.y + self.height - increased_corner_radius), increased_corner_radius)
-
-        # Draw thinner rectangles connecting the circles to form rounded edges
-        pygame.draw.rect(screen, self.color, (self.x + increased_corner_radius, self.y, self.width - 2 * increased_corner_radius, self.height))
-        pygame.draw.rect(screen, self.color, (self.x, self.y + increased_corner_radius, self.width, self.height - 2 * increased_corner_radius))
-
-rounded_rect = RoundedRectangle(200, 300, 200, 45, 'orange', 15)
 trapezoid_left = Poly(trapezoid_points_left, 'red')
 trapezoid_right = Poly(trapezoid_points_right, 'red')
 hexagon = Poly(hexagon_points, 'yellow')
 poly_obstacles = [trapezoid_left, trapezoid_right]#[trapezoid_left, trapezoid_right, hexagon]
+
+
 run = True
 while run:
 
@@ -519,12 +497,6 @@ while run:
                     x_speed_0, 1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt, direction)
 
         ball.draw()
-    '''
-    line1.draw()
-    line2.draw()
-    line3.draw()
-    line4.draw()
-    '''
     left.draw()
     right.draw()
     top.draw()
@@ -532,22 +504,12 @@ while run:
     circle_obstacle1.draw()
     circle_obstacle2.draw()
     circle_obstacle3.draw()
-    rounded_rect.draw()
+
     line_wall_left.draw()
     line_wall_right.draw()
     trapezoid_left.draw()
     trapezoid_right.draw()
-    #hexagon.draw()
-    #trapezoid.create_lines()
     
-    
-
-     # Check collision with the right flipper
-    
-
-
-   # brick.update_pivot()
-   # brick.draw_brick('purple')
     left_flipper.draw_flipper()
     right_flipper.draw_flipper()
 
@@ -575,12 +537,6 @@ while run:
             elif event.key == pygame.K_RIGHT:
 
                right_flipper.rotate_reset_right()
-    #elapsed_time = timer.tick(30) / 1000.0
-    #brick.update(elapsed_time)
-
-
-
-
 
     pygame.display.flip()
 pygame.quit()
