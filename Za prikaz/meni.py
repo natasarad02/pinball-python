@@ -44,7 +44,7 @@ button_positions = [
 
 # Button labels and corresponding file names
 button_labels = ["Simulacija gravitacije", "Prvobitno odbijanje", "Prva verzija flipera", "Fliper Level 1"]
-file_names = ["gravitacija.py", "Prvobitno_odbijanje.py", "Medjukorak_flipera.py", "game_file_4.py"]
+file_names = ["gravitacija.py", "Prvobitno_odbijanje.py", "Medjukorak_flipera.py", "flipper.py"]
 
 # Star positions
 stars = [(random.randint(0, WIDTH + 100), random.randint(0, HEIGHT + 100)) for _ in range(1500)]
@@ -80,7 +80,7 @@ while True:
     screen.blit(saturn_image, (3 * WIDTH // 4 - 100, 3 * HEIGHT // 4 - 100))
     screen.blit(jupiter_image, (WIDTH * 0.9, HEIGHT // 8))
     # Draw moon
-    screen.blit(moon_image, (WIDTH // 2 + 250, HEIGHT // 2 - 370))
+    screen.blit(moon_image, (WIDTH // 2 + 270, HEIGHT // 2 - 370))
 
     # Draw rocket
     screen.blit(rocket_image, (WIDTH // 5, HEIGHT // 2 + 250))
