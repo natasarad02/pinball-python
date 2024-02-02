@@ -16,7 +16,7 @@ pygame.init()
 screen = pygame.display.set_mode([WIDTH, HEIGHT])
 wall_thickness = 10
 
-fps = 60
+fps = 70
 
 background_image = pygame.transform.scale(pygame.image.load("pozadina.png"), (WIDTH, HEIGHT))
 sun_image = pygame.transform.scale(pygame.image.load("sun.png"), (64, 64))
@@ -28,18 +28,18 @@ aspect_ratio = original_score_image.get_width() / original_score_image.get_heigh
 new_height = int(WIDTH / aspect_ratio)
 score_image = pygame.transform.scale(original_score_image, (WIDTH, new_height))
 
-board_angle = math.radians(45)
+board_angle = math.radians(30)
 g = 9.81
 ball_gravity = g * math.sin(board_angle)
-pushing_force = 100
+pushing_force = 105
 gravity_vector = pygame.math.Vector2(0, ball_gravity)
 pushing_force_vector = pygame.math.Vector2(0, 1)
 ball_mass = 2
 dt = 0.5
 force_at_beginning = pushing_force - ball_mass * ball_gravity
 acceleration_0 = force_at_beginning / ball_mass
-#acceleration_0_x = acceleration_0 * math.sqrt(2) / 2
-#acceleration_0_y = acceleration_0 * math.sqrt(2) / 2
+# acceleration_0_x = acceleration_0 * math.sqrt(2) / 2
+# acceleration_0_y = acceleration_0 * math.sqrt(2) / 2
 x_speed_0 = 0  # acceleration_0  * dt * math.sqrt(2)/2
 y_speed_0 = 0  # acceleration_0 * dt * math.sqrt(2)/2
 
@@ -49,34 +49,61 @@ direction = x_speed_vector + y_speed_vector + gravity_vector
 direction = direction.normalize()
 
 
-def gravity(acceleration, ball_gravity, gravity_vector, direction, dt):
+def gravity(ball, ball_gravity, gravity_vector, direction, dt):
     angle = gravity_vector.angle_to(direction)
-    acceleration *= 0.8
-    x_speed = acceleration * dt  # * math.sin(math.radians(angle))
-    y_speed = acceleration * dt
-    #direction += gravity_vector
-    #direction = [direction.x, direction.y]
-    return x_speed, y_speed, direction
+    ball.acceleration *= 1
+    ball.x_speed = ball.acceleration * dt  # * math.sin(math.radians(angle))
+    ball.y_speed = ball.acceleration * dt
+    # direction += gravity_vector
+    # direction = [direction.x, direction.y]
+    #return x_speed, y_speed, direction
 
-
-def gravity_poly(acceleration, ball_gravity, gravity_vector, direction, dt):
+def gravity_circle(ball, ball_gravity, gravity_vector, direction, dt):
     angle = gravity_vector.angle_to(direction)
-    acceleration *= 1.4
-    x_speed = acceleration * dt  # * math.sin(math.radians(angle))
-    y_speed = acceleration * dt
-    #direction += gravity_vector
-    #direction = [direction.x, direction.y]
-    return x_speed, y_speed, direction
+    ball.acceleration *= 0.88
+    ball.x_speed = ball.acceleration * dt  # * math.sin(math.radians(angle))
+    ball.y_speed = ball.acceleration * dt
+    # direction += gravity_vector
+    # direction = [direction.x, direction.y]
+    #return x_speed, y_speed, direction
 
-
-def gravity_flipper(acceleration, ball_gravity, gravity_vector, direction, dt):
+def gravity_poly(ball, ball_gravity, gravity_vector, direction, dt):
     angle = gravity_vector.angle_to(direction)
-    acceleration *= 1.2
-    x_speed = acceleration * dt  # * math.sin(math.radians(angle))
-    y_speed = acceleration * dt
-    #direction += gravity_vector
-    #direction = [direction.x, direction.y]
-    return x_speed, y_speed, direction
+    ball.acceleration *= 1.1
+    ball.x_speed = ball.acceleration * dt  # * math.sin(math.radians(angle))
+    ball.y_speed = ball.acceleration * dt
+    # direction += gravity_vector
+    # direction = [direction.x, direction.y]
+   # return x_speed, y_speed, direction
+
+
+def gravity_flipper(ball, ball_gravity, gravity_vector, direction, dt):
+    angle = gravity_vector.angle_to(direction)
+    if ball.x_pos < 0.285 * WIDTH or ball.x_pos > WIDTH - 0.29 * WIDTH:
+        ball.acceleration *= 1
+    else:
+        ball.acceleration*= 1.1
+
+    ball.x_speed = ball.acceleration * dt  # * math.sin(math.radians(angle))
+    ball.y_speed = ball.acceleration * dt
+
+def rotation(ball):
+
+    omega = math.sqrt(ball.x_speed**2 + ball.y_speed**2)/ball.radius
+    rotation_direction = get_rotation_direction((0, -1), ball.direction)
+    if rotation_direction == "Clockwise":
+
+        # self.rotation_angle += 40  # +omega * dt, omega += moment_sile/moment_inercije
+
+        ball.rotation_angle += math.degrees(omega * ball.dt)  # 20  # Adjust the rotation angle as needed
+
+    elif rotation_direction == "Counter-clockwise":
+        ball.rotation_angle -= math.degrees(omega * ball.dt)  # 20  # Adjust the rotation angle as needed
+
+    # Update the center of the image based on the circle's position
+    ball.rect.center = (ball.x_pos, ball.y_pos)
+
+
 
 
 def Sign(x):
@@ -103,6 +130,12 @@ class Line:
 
     def draw(self):
         pygame.draw.line(screen, self.color, (self.a_x, self.a_y), (self.b_x, self.b_y), self.width)
+
+    def transparent(self):
+        self.color = (0, 0, 0, 0)
+    def pink(self):
+        self.color = (255, 20, 147)
+
 
     def is_collided(self, ball):
         if ball.x_pos >= self.a_x - ball.radius and ball.x_pos <= self.b_x + ball.radius and self.a_x != self.b_x:
@@ -292,21 +325,17 @@ class Circle:
 
 
 class Ball(Circle):
-    def __init__(self, x_pos, y_pos, radius, color, mass, force, retention, y_speed, x_speed, id, friction, HEIGHT,
+    def __init__(self, x_pos, y_pos, radius, color, picture, mass, force, retention, y_speed, x_speed, id, friction,
+                 HEIGHT,
                  WIDTH, fps, acceleration, dt, direction):
 
         super().__init__(x_pos, y_pos, radius, color)
-        # self.x_pos = x_pos
-        # self.y_pos = y_pos
-        # self.radius = radius
-        # self.color = color
-
         self.mass = mass
         self.retention = retention
 
         self.id = id
         self.circle = ''
-        self.friction = friction  ##dodati parametar trenja i za podlogu
+        self.friction = friction
         self.screen = pygame.display.set_mode([WIDTH, HEIGHT])
         self.force = force
         self.x_speed = x_speed
@@ -319,43 +348,47 @@ class Ball(Circle):
         self.acceleration = acceleration
         self.force = force
         self.in_free_fall = True
-        # self.x_speed += self.acceleration * 0.5 * math.sqrt(2)/2
-        # self.y_speed += self.acceleration * 0.5 * math.sqrt(2)/2
         self.direction = [0, -1]
         self.y_speed = y_speed
         self.x_speed = x_speed
+        # izmenjeno dole
+        self.image_original = pygame.image.load(picture)
+        self.image_original = pygame.transform.scale(self.image_original,
+                                                     (2 * radius, 2 * radius))  # Scale the original image
+        self.image = self.image_original.copy()  # Use a copy of the original image for drawing
+        self.rect = self.image.get_rect(center=(x_pos, y_pos))
+        self.rotation_angle = 0  # Initial rotation angle
 
-        # self.positions = [self.x_pos, self.y_pos]
-        # self.speed = [self.x_speed, self.y_speed]
+    def draw(self):
+        rotated_image = pygame.transform.rotate(self.image_original, self.rotation_angle)
+        rotated_rect = rotated_image.get_rect(center=self.rect.center)
+        self.screen.blit(rotated_image, rotated_rect)
 
     def update(self, line_obstacles, circle_obstacles, poly_obstacles, flippers):
-        # Collision with obstacle_circle
+        #rotation_params(self)
+        rotation(self)
+
 
         for i in range(len(line_obstacles)):
             incident_angle, isCollided, reflection_vector = line_obstacles[i].is_collided(self)
             # print(incident_angle)
+
 
             if isCollided:
                 print("Collision")
 
                 print(math.degrees(incident_angle))
                 print(reflection_vector)
+                old_direction = self.direction
                 self.direction = [reflection_vector.x,
                                   reflection_vector.y]  # [math.cos(reflection_angle), math.sin(reflection_angle)]
+                print(get_rotation_direction(old_direction, self.direction))
                 length = math.sqrt(self.direction[0] ** 2 + self.direction[1] ** 2)
                 reflection = [self.direction[0] / length, self.direction[1] / length]
                 self.direction = reflection
                 direction = pygame.math.Vector2(self.direction)
-                self.x_speed, self.y_speed, self.direction = gravity(self.acceleration, ball_gravity, gravity_vector,
-                                                                     direction, dt)
-
-                # self.acceleration = self.force / self.mass
-
-            #  direction_vector = pygame.math.Vector2(self.direction)
-            # self.force += self.mass * g * math.cos(direction_vector.angle_to(gravity_vector))
-            # self.acceleration = self.force/self.mass
-            # self.x_speed = self.acceleration * self.dt * math.sin(direction_vector.angle_to(gravity_vector))
-            # self.y_speed = self.acceleration * self.dt * math.cos(direction_vector.angle_to(gravity_vector))
+                gravity(self, ball_gravity, gravity_vector, direction, dt)
+                rotation(self)
 
         for i in range(len(flippers)):
 
@@ -369,8 +402,9 @@ class Ball(Circle):
                 self.direction = reflection
 
                 direction = pygame.math.Vector2(self.direction)
-                self.x_speed, self.y_speed, self.direction = gravity(self.acceleration, ball_gravity,
-                                                                     gravity_vector, direction, dt)
+                gravity_flipper(self, ball_gravity, gravity_vector, direction, dt)
+                rotation(self)
+
 
         for i in range(len(poly_obstacles)):
             reflection_vector, isCollided = poly_obstacles[i].is_collided(self)
@@ -386,13 +420,14 @@ class Ball(Circle):
                 self.direction = reflection
 
                 direction = pygame.math.Vector2(self.direction)
-                self.x_speed, self.y_speed, self.direction = gravity(self.acceleration, ball_gravity, gravity_vector,
-                                                                     direction, dt)
+                gravity_poly(self, ball_gravity, gravity_vector, direction, dt)
+                rotation(self)
+
 
         for i in range(len(circle_obstacles)):
 
             distance_squared1 = (self.x_pos - circle_obstacles[i].x_pos) ** 2 + (
-                        self.y_pos - circle_obstacles[i].y_pos) ** 2
+                    self.y_pos - circle_obstacles[i].y_pos) ** 2
             sum_radii_squared1 = (self.radius + circle_obstacles[i].radius) ** 2
             # self.x_speed += self.acceleration * 0.5
             # self.y_speed += self.acceleration * 0.5
@@ -409,8 +444,9 @@ class Ball(Circle):
                 self.direction = reflection
 
                 direction = pygame.math.Vector2(self.direction)
-                self.x_speed, self.y_speed, self.direction = gravity(self.acceleration, ball_gravity, gravity_vector,
-                                                                     direction, dt)
+                gravity_circle(self, ball_gravity, gravity_vector, direction, dt)
+                rotation(self)
+
 
         self.x_pos += self.direction[0] * self.x_speed * self.dt
         self.y_pos += self.direction[1] * self.y_speed * self.dt
@@ -421,8 +457,34 @@ class Ball(Circle):
     #   self.circle = pygame.draw.circle(self.screen, self.color, (self.x_pos, self.y_pos), self.radius)
 
 
+def get_rotation_direction(previous_direction, current_direction):
+    # Determine the rotation direction based on the previous and current direction
+    if previous_direction == (0, 0) or current_direction == (0, 0):
+        return "No rotation"
 
-ball = Ball(WIDTH * 0.925, HEIGHT * 0.95, 0.03 * WIDTH, 'blue', ball_mass, force_at_beginning, .9, y_speed_0, x_speed_0,
+    if previous_direction[0] > 0 and current_direction[1] > 0:
+        return "Counter-clockwise"  # Ball moving right and down
+    elif previous_direction[1] > 0 and current_direction[0] < 0:
+        return "Counter-clockwise"  # Ball moving down and left
+    elif previous_direction[0] < 0 and current_direction[1] < 0:
+        return "Counter-clockwise"  # Ball moving left and up
+    elif previous_direction[1] < 0 and current_direction[0] > 0:
+        return "Counter-clockwise"  # Ball moving up and right
+    elif previous_direction[0] > 0 and current_direction[1] < 0:
+        return "Clockwise"  # Ball moving right and up
+    elif previous_direction[1] < 0 and current_direction[0] < 0:
+        return "Clockwise"  # Ball moving up and left
+    elif previous_direction[0] < 0 and current_direction[1] > 0:
+        return "Clockwise"  # Ball moving left and down
+    elif previous_direction[1] > 0 and current_direction[0] > 0:
+        return "Clockwise"  # Ball moving down and right
+
+    else:
+        return "No rotation"
+
+
+ball = Ball(WIDTH * 0.925, HEIGHT * 0.95, 0.03 * WIDTH, 'blue', "planet.png", ball_mass, force_at_beginning, .9,
+            y_speed_0, x_speed_0,
             1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt, direction)
 # ball = Ball(250, 550, 0.03*WIDTH, 'blue', 100, 6000, .9, 2, 2, 1, 0.02, HEIGHT, WIDTH, fps)
 
@@ -452,21 +514,25 @@ left_flipper = Flipper(left_flipper_points, (255, 20, 147))
 right_flipper = Flipper(right_flipper_points, (255, 20, 147))
 print(20 / HEIGHT)
 
-line_wall_left_points = [(0, 0.695 * HEIGHT), (0.22 * WIDTH, 0.785 * HEIGHT), (0.22 * WIDTH, 0.79 * HEIGHT), (0, 0.71 * HEIGHT)]
+line_wall_left_points = [(0, 0.695 * HEIGHT), (0.22 * WIDTH, 0.785 * HEIGHT), (0.22 * WIDTH, 0.79 * HEIGHT),
+                         (0, 0.71 * HEIGHT)]
 line_wall_left = Poly(line_wall_left_points, (255, 20, 147))
-line_wall_right_points = [(0.75 * WIDTH, 0.78 * HEIGHT), (WIDTH - 0.15 * WIDTH, 0.695 * HEIGHT), (WIDTH - 0.15 * WIDTH, 0.71 * HEIGHT), (0.75 * WIDTH, 0.795 * HEIGHT)]
+
+line_wall_right_points = [(0.75 * WIDTH, 0.78 * HEIGHT), (WIDTH - 0.15 * WIDTH, 0.695 * HEIGHT),
+                          (WIDTH - 0.15 * WIDTH, 0.71 * HEIGHT), (0.75 * WIDTH, 0.795 * HEIGHT)]
 line_wall_right = Poly(line_wall_right_points, (255, 20, 147))
 
-tunnel_top_wall_points = [(0.8 * WIDTH, 0.2 * HEIGHT), (0.815 * WIDTH, 0.2 * HEIGHT), (WIDTH - 0.15 * WIDTH, 0.25 * HEIGHT), (WIDTH - 0.15 * WIDTH - 0.015 * WIDTH, 0.25 * HEIGHT)]
+tunnel_top_wall_points = [(0.8 * WIDTH, 0.2 * HEIGHT), (0.815 * WIDTH, 0.2 * HEIGHT),
+                          (WIDTH - 0.15 * WIDTH, 0.25 * HEIGHT), (WIDTH - 0.15 * WIDTH - 0.015 * WIDTH, 0.25 * HEIGHT)]
 tunnel_top_wall = Poly(tunnel_top_wall_points, (255, 20, 147))
-#tunnel_top_window_points = [(0.9 * WIDTH, 0), (WIDTH, 0.25 * HEIGHT), (WIDTH, 0.265 * HEIGHT), (0.9 * WIDTH, 0.015 * HEIGHT)]
-#tunnel_top_window_wall = Poly(tunnel_top_window_points, (255, 20, 147))
+# tunnel_top_window_points = [(0.9 * WIDTH, 0), (WIDTH, 0.25 * HEIGHT), (WIDTH, 0.265 * HEIGHT), (0.9 * WIDTH, 0.015 * HEIGHT)]
+# tunnel_top_window_wall = Poly(tunnel_top_window_points, (255, 20, 147))
 
 tunnel_top_window_wall_small = Line(0.83 * WIDTH, 0, WIDTH, 0.15 * HEIGHT, (255, 20, 147), 15)
 score_board_points = [(0, 0), (WIDTH, 0), (WIDTH, 0.05 * HEIGHT), (0, 0.05 * HEIGHT)]
 score_board = Poly(score_board_points, 'pink')
 # tunnel_wall_left = Line(2*0.05*WIDTH, 0.4 * HEIGHT, 2*0.05*WIDTH, 0.65 * HEIGHT, 'white', 20)
-#tunnel_right_points = [(WIDTH - 0.15 * WIDTH, 0.25 * HEIGHT), (WIDTH - 0.15 * WIDTH + 0.015 * WIDTH, 0.25 * HEIGHT), (WIDTH - 0.15 * WIDTH, HEIGHT), ]
+# tunnel_right_points = [(WIDTH - 0.15 * WIDTH, 0.25 * HEIGHT), (WIDTH - 0.15 * WIDTH + 0.015 * WIDTH, 0.25 * HEIGHT), (WIDTH - 0.15 * WIDTH, HEIGHT), ]
 tunnel_window_left = Line(0, 0.4 * HEIGHT, 0, 0.7 * HEIGHT, (255, 20, 147), 20)
 tunnel_window_right = Line(WIDTH - 0.15 * WIDTH, 0.25 * HEIGHT, WIDTH - 0.15 * WIDTH, HEIGHT, (255, 20, 147), 15)
 # tunnel_left = Line(2*0.05*WIDTH, 0.65 * HEIGHT, 4*0.045*WIDTH, 0.7 * HEIGHT, 'white', 20)
@@ -484,8 +550,10 @@ hexagon_points = [(0.4 * WIDTH, 0.45 * HEIGHT), (0.44 * WIDTH, 0.4 * HEIGHT), (0
 trapezoid_left = Poly(trapezoid_points_left, (0, 102, 204))
 trapezoid_right = Poly(trapezoid_points_right, (0, 102, 204))
 hexagon = Poly(hexagon_points, 'dark gray')
-poly_obstacles = [trapezoid_left, trapezoid_right, hexagon, line_wall_left, line_wall_right,  tunnel_top_wall]  # [trapezoid_left, trapezoid_right, hexagon]
+poly_obstacles = [trapezoid_left, trapezoid_right, hexagon, line_wall_left, line_wall_right,
+                  tunnel_top_wall]  # [trapezoid_left, trapezoid_right, hexagon]
 run = True
+door = Line(0.8 * WIDTH, 0.05 * HEIGHT, 0.8 * WIDTH, 0.2 * HEIGHT, (255, 20, 147), 20)
 
 while run:
 
@@ -495,10 +563,21 @@ while run:
 
     ball.draw()
     if (ball.y_pos > HEIGHT):
-        ball = Ball(WIDTH * 0.925, HEIGHT * 0.95, 0.03 * WIDTH, 'blue', ball_mass, force_at_beginning, .9, y_speed_0,
+        door.transparent()
+        ball = Ball(WIDTH * 0.925, HEIGHT * 0.95, 0.03 * WIDTH, 'blue', "planet.png", ball_mass, force_at_beginning, .9,
+                    y_speed_0,
                     x_speed_0, 1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt, direction)
+        line_obstacles.remove(door)
+
 
         ball.draw()
+        door.draw()
+        door.pink()
+
+    if(ball.x_pos < 0.75 * WIDTH):
+
+        door.draw()
+        line_obstacles.append(door)
 
     left.draw()
     right.draw()
@@ -553,17 +632,12 @@ while run:
 
                 print(ball.y_speed)
 
-                # right_flipper.rotate_right()
-
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
                 left_flipper.rotate_reset()
                 # left_flipper.reset_rotation(timer)
             elif event.key == pygame.K_RIGHT:
                 right_flipper.rotate_reset()
-
-    # elapsed_time = timer.tick(30) / 1000.0
-    # brick.update(elapsed_time)
 
     pygame.display.flip()
 pygame.quit()
