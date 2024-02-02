@@ -28,10 +28,10 @@ new_height = int(WIDTH / aspect_ratio)
 score_image = pygame.transform.scale(original_score_image, (WIDTH, new_height))
 
 
-board_angle = math.radians(50)
+board_angle = math.radians(30)
 g = 9.81
 ball_gravity = g * math.sin(board_angle)
-pushing_force = 100
+pushing_force = 105
 gravity_vector = pygame.math.Vector2(0, ball_gravity)
 pushing_force_vector = pygame.math.Vector2(0, 1)
 ball_mass = 2
@@ -302,20 +302,15 @@ class Circle:
         self.circle = pygame.draw.circle(screen, self.color, (self.x_pos, self.y_pos), self.radius)
 
 class Ball(Circle):
-    def __init__(self,  x_pos, y_pos, radius, color, mass, force, retention, y_speed, x_speed, id, friction, HEIGHT, WIDTH, fps, acceleration, dt, direction):
+    def __init__(self,  x_pos, y_pos, radius, color, picture, mass, force, retention, y_speed, x_speed, id, friction, HEIGHT, WIDTH, fps, acceleration, dt, direction):
 
         super().__init__(x_pos, y_pos, radius, color)
-        #self.x_pos = x_pos
-        #self.y_pos = y_pos
-        #self.radius = radius
-        #self.color = color
-
         self.mass = mass
         self.retention = retention
 
         self.id = id
         self.circle = ''
-        self.friction = friction ##dodati parametar trenja i za podlogu
+        self.friction = friction 
         self.screen = pygame.display.set_mode([WIDTH, HEIGHT])
         self.force = force
         self.x_speed = x_speed
@@ -328,20 +323,31 @@ class Ball(Circle):
         self.acceleration = acceleration
         self.force = force
         self.in_free_fall = True
-        #self.x_speed += self.acceleration * 0.5 * math.sqrt(2)/2
-       # self.y_speed += self.acceleration * 0.5 * math.sqrt(2)/2
         self.direction = [0, -1]
         self.y_speed =  y_speed
         self.x_speed =  x_speed
+        #izmenjeno dole
+        self.image_original = pygame.image.load(picture )
+        self.image_original = pygame.transform.scale(self.image_original, (2 * radius, 2 * radius))  # Scale the original image
+        self.image = self.image_original.copy()  # Use a copy of the original image for drawing
+        self.rect = self.image.get_rect(center=(x_pos, y_pos))
+        self.rotation_angle = 0  # Initial rotation angle
 
-
-        #self.positions = [self.x_pos, self.y_pos]
-        #self.speed = [self.x_speed, self.y_speed]
-
-            
+    def draw(self):
+        rotated_image = pygame.transform.rotate(self.image_original, self.rotation_angle)
+        rotated_rect = rotated_image.get_rect(center=self.rect.center)
+        self.screen.blit(rotated_image, rotated_rect)
 
     def update(self, line_obstacles, circle_obstacles, poly_obstacles, flippers):
-        # Collision with obstacle_circle
+        rotation_direction = get_rotation_direction((0, -1), self.direction)
+        if rotation_direction == "Clockwise":
+            self.rotation_angle += 20  # Adjust the rotation angle as needed
+        elif rotation_direction == "Counter-clockwise":
+            self.rotation_angle -= 20  # Adjust the rotation angle as needed
+
+        # Update the center of the image based on the circle's position
+        self.rect.center = (self.x_pos, self.y_pos)
+
 
         for i in range(len(line_obstacles)):
             incident_angle, isCollided, reflection_vector = line_obstacles[i].is_collided(self)
@@ -349,29 +355,16 @@ class Ball(Circle):
 
             if isCollided:
                 print("Collision")
-
-
-
                 print(math.degrees(incident_angle))
                 print(reflection_vector)
+                old_direction = self.direction
                 self.direction = [reflection_vector.x, reflection_vector.y]#[math.cos(reflection_angle), math.sin(reflection_angle)]
+                print(get_rotation_direction(old_direction, self.direction))
                 length = math.sqrt(self.direction[0] ** 2 + self.direction[1] ** 2)
                 reflection = [self.direction[0] / length, self.direction[1] / length]
                 self.direction = reflection
                 direction = pygame.math.Vector2(self.direction)
                 self.x_speed, self.y_speed, self.direction = gravity(self.acceleration, ball_gravity, gravity_vector, direction, dt)
-
-
-                #self.acceleration = self.force / self.mass
-
-
-
-
-            #  direction_vector = pygame.math.Vector2(self.direction)
-               # self.force += self.mass * g * math.cos(direction_vector.angle_to(gravity_vector))
-               # self.acceleration = self.force/self.mass
-               # self.x_speed = self.acceleration * self.dt * math.sin(direction_vector.angle_to(gravity_vector))
-               # self.y_speed = self.acceleration * self.dt * math.cos(direction_vector.angle_to(gravity_vector))
 
         for i in range(len(flippers)):
 
@@ -433,27 +426,34 @@ class Ball(Circle):
         self.x_pos += self.direction[0] * self.x_speed * self.dt
         self.y_pos += self.direction[1] * self.y_speed * self.dt
 
-        # Collision with window edges
+def get_rotation_direction(previous_direction, current_direction):
+    # Determine the rotation direction based on the previous and current direction
+        if previous_direction == (0, 0) or current_direction == (0, 0):
+            return "No rotation"
+        
+        if previous_direction[0] > 0 and current_direction[1] > 0:
+            return "Counter-clockwise"  # Ball moving right and down
+        elif previous_direction[1] > 0 and current_direction[0] < 0:
+            return "Counter-clockwise"  # Ball moving down and left
+        elif previous_direction[0] < 0 and current_direction[1] < 0:
+            return "Counter-clockwise"  # Ball moving left and up
+        elif previous_direction[1] < 0 and current_direction[0] > 0:
+            return "Counter-clockwise"  # Ball moving up and right
+        elif previous_direction[0] > 0 and current_direction[1] < 0:
+            return "Clockwise"  # Ball moving right and up
+        elif previous_direction[1] < 0 and current_direction[0] < 0:
+            return "Clockwise"  # Ball moving up and left
+        elif previous_direction[0] < 0 and current_direction[1] > 0:
+            return "Clockwise"  # Ball moving left and down
+        elif previous_direction[1] > 0 and current_direction[0] > 0:
+            return "Clockwise"  # Ball moving down and right
 
-
-
-
-
-    #def draw(self):
-     #   self.circle = pygame.draw.circle(self.screen, self.color, (self.x_pos, self.y_pos), self.radius)
-
-
-ball = Ball(WIDTH * 0.92, HEIGHT * 0.95, 0.03*WIDTH, 'blue', ball_mass, force_at_beginning, .9, y_speed_0, x_speed_0, 1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt, direction)
+        else:
+            return "No rotation"
+    
+ball = Ball(WIDTH * 0.92, HEIGHT * 0.95, 0.03*WIDTH, 'blue', "planet.png", ball_mass, force_at_beginning, .9, y_speed_0, x_speed_0, 1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt, direction)
 #ball = Ball(250, 550, 0.03*WIDTH, 'blue', 100, 6000, .9, 2, 2, 1, 0.02, HEIGHT, WIDTH, fps)
-'''
-print(250/WIDTH, 50/HEIGHT)
-print(200/WIDTH, 400/HEIGHT)
-print(380/WIDTH, 200/HEIGHT)
-print(550/WIDTH, 400/HEIGHT)
-print(100/WIDTH, 1000/HEIGHT, 300/WIDTH, 1150/HEIGHT)
-print(480/WIDTH, 1150/HEIGHT, 680/WIDTH, 1000/HEIGHT)
-print(30/WIDTH, 50/WIDTH)
-'''
+
 circle_obstacle1 = Circle(WIDTH * 0.24, 0.33 * HEIGHT, 0.055 * WIDTH, (29, 7, 73))
 circle_obstacle2 = Circle(0.494 * WIDTH, 0.159 * HEIGHT, 0.055 * WIDTH, (29, 7, 73))
 circle_obstacle3 = Circle(0.71 * WIDTH, 0.333 * HEIGHT, 0.055 * WIDTH, (29, 7, 73))
@@ -515,7 +515,7 @@ while run:
 
     ball.draw()
     if(ball.y_pos > HEIGHT):
-        ball = Ball(WIDTH * 0.93, HEIGHT * 0.95, 0.03 * WIDTH, 'blue', ball_mass, force_at_beginning, .9, y_speed_0,
+        ball = Ball(WIDTH * 0.93, HEIGHT * 0.95, 0.03 * WIDTH, 'blue', "planet.png", ball_mass, force_at_beginning, .9, y_speed_0,
                     x_speed_0, 1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt, direction)
 
         ball.draw()
