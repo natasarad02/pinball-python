@@ -327,16 +327,17 @@ class Ball(Circle):
         self.y_speed =  y_speed
         self.x_speed =  x_speed
         #izmenjeno dole
-        self.image_original = pygame.image.load("moon_img.png")
+        self.image_original = pygame.image.load("planet.png")
         self.image = pygame.transform.scale(self.image_original, (2 * radius, 2 * radius))  # Scale the image
         self.rect = self.image.get_rect(center=(x_pos, y_pos))
 
     def draw(self):
+        #self.circle = pygame.draw.circle(screen, self.color, (self.x_pos, self.y_pos), self.radius)
         self.screen.blit(self.image, self.rect)
 
     def update(self, line_obstacles, circle_obstacles, poly_obstacles, flippers):
         # Collision with obstacle_circle
-        self.rect.move_ip(self.direction[0] * self.x_speed * self.dt, self.direction[1] * self.y_speed * self.dt)
+        self.rect.center = (self.x_pos, self.y_pos)
         for i in range(len(line_obstacles)):
             incident_angle, isCollided, reflection_vector = line_obstacles[i].is_collided(self)
             #print(incident_angle)
