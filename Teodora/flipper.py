@@ -451,66 +451,69 @@ def get_rotation_direction(previous_direction, current_direction):
         else:
             return "No rotation"
     
-ball = Ball(WIDTH * 0.92, HEIGHT * 0.95, 0.03*WIDTH, 'blue', ball_mass, force_at_beginning, .9, y_speed_0, x_speed_0, 1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt, direction)
-#ball = Ball(250, 550, 0.03*WIDTH, 'blue', 100, 6000, .9, 2, 2, 1, 0.02, HEIGHT, WIDTH, fps)
-'''
-print(250/WIDTH, 50/HEIGHT)
-print(200/WIDTH, 400/HEIGHT)
-print(380/WIDTH, 200/HEIGHT)
-print(550/WIDTH, 400/HEIGHT)
-print(100/WIDTH, 1000/HEIGHT, 300/WIDTH, 1150/HEIGHT)
-print(480/WIDTH, 1150/HEIGHT, 680/WIDTH, 1000/HEIGHT)
-print(30/WIDTH, 50/WIDTH)
-'''
+ball = Ball(WIDTH * 0.925, HEIGHT * 0.95, 0.03 * WIDTH, 'blue', ball_mass, force_at_beginning, .9, y_speed_0, x_speed_0,
+            1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt, direction)
+# ball = Ball(250, 550, 0.03*WIDTH, 'blue', 100, 6000, .9, 2, 2, 1, 0.02, HEIGHT, WIDTH, fps)
+
 circle_obstacle1 = Circle(WIDTH * 0.24, 0.33 * HEIGHT, 0.055 * WIDTH, (29, 7, 73))
 circle_obstacle2 = Circle(0.494 * WIDTH, 0.159 * HEIGHT, 0.055 * WIDTH, (29, 7, 73))
 circle_obstacle3 = Circle(0.71 * WIDTH, 0.333 * HEIGHT, 0.055 * WIDTH, (29, 7, 73))
-circle_obstacles =  [circle_obstacle1, circle_obstacle2, circle_obstacle3]#[circle_obstacle1, circle_obstacle2, circle_obstacle3]
+circle_obstacles = [circle_obstacle1, circle_obstacle2,
+                    circle_obstacle3]  # [circle_obstacle1, circle_obstacle2, circle_obstacle3]
 
-
-line1 = Line(100, 700, 380, 850, 'red', 6)
-line2 = Line(50, 200, 50, 500, 'red', 6)
-line3 = Line(500, 850, 700, 700, 'red', 6)
-line4 = Line(400, 400, 700, 400, 'red', 6)
-
-left = Line(0, 0, 0, HEIGHT, (255, 20, 147), 6)#screen, 'purple', (0, 0), (0, HEIGHT), wall_thickness)
-right = Line(WIDTH, 0, WIDTH, HEIGHT, (255, 20, 147), 6) #screen, 'purple', (WIDTH, 0), (WIDTH, HEIGHT), wall_thickness)
-top = Line(0, 0.05 * HEIGHT, WIDTH, 0.05 * HEIGHT, (255, 20, 147), 6) #screen, 'purple', (0, 0), (WIDTH, 0), wall_thickness)
-bottom = Line(0, HEIGHT, WIDTH, HEIGHT, (255, 20, 147), 6) #screen, 'purple', (0, HEIGHT), (WIDTH, HEIGHT), wall_thickness)
+left = Line(0, 0, 0, HEIGHT, (255, 20, 147), 6)  # screen, 'purple', (0, 0), (0, HEIGHT), wall_thickness)
+right = Line(WIDTH, 0, WIDTH, HEIGHT, (255, 20, 147),
+             6)  # screen, 'purple', (WIDTH, 0), (WIDTH, HEIGHT), wall_thickness)
+top = Line(0, 0.05 * HEIGHT, WIDTH, 0.05 * HEIGHT, (255, 20, 147),
+           6)  # screen, 'purple', (0, 0), (WIDTH, 0), wall_thickness)
+bottom = Line(0, HEIGHT, WIDTH, HEIGHT, (255, 20, 147),
+              6)  # screen, 'purple', (0, HEIGHT), (WIDTH, HEIGHT), wall_thickness)
 
 timer = pygame.time.Clock()
 
-print(200/WIDTH, 45/HEIGHT, 15/WIDTH)
-#left_flipper = Flipper(0.13 * WIDTH, 0.771 * HEIGHT, 0.347 * WIDTH, 0.046 * HEIGHT, 'orange', WIDTH * 0.026)
-#right_flipper = Flipper(0.55 * WIDTH, 0.771 * HEIGHT, 0.347 * WIDTH, 0.046 * HEIGHT, 'orange', WIDTH * 0.026)
-left_flipper_points = [(0.2 * WIDTH, 0.755 * HEIGHT), (0.37 * WIDTH, 0.887 * HEIGHT), (0.34 * WIDTH, 0.9 * HEIGHT), (0.15 * WIDTH, 0.78 * HEIGHT)]
+print(200 / WIDTH, 45 / HEIGHT, 15 / WIDTH)
+# left_flipper = Flipper(0.13 * WIDTH, 0.771 * HEIGHT, 0.347 * WIDTH, 0.046 * HEIGHT, 'orange', WIDTH * 0.026)
+# right_flipper = Flipper(0.55 * WIDTH, 0.771 * HEIGHT, 0.347 * WIDTH, 0.046 * HEIGHT, 'orange', WIDTH * 0.026)
+left_flipper_points = [(0.2 * WIDTH, 0.755 * HEIGHT), (0.37 * WIDTH, 0.887 * HEIGHT), (0.34 * WIDTH, 0.9 * HEIGHT),
+                       (0.15 * WIDTH, 0.78 * HEIGHT)]
 right_flipper_points = [(WIDTH - x - 0.05 * WIDTH, y) for x, y in left_flipper_points]
 left_flipper = Flipper(left_flipper_points, (255, 20, 147))
 right_flipper = Flipper(right_flipper_points, (255, 20, 147))
+print(20 / HEIGHT)
 
-line_wall_left = Line(0, 0.695 * HEIGHT, 0.22 * WIDTH, 0.785 * HEIGHT, (255, 20, 147), 20)
-line_wall_right = Line(0.75 * WIDTH, 0.78 * HEIGHT,WIDTH - 0.15 * WIDTH, 0.695 * HEIGHT, (255, 20, 147), 20)
-tunnel_top_wall = Line(0.8 * WIDTH, 0.2 * HEIGHT, WIDTH - 0.15 * WIDTH, 0.25 * HEIGHT, (255, 20, 147), 20)
-tunnel_top_window_wall = Line(0.9 * WIDTH, 0, WIDTH, 0.25 * HEIGHT, (255, 20, 147), 15)
+line_wall_left_points = [(0, 0.695 * HEIGHT), (0.22 * WIDTH, 0.785 * HEIGHT), (0.22 * WIDTH, 0.79 * HEIGHT), (0, 0.71 * HEIGHT)]
+line_wall_left = Poly(line_wall_left_points, (255, 20, 147))
+line_wall_right_points = [(0.75 * WIDTH, 0.78 * HEIGHT), (WIDTH - 0.15 * WIDTH, 0.695 * HEIGHT), (WIDTH - 0.15 * WIDTH, 0.71 * HEIGHT), (0.75 * WIDTH, 0.795 * HEIGHT)]
+line_wall_right = Poly(line_wall_right_points, (255, 20, 147))
+
+tunnel_top_wall_points = [(0.8 * WIDTH, 0.2 * HEIGHT), (0.815 * WIDTH, 0.2 * HEIGHT), (WIDTH - 0.15 * WIDTH, 0.25 * HEIGHT), (WIDTH - 0.15 * WIDTH - 0.015 * WIDTH, 0.25 * HEIGHT)]
+tunnel_top_wall = Poly(tunnel_top_wall_points, (255, 20, 147))
+#tunnel_top_window_points = [(0.9 * WIDTH, 0), (WIDTH, 0.25 * HEIGHT), (WIDTH, 0.265 * HEIGHT), (0.9 * WIDTH, 0.015 * HEIGHT)]
+#tunnel_top_window_wall = Poly(tunnel_top_window_points, (255, 20, 147))
+
 tunnel_top_window_wall_small = Line(0.83 * WIDTH, 0, WIDTH, 0.15 * HEIGHT, (255, 20, 147), 15)
-score_board_points = [(0,0), (WIDTH, 0), (WIDTH, 0.05 * HEIGHT), (0, 0.05 * HEIGHT)]
+score_board_points = [(0, 0), (WIDTH, 0), (WIDTH, 0.05 * HEIGHT), (0, 0.05 * HEIGHT)]
 score_board = Poly(score_board_points, 'pink')
-#tunnel_wall_left = Line(2*0.05*WIDTH, 0.4 * HEIGHT, 2*0.05*WIDTH, 0.65 * HEIGHT, 'white', 20)
+# tunnel_wall_left = Line(2*0.05*WIDTH, 0.4 * HEIGHT, 2*0.05*WIDTH, 0.65 * HEIGHT, 'white', 20)
+#tunnel_right_points = [(WIDTH - 0.15 * WIDTH, 0.25 * HEIGHT), (WIDTH - 0.15 * WIDTH + 0.015 * WIDTH, 0.25 * HEIGHT), (WIDTH - 0.15 * WIDTH, HEIGHT), ]
 tunnel_window_left = Line(0, 0.4 * HEIGHT, 0, 0.7 * HEIGHT, (255, 20, 147), 20)
 tunnel_window_right = Line(WIDTH - 0.15 * WIDTH, 0.25 * HEIGHT, WIDTH - 0.15 * WIDTH, HEIGHT, (255, 20, 147), 15)
-#tunnel_left = Line(2*0.05*WIDTH, 0.65 * HEIGHT, 4*0.045*WIDTH, 0.7 * HEIGHT, 'white', 20)
-#left_tunnel = [tunnel_wall_left, line_wall_left, tunnel_window_left]
+# tunnel_left = Line(2*0.05*WIDTH, 0.65 * HEIGHT, 4*0.045*WIDTH, 0.7 * HEIGHT, 'white', 20)
+# left_tunnel = [tunnel_wall_left, line_wall_left, tunnel_window_left]
 
-line_obstacles = [left, right, top, line_wall_left, line_wall_right, tunnel_top_wall, tunnel_window_right, tunnel_top_window_wall_small]#[line_wall_left, line_wall_right, left, right, top, bottom]#[line4, left, right, top, bottom]#[left_flipper, right_flipper, line_wall_left, line_wall_right, left, right, top, bottom] #, line1, line2, line3, line4]
+line_obstacles = [left, right, top, tunnel_window_right,
+                  tunnel_top_window_wall_small]  # [line_wall_left, line_wall_right, left, right, top, bottom]#[line4, left, right, top, bottom]#[left_flipper, right_flipper, line_wall_left, line_wall_right, left, right, top, bottom] #, line1, line2, line3, line4]
 flippers = [left_flipper, right_flipper]
-trapezoid_points_left = [(0.12 * WIDTH, 0.47 * HEIGHT), (0.17 * WIDTH, 0.5 * HEIGHT), (0.27 * WIDTH, 0.65 * HEIGHT), (0.22 * WIDTH, 0.65 * HEIGHT)]
+trapezoid_points_left = [(0.12 * WIDTH, 0.47 * HEIGHT), (0.17 * WIDTH, 0.5 * HEIGHT), (0.27 * WIDTH, 0.65 * HEIGHT),
+                         (0.22 * WIDTH, 0.65 * HEIGHT)]
 trapezoid_points_right = [(WIDTH - x - 0.08 * WIDTH, y) for x, y in trapezoid_points_left]
-hexagon_points = [(0.4 * WIDTH, 0.45 * HEIGHT), (0.44 * WIDTH, 0.4 * HEIGHT), (0.54 * WIDTH, 0.4 * HEIGHT), (0.58 * WIDTH, 0.45 * HEIGHT), (0.54 * WIDTH, 0.5 * HEIGHT), (0.44 * WIDTH, 0.5 * HEIGHT)]
+hexagon_points = [(0.4 * WIDTH, 0.45 * HEIGHT), (0.44 * WIDTH, 0.4 * HEIGHT), (0.54 * WIDTH, 0.4 * HEIGHT),
+                  (0.58 * WIDTH, 0.45 * HEIGHT), (0.54 * WIDTH, 0.5 * HEIGHT), (0.44 * WIDTH, 0.5 * HEIGHT)]
 
 trapezoid_left = Poly(trapezoid_points_left, (0, 102, 204))
 trapezoid_right = Poly(trapezoid_points_right, (0, 102, 204))
 hexagon = Poly(hexagon_points, 'dark gray')
-poly_obstacles = [trapezoid_left, trapezoid_right, hexagon]#[trapezoid_left, trapezoid_right, hexagon]
+poly_obstacles = [trapezoid_left, trapezoid_right, hexagon, line_wall_left, line_wall_right,  tunnel_top_wall]  # [trapezoid_left, trapezoid_right, hexagon]
 run = True
 
 
