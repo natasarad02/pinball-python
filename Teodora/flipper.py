@@ -302,7 +302,7 @@ class Circle:
         self.circle = pygame.draw.circle(screen, self.color, (self.x_pos, self.y_pos), self.radius)
 
 class Ball(Circle):
-    def __init__(self,  x_pos, y_pos, radius, color, mass, force, retention, y_speed, x_speed, id, friction, HEIGHT, WIDTH, fps, acceleration, dt, direction):
+    def __init__(self,  x_pos, y_pos, radius, color, picture, mass, force, retention, y_speed, x_speed, id, friction, HEIGHT, WIDTH, fps, acceleration, dt, direction):
 
         super().__init__(x_pos, y_pos, radius, color)
         self.mass = mass
@@ -327,7 +327,7 @@ class Ball(Circle):
         self.y_speed =  y_speed
         self.x_speed =  x_speed
         #izmenjeno dole
-        self.image_original = pygame.image.load("planet.png")
+        self.image_original = pygame.image.load(picture )
         self.image_original = pygame.transform.scale(self.image_original, (2 * radius, 2 * radius))  # Scale the original image
         self.image = self.image_original.copy()  # Use a copy of the original image for drawing
         self.rect = self.image.get_rect(center=(x_pos, y_pos))
@@ -341,14 +341,14 @@ class Ball(Circle):
     def update(self, line_obstacles, circle_obstacles, poly_obstacles, flippers):
         rotation_direction = get_rotation_direction((0, -1), self.direction)
         if rotation_direction == "Clockwise":
-            self.rotation_angle += 40  # Adjust the rotation angle as needed
+            self.rotation_angle += 20  # Adjust the rotation angle as needed
         elif rotation_direction == "Counter-clockwise":
-            self.rotation_angle -= 40  # Adjust the rotation angle as needed
+            self.rotation_angle -= 20  # Adjust the rotation angle as needed
 
         # Update the center of the image based on the circle's position
         self.rect.center = (self.x_pos, self.y_pos)
 
-        
+
         for i in range(len(line_obstacles)):
             incident_angle, isCollided, reflection_vector = line_obstacles[i].is_collided(self)
             #print(incident_angle)
@@ -451,17 +451,9 @@ def get_rotation_direction(previous_direction, current_direction):
         else:
             return "No rotation"
     
-ball = Ball(WIDTH * 0.92, HEIGHT * 0.95, 0.03*WIDTH, 'blue', ball_mass, force_at_beginning, .9, y_speed_0, x_speed_0, 1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt, direction)
+ball = Ball(WIDTH * 0.92, HEIGHT * 0.95, 0.03*WIDTH, 'blue', "planet.png", ball_mass, force_at_beginning, .9, y_speed_0, x_speed_0, 1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt, direction)
 #ball = Ball(250, 550, 0.03*WIDTH, 'blue', 100, 6000, .9, 2, 2, 1, 0.02, HEIGHT, WIDTH, fps)
-'''
-print(250/WIDTH, 50/HEIGHT)
-print(200/WIDTH, 400/HEIGHT)
-print(380/WIDTH, 200/HEIGHT)
-print(550/WIDTH, 400/HEIGHT)
-print(100/WIDTH, 1000/HEIGHT, 300/WIDTH, 1150/HEIGHT)
-print(480/WIDTH, 1150/HEIGHT, 680/WIDTH, 1000/HEIGHT)
-print(30/WIDTH, 50/WIDTH)
-'''
+
 circle_obstacle1 = Circle(WIDTH * 0.24, 0.33 * HEIGHT, 0.055 * WIDTH, (29, 7, 73))
 circle_obstacle2 = Circle(0.494 * WIDTH, 0.159 * HEIGHT, 0.055 * WIDTH, (29, 7, 73))
 circle_obstacle3 = Circle(0.71 * WIDTH, 0.333 * HEIGHT, 0.055 * WIDTH, (29, 7, 73))
@@ -523,7 +515,7 @@ while run:
 
     ball.draw()
     if(ball.y_pos > HEIGHT):
-        ball = Ball(WIDTH * 0.93, HEIGHT * 0.95, 0.03 * WIDTH, 'blue', ball_mass, force_at_beginning, .9, y_speed_0,
+        ball = Ball(WIDTH * 0.93, HEIGHT * 0.95, 0.03 * WIDTH, 'blue', "planet.png", ball_mass, force_at_beginning, .9, y_speed_0,
                     x_speed_0, 1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt, direction)
 
         ball.draw()
