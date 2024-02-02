@@ -574,11 +574,12 @@ while run:
         door.draw()
         door.pink()
 
+    
     if(ball.x_pos < 0.75 * WIDTH):
 
         door.draw()
         line_obstacles.append(door)
-
+    
     left.draw()
     right.draw()
     top.draw()
