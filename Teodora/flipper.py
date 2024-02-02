@@ -341,7 +341,7 @@ class Ball(Circle):
     def update(self, line_obstacles, circle_obstacles, poly_obstacles, flippers):
         rotation_direction = get_rotation_direction((0, -1), self.direction)
         if rotation_direction == "Clockwise":
-            self.rotation_angle += 40  # Adjust the rotation angle as needed
+            self.rotation_angle += 40  # +omega * dt, omega += moment_sile/moment_inercije
         elif rotation_direction == "Counter-clockwise":
             self.rotation_angle -= 40  # Adjust the rotation angle as needed
 
