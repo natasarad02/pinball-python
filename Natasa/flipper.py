@@ -31,12 +31,12 @@ score_image = pygame.transform.scale(original_score_image, (WIDTH, new_height))
 board_angle = math.radians(30)
 g = 9.81
 ball_gravity = g * math.sin(board_angle)
-pushing_force = 120
+pushing_force = 100
 gravity_vector = pygame.math.Vector2(0, ball_gravity)
 pushing_force_vector = pygame.math.Vector2(0, 1)
 ball_mass = 2
 dt = 0.5
-force_at_beginning = pushing_force + ball_mass * ball_gravity * math.sqrt(2) / 2
+force_at_beginning_y = pushing_force + ball_mass * ball_gravity * math.sqrt(2) / 2
 acceleration_0 = force_at_beginning / ball_mass
 acceleration_0_x = acceleration_0 * math.sqrt(2) / 2
 acceleration_0_y = acceleration_0 * math.sqrt(2) / 2
@@ -61,9 +61,9 @@ def gravity(acceleration, ball_gravity, gravity_vector, direction, dt):
 
 def gravity_poly(acceleration, ball_gravity, gravity_vector, direction, dt):
     angle = gravity_vector.angle_to(direction)
-    acceleration *= 1.2
+    acceleration *= 1
     x_speed = acceleration * dt  # * math.sin(math.radians(angle))
-    y_speed = (acceleration + ball_gravity) * dt
+    y_speed = acceleration * dt
     # direction += gravity_vector
     # direction = [direction.x, direction.y]
     return x_speed, y_speed, direction
