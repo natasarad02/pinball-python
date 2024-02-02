@@ -328,16 +328,27 @@ class Ball(Circle):
         self.x_speed =  x_speed
         #izmenjeno dole
         self.image_original = pygame.image.load("planet.png")
-        self.image = pygame.transform.scale(self.image_original, (2 * radius, 2 * radius))  # Scale the image
+        self.image_original = pygame.transform.scale(self.image_original, (2 * radius, 2 * radius))  # Scale the original image
+        self.image = self.image_original.copy()  # Use a copy of the original image for drawing
         self.rect = self.image.get_rect(center=(x_pos, y_pos))
+        self.rotation_angle = 0  # Initial rotation angle
 
     def draw(self):
-        #self.circle = pygame.draw.circle(screen, self.color, (self.x_pos, self.y_pos), self.radius)
-        self.screen.blit(self.image, self.rect)
+        rotated_image = pygame.transform.rotate(self.image_original, self.rotation_angle)
+        rotated_rect = rotated_image.get_rect(center=self.rect.center)
+        self.screen.blit(rotated_image, rotated_rect)
 
     def update(self, line_obstacles, circle_obstacles, poly_obstacles, flippers):
-        # Collision with obstacle_circle
+        rotation_direction = get_rotation_direction((0, -1), self.direction)
+        if rotation_direction == "Clockwise":
+            self.rotation_angle += 40  # Adjust the rotation angle as needed
+        elif rotation_direction == "Counter-clockwise":
+            self.rotation_angle -= 40  # Adjust the rotation angle as needed
+
+        # Update the center of the image based on the circle's position
         self.rect.center = (self.x_pos, self.y_pos)
+
+        
         for i in range(len(line_obstacles)):
             incident_angle, isCollided, reflection_vector = line_obstacles[i].is_collided(self)
             #print(incident_angle)
