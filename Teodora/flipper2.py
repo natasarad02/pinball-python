@@ -10,7 +10,7 @@ screen_height = root.winfo_screenheight()
 
 HEIGHT = screen_height * 0.9
 WIDTH = screen_width * 0.4
-
+pygame.display.set_caption("Two balls pinball")
 pygame.init()
 
 screen = pygame.display.set_mode([WIDTH, HEIGHT])
@@ -19,6 +19,7 @@ wall_thickness = 10
 fps = 60
 
 background_image = pygame.transform.scale(pygame.image.load("pozadina.png"), (WIDTH, HEIGHT))
+kraj = pygame.transform.scale(pygame.image.load("kraj.png"), (WIDTH, HEIGHT))
 sun_image = pygame.transform.scale(pygame.image.load("sun.png"), (64, 64))
 moon_image = pygame.transform.scale(pygame.image.load("moon_img.png"), (65, 65))
 neptune_image = pygame.transform.scale(pygame.image.load("neptune.png"), (68, 68))
@@ -541,8 +542,12 @@ trapezoid_left = Poly(trapezoid_points_left, (0, 102, 204))
 trapezoid_right = Poly(trapezoid_points_right, (0, 102, 204))
 hexagon = Poly(hexagon_points, 'dark gray')
 poly_obstacles = [trapezoid_left, trapezoid_right, hexagon, line_wall_left, line_wall_right,  tunnel_top_wall]  # [trapezoid_left, trapezoid_right, hexagon]
+lives = 1
+score = 1000 #promeniti
+font = pygame.font.Font(None, 60)
+#-----------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
 run = True
-
 while run:
 
     screen.blit(background_image, (0, 0))
@@ -551,14 +556,21 @@ while run:
     
     ball.draw()
     
-    if(ball.x_pos < 0.75 * WIDTH):
+    if(ball2 in active_balls):
+        ball2.draw()
+
+    if(ball.x_pos < 0.8 * WIDTH):
         ball2.draw()
 
 
-    '''if (ball.y_pos > HEIGHT): #izmeniti na to ako su obe lopte ...
+    if (ball.y_pos > HEIGHT and ball2.y_pos > HEIGHT): #izmeniti na to ako su obe lopte ...
         ball = Ball(WIDTH * 0.925, HEIGHT * 0.95, 0.03 * WIDTH, 'blue', "planet.png", ball_mass, force_at_beginning, .9, y_speed_0,
                     x_speed_0, 1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt, direction)
-        ball.draw()'''
+        ball2 = Ball(WIDTH * 0.925, HEIGHT * 0.95, 0.03 * WIDTH, 'red', "jupiter.png", ball_mass, force_at_beginning, .9, y_speed_0, x_speed_0,
+                    1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt, direction)
+        active_balls = []
+        lives -=1
+        ball.draw()
 
     left.draw()
     right.draw()
@@ -599,6 +611,12 @@ while run:
     # line4.draw()
     ball.update(line_obstacles, circle_obstacles, poly_obstacles, flippers, active_balls)
     ball2.update(line_obstacles, circle_obstacles, poly_obstacles, flippers, active_balls)
+
+    if(lives==0):
+        screen.blit(kraj, (0, 0))
+        score_text = font.render("{}".format(score), True, (255, 255, 255))
+        screen.blit(score_text, (WIDTH*0.2, HEIGHT*0.42))
+
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
