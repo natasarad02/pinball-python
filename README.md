@@ -8,7 +8,7 @@ Dobrodošli u Space Pinball! Ova igra je razvijena u Pythonu koristeći popularn
 3. Podesite parametre igre prema svojoj rezoluciji
 
 ## Opis igre
-Space Pinball pruža mehaničko iskustvo flipera s dodatkom svemirskih elemenata. Koristite leve i desne strelice za pomeranje krilaca, a Space taster za ispaljivanje kuglice. Osvojite poene tako što ćete pogoditi različite oblike:
+Space Pinball pruža mehaničko iskustvo 2D flipera s dodatkom svemirskih elemenata. Koristite leve i desne strelice za pomeranje krilaca, a Space taster za ispaljivanje kuglice. Osvojite poene tako što ćete pogoditi različite oblike:
 - **30 poena** za planete
 - **10 poena** za trapezoide
 - **60 poena** za sestouglove
