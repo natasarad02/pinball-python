@@ -620,16 +620,14 @@ tunnel_top_wall = Poly(tunnel_top_wall_points, (255, 20, 147))
 # tunnel_top_window_wall = Poly(tunnel_top_window_points, (255, 20, 147))
 
 tunnel_top_window_wall_small = Line(0.83 * WIDTH, 0, WIDTH, 0.15 * HEIGHT, (255, 20, 147), 15)
-<<<<<<< HEAD
+
 score_board_points = [(0,0), (WIDTH, 0), (WIDTH, 0.05 * HEIGHT), (0, 0.05 * HEIGHT)]
 score_board = Poly(score_board_points, 'black')
 #tunnel_wall_left = Line(2*0.05*WIDTH, 0.4 * HEIGHT, 2*0.05*WIDTH, 0.65 * HEIGHT, 'white', 20)
-=======
-score_board_points = [(0, 0), (WIDTH, 0), (WIDTH, 0.05 * HEIGHT), (0, 0.05 * HEIGHT)]
-score_board = Poly(score_board_points, 'pink')
+
 # tunnel_wall_left = Line(2*0.05*WIDTH, 0.4 * HEIGHT, 2*0.05*WIDTH, 0.65 * HEIGHT, 'white', 20)
 # tunnel_right_points = [(WIDTH - 0.15 * WIDTH, 0.25 * HEIGHT), (WIDTH - 0.15 * WIDTH + 0.015 * WIDTH, 0.25 * HEIGHT), (WIDTH - 0.15 * WIDTH, HEIGHT), ]
->>>>>>> 214a3fbbbd9e13b30aec0bea59beea011e24bf05
+
 tunnel_window_left = Line(0, 0.4 * HEIGHT, 0, 0.7 * HEIGHT, (255, 20, 147), 20)
 tunnel_window_right = Line(WIDTH - 0.15 * WIDTH, 0.25 * HEIGHT, WIDTH - 0.15 * WIDTH, HEIGHT, (255, 20, 147), 15)
 # tunnel_left = Line(2*0.05*WIDTH, 0.65 * HEIGHT, 4*0.045*WIDTH, 0.7 * HEIGHT, 'white', 20)
