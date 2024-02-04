@@ -31,6 +31,7 @@ original_score_image = pygame.image.load("score.png")
 aspect_ratio = original_score_image.get_width() / original_score_image.get_height()
 new_height = int(WIDTH / aspect_ratio)
 score_image = pygame.transform.scale(original_score_image, (WIDTH, new_height))
+kraj = pygame.transform.scale(pygame.image.load("kraj.png"), (WIDTH, HEIGHT))
 
 board_angle = math.radians(15)
 g = 9.81
@@ -53,6 +54,8 @@ x_speed_vector = pygame.math.Vector2(x_speed_0)
 direction = x_speed_vector + y_speed_vector + gravity_vector
 direction = direction.normalize()
 
+global total_points
+total_points = 0
 
 def gravity(ball, ball_gravity, gravity_vector, direction, dt):
     force_reaction = 0.5 * ball.force
@@ -71,10 +74,6 @@ def gravity(ball, ball_gravity, gravity_vector, direction, dt):
         force_y += force_g
     else:
         force_y = abs(force_y - force_g)
-
-   # print("Ugao: ", math.degrees(angle), " x: ", force_x, " y: ", force_y, " g: ", force_g)
-    #
-
 
     acceleration_x = force_x / ball.mass
     acceleration_y = force_y / ball.mass
@@ -488,8 +487,13 @@ class Ball(Circle):
         for i in range(len(poly_obstacles)):
             self.incident_angle, reflection_vector, isCollided = poly_obstacles[i].is_collided(self)
             if isCollided:
-                # self.x_speed = 0
-                # self.y_speed = 0
+                if(poly_obstacles[i]==hexagon):
+                    global total_points
+                    total_points+=60
+                elif(poly_obstacles[i]== trapezoid_left):
+                    total_points+=10
+                elif(poly_obstacles[i]== trapezoid_right):
+                    total_points+=10
 
                 self.direction = [reflection_vector.x,
                                   reflection_vector.y]  # [math.cos(reflection_angle), math.sin(reflection_angle)]
@@ -511,6 +515,7 @@ class Ball(Circle):
             # self.x_speed += self.acceleration * 0.5
             # self.y_speed += self.acceleration * 0.5
             if distance_squared1 <= sum_radii_squared1:
+                total_points+=30
                 normal_vector = [self.x_pos - circle_obstacles[i].x_pos, self.y_pos - circle_obstacles[i].y_pos]
                 magnitude = math.sqrt(normal_vector[0] ** 2 + normal_vector[1] ** 2)
                 normal_vector = [normal_vector[0] / magnitude, normal_vector[1] / magnitude]
@@ -636,7 +641,10 @@ poly_obstacles = [trapezoid_left, trapezoid_right, hexagon, line_wall_left, line
                   tunnel_top_wall]  # [trapezoid_left, trapezoid_right, hexagon]
 run = True
 door = Line(0.8 * WIDTH, 0.05 * HEIGHT, 0.8 * WIDTH, 0.2 * HEIGHT, (255, 20, 147), 20)
-
+lives = 2
+score = 0
+font = pygame.font.Font(None, 60)
+font2 = pygame.font.Font(None, 45)
 while run:
 
     screen.blit(background_image, (0, 0))
@@ -649,7 +657,7 @@ while run:
         ball = Ball(WIDTH * 0.925, HEIGHT * 0.95, 0.03 * WIDTH, 'blue', "planet.png", ball_mass, force_at_beginning, .9,
                     y_speed_0,
                     x_speed_0, 1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt, direction)
-        #line_obstacles.remove(door)
+        lives -=1
 
 
         ball.draw()
@@ -698,8 +706,18 @@ while run:
     tunnel_top_window_wall_small.draw()
     score_board.draw()
     screen.blit(score_image, (0, 0))
-    # line4.draw()
+    score = total_points
+    score_text = font2.render("{}".format(score), True, (255, 255, 255))
+    screen.blit(score_text, (WIDTH*0.3, HEIGHT*0.01))
+    lives_text = font2.render("{}".format(lives), True, (255, 255, 255))
+    screen.blit(lives_text, (WIDTH*0.78, HEIGHT*0.01))
     ball.update(line_obstacles, circle_obstacles, poly_obstacles, flippers)
+
+    if(lives==0):
+        screen.blit(kraj, (0, 0))
+        score = total_points
+        score_text = font.render("{}".format(score), True, (255, 255, 255))
+        screen.blit(score_text, (WIDTH*0.2, HEIGHT*0.42))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
