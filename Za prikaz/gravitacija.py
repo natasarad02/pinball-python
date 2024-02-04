@@ -9,8 +9,8 @@ import numpy as np
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
 
-HEIGHT = screen_height*0.9
-WIDTH = screen_width*0.35;
+HEIGHT = screen_height*0.8
+WIDTH = screen_width*0.35
 
 screen = pygame.display.set_mode([WIDTH, HEIGHT])
 
