@@ -723,21 +723,21 @@ while run:
         if event.type == pygame.QUIT:
             run = False
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
+            if event.key == pygame.K_LEFT and lives>0:
                 left_flipper.rotate_left()
-            elif event.key == pygame.K_RIGHT:
+            elif event.key == pygame.K_RIGHT and lives>0:
                 right_flipper.rotate_right()
-            elif event.key == pygame.K_SPACE:
+            elif event.key == pygame.K_SPACE and lives>0:
                 ball.x_speed = ball.acceleration * dt
                 ball.y_speed = ball.acceleration * dt
 
                 print(ball.y_speed)
 
         elif event.type == pygame.KEYUP:
-            if event.key == pygame.K_LEFT:
+            if event.key == pygame.K_LEFT and lives>0:
                 left_flipper.rotate_reset()
                 # left_flipper.reset_rotation(timer)
-            elif event.key == pygame.K_RIGHT:
+            elif event.key == pygame.K_RIGHT and lives>0:
                 right_flipper.rotate_reset()
 
     pygame.display.flip()

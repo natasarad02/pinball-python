@@ -648,7 +648,7 @@ run = True
 door = Line(0.8 * WIDTH, 0.05 * HEIGHT, 0.8 * WIDTH, 0.2 * HEIGHT, (255, 20, 147), 20)
 active_balls = []
 lives = 2
-score = 1000 #promeniti
+score = 0
 font = pygame.font.Font(None, 60)
 font2 = pygame.font.Font(None, 45)
 while run:
@@ -737,11 +737,11 @@ while run:
         if event.type == pygame.QUIT:
             run = False
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
+            if event.key == pygame.K_LEFT and lives>0:
                 left_flipper.rotate_left()
-            elif event.key == pygame.K_RIGHT:
+            elif event.key == pygame.K_RIGHT and lives>0:
                 right_flipper.rotate_right()
-            elif event.key == pygame.K_SPACE:
+            elif event.key == pygame.K_SPACE and lives>0:
                 if(len(active_balls)==0):
                     ball.x_speed = ball.acceleration * dt
                     ball.y_speed = ball.acceleration * dt
@@ -756,10 +756,10 @@ while run:
                     active_balls.append(ball2)
 
         elif event.type == pygame.KEYUP:
-            if event.key == pygame.K_LEFT:
+            if event.key == pygame.K_LEFT and lives>0:
                 left_flipper.rotate_reset()
                 # left_flipper.reset_rotation(timer)
-            elif event.key == pygame.K_RIGHT:
+            elif event.key == pygame.K_RIGHT and lives>0:
                 right_flipper.rotate_reset()
 
     pygame.display.flip()
