@@ -22,6 +22,7 @@ print(128/WIDTH)
 print(130/WIDTH)
 print(136/WIDTH)
 print(150 / WIDTH)
+kraj = pygame.transform.scale(pygame.image.load("kraj.png"), (WIDTH, HEIGHT))
 background_image = pygame.transform.scale(pygame.image.load("pozadina.png"), (WIDTH, HEIGHT))
 sun_image = pygame.transform.scale(pygame.image.load("sun.png"), (0.125 * WIDTH, 0.125 * WIDTH))
 moon_image = pygame.transform.scale(pygame.image.load("moon_img.png"), (0.127 * WIDTH, 0.127 * WIDTH))
@@ -35,7 +36,7 @@ score_image = pygame.transform.scale(original_score_image, (WIDTH, new_height))
 board_angle = math.radians(15)
 g = 9.81
 ball_gravity = g * math.sin(board_angle)
-pushing_force = 80
+pushing_force = 60
 gravity_vector = pygame.math.Vector2(0, ball_gravity)
 pushing_force_vector = pygame.math.Vector2(0, 1)
 ball_mass = 3
@@ -441,12 +442,45 @@ class Ball(Circle):
         rotated_rect = rotated_image.get_rect(center=self.rect.center)
         self.screen.blit(rotated_image, rotated_rect)
 
-    def update(self, line_obstacles, circle_obstacles, poly_obstacles, flippers):
+    def ball_collision(self, other_ball):
+        distance_squared = (self.x_pos - other_ball.x_pos) ** 2 + (self.y_pos - other_ball.y_pos) ** 2
+        sum_radii_squared = (self.radius + other_ball.radius) ** 2
+
+        if distance_squared <= sum_radii_squared:
+            # Calculate collision normal
+            collision_normal = pygame.math.Vector2(self.x_pos - other_ball.x_pos, self.y_pos - other_ball.y_pos)
+            collision_normal.normalize_ip()
+
+            # Calculate relative velocity
+            relative_velocity = pygame.math.Vector2(self.x_speed - other_ball.x_speed, self.y_speed - other_ball.y_speed)
+
+            # Calculate relative velocity in the direction of the normal
+            relative_velocity_normal = relative_velocity.dot(collision_normal)
+
+            # Calculate impulse (change in velocity)
+            impulse = (2 * relative_velocity_normal) / (self.mass + other_ball.mass)
+
+            # Update velocities
+            self.x_speed -= impulse * other_ball.mass * collision_normal.x
+            self.y_speed -= impulse * other_ball.mass * collision_normal.y
+            other_ball.x_speed += impulse * self.mass * collision_normal.x
+            other_ball.y_speed += impulse * self.mass * collision_normal.y
+
+            # Move the balls apart to avoid sticking together
+            overlap = 0.5 * (math.sqrt(distance_squared) - (self.radius + other_ball.radius))
+            self.x_pos -= overlap * collision_normal.x
+            self.y_pos -= overlap * collision_normal.y
+            other_ball.x_pos += overlap * collision_normal.x
+            other_ball.y_pos += overlap * collision_normal.y
+
+
+    def update(self, line_obstacles, circle_obstacles, poly_obstacles, flippers, balls):
         #rotation_params(self)
         rotation(self)
 
-
-
+        for other_ball in balls:
+            if self != other_ball:  # Avoid self-collision
+                self.ball_collision(other_ball)
 
         for i in range(len(line_obstacles)):
             self.incident_angle, isCollided, reflection_vector = line_obstacles[i].is_collided(self)
@@ -568,8 +602,8 @@ def get_rotation_direction(previous_direction, current_direction):
 ball = Ball(WIDTH * 0.925, HEIGHT * 0.95, 0.03 * WIDTH, 'blue', "planet.png", ball_mass, force_at_beginning, .9,
             y_speed_0, x_speed_0,
             1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt, direction)
-# ball = Ball(250, 550, 0.03*WIDTH, 'blue', 100, 6000, .9, 2, 2, 1, 0.02, HEIGHT, WIDTH, fps)
-
+ball2 = Ball(WIDTH * 0.925, HEIGHT * 0.95, 0.03 * WIDTH, 'red', "jupiter.png", ball_mass, force_at_beginning, .9, y_speed_0, x_speed_0,
+            1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt, direction)
 circle_obstacle1 = Circle(WIDTH * 0.24, 0.33 * HEIGHT, 0.055 * WIDTH, (29, 7, 73))
 circle_obstacle2 = Circle(0.494 * WIDTH, 0.159 * HEIGHT, 0.055 * WIDTH, (29, 7, 73))
 circle_obstacle3 = Circle(0.71 * WIDTH, 0.333 * HEIGHT, 0.055 * WIDTH, (29, 7, 73))
@@ -636,7 +670,10 @@ poly_obstacles = [trapezoid_left, trapezoid_right, hexagon, line_wall_left, line
                   tunnel_top_wall]  # [trapezoid_left, trapezoid_right, hexagon]
 run = True
 door = Line(0.8 * WIDTH, 0.05 * HEIGHT, 0.8 * WIDTH, 0.2 * HEIGHT, (255, 20, 147), 20)
-
+active_balls = []
+lives = 2
+score = 1000 #promeniti
+font = pygame.font.Font(None, 60)
 while run:
 
     screen.blit(background_image, (0, 0))
@@ -644,17 +681,22 @@ while run:
     timer.tick(fps)
 
     ball.draw()
-    if (ball.y_pos > HEIGHT):
-        door.transparent()
-        ball = Ball(WIDTH * 0.925, HEIGHT * 0.95, 0.03 * WIDTH, 'blue', "planet.png", ball_mass, force_at_beginning, .9,
-                    y_speed_0,
+
+    if(ball2 in active_balls):
+        ball2.draw()
+
+    if(ball.x_pos < 0.8 * WIDTH):
+        ball2.draw()
+
+
+    if (ball.y_pos > HEIGHT and ball2.y_pos > HEIGHT): #izmeniti na to ako su obe lopte ...
+        ball = Ball(WIDTH * 0.925, HEIGHT * 0.95, 0.03 * WIDTH, 'blue', "planet.png", ball_mass, force_at_beginning, .9, y_speed_0,
                     x_speed_0, 1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt, direction)
-        #line_obstacles.remove(door)
-
-
+        ball2 = Ball(WIDTH * 0.925, HEIGHT * 0.95, 0.03 * WIDTH, 'red', "jupiter.png", ball_mass, force_at_beginning, .9, y_speed_0, x_speed_0,
+                    1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt, direction)
+        active_balls = []
+        lives -=1
         ball.draw()
-        door.draw()
-        door.pink()
 
     
     if(ball.x_pos < 0.75 * WIDTH - ball.radius):
@@ -699,7 +741,14 @@ while run:
     score_board.draw()
     screen.blit(score_image, (0, 0))
     # line4.draw()
-    ball.update(line_obstacles, circle_obstacles, poly_obstacles, flippers)
+    ball.update(line_obstacles, circle_obstacles, poly_obstacles, flippers, active_balls)
+    ball2.update(line_obstacles, circle_obstacles, poly_obstacles, flippers, active_balls)
+
+    if(lives==0):
+        screen.blit(kraj, (0, 0))
+        score_text = font.render("{}".format(score), True, (255, 255, 255))
+        screen.blit(score_text, (WIDTH*0.2, HEIGHT*0.42))
+
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -710,10 +759,18 @@ while run:
             elif event.key == pygame.K_RIGHT:
                 right_flipper.rotate_right()
             elif event.key == pygame.K_SPACE:
-                ball.x_speed = ball.acceleration * dt
-                ball.y_speed = ball.acceleration * dt
-
-                print(ball.y_speed)
+                if(len(active_balls)==0):
+                    ball.x_speed = ball.acceleration * dt
+                    ball.y_speed = ball.acceleration * dt
+                    active_balls.append(ball)
+                    #pygame.time.delay(1000)
+                    print(ball.y_speed)
+                    
+                elif(len(active_balls)==1):
+                    ball2.x_speed = ball2.acceleration * dt
+                    ball2.y_speed = ball2.acceleration * dt
+                    print(ball2.y_speed)
+                    active_balls.append(ball2)
 
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
