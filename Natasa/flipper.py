@@ -41,6 +41,11 @@ pushing_force_vector = pygame.math.Vector2(0, 1)
 ball_mass = 3
 print(ball_mass * ball_gravity)
 dt = 0.5
+force_at_beginning = pushing_force  - ball_mass * ball_gravity
+acceleration_0 = force_at_beginning / ball_mass
+
+x_speed_0 = 0 #acceleration_0  * dt * math.sqrt(2)/2
+y_speed_0 = 0 #acceleration_0 * dt * math.sqrt(2)/2
 force_at_beginning = pushing_force # - ball_mass * ball_gravity
 acceleration_0 = force_at_beginning / ball_mass
 # acceleration_0_x = acceleration_0 * math.sqrt(2) / 2
@@ -48,10 +53,14 @@ acceleration_0 = force_at_beginning / ball_mass
 x_speed_0 = 0  # acceleration_0  * dt * math.sqrt(2)/2
 y_speed_0 = 0  # acceleration_0 * dt * math.sqrt(2)/2
 
+
 y_speed_vector = pygame.math.Vector2(y_speed_0)
 x_speed_vector = pygame.math.Vector2(x_speed_0)
 direction = x_speed_vector + y_speed_vector + gravity_vector
 direction = direction.normalize()
+x_max_speed = 31.74
+y_max_speed = 34.19
+
 
 
 def gravity(ball, ball_gravity, gravity_vector, direction, dt):
@@ -61,11 +70,11 @@ def gravity(ball, ball_gravity, gravity_vector, direction, dt):
     else:
         angle = math.radians(direction.angle_to(pygame.math.Vector2(1, 0)))
 
+
     force_x = force_reaction * math.cos(angle)
     force_y = force_reaction * math.sin(angle)
     ball.force = math.sqrt(force_x ** 2 + force_y ** 2)
     force_g = ball.mass * ball_gravity
-
 
     if ball.direction[1] < 0:
         force_y += force_g
@@ -110,7 +119,7 @@ def gravity_circle(ball, ball_gravity, gravity_vector, direction, dt):
     ball.y_speed += acceleration_y * dt
 
 def gravity_poly(ball, ball_gravity, gravity_vector, direction, dt):
-    force_reaction = 0.7 * ball.force
+    force_reaction = 0.6 * ball.force
     if ball.direction[0] < 0:
         angle = math.radians(direction.angle_to(pygame.math.Vector2(-1, 0)))
     else:
@@ -137,6 +146,7 @@ def gravity_poly(ball, ball_gravity, gravity_vector, direction, dt):
 
 
 def gravity_flipper(ball, ball_gravity, gravity_vector, direction, dt):
+
     force_reaction = 0.7 * ball.force
     if ball.direction[0] < 0:
         angle = math.radians(direction.angle_to(pygame.math.Vector2(-1, 0)))
@@ -611,10 +621,14 @@ tunnel_top_wall = Poly(tunnel_top_wall_points, (255, 20, 147))
 # tunnel_top_window_wall = Poly(tunnel_top_window_points, (255, 20, 147))
 
 tunnel_top_window_wall_small = Line(0.83 * WIDTH, 0, WIDTH, 0.15 * HEIGHT, (255, 20, 147), 15)
-score_board_points = [(0, 0), (WIDTH, 0), (WIDTH, 0.05 * HEIGHT), (0, 0.05 * HEIGHT)]
-score_board = Poly(score_board_points, 'pink')
+
+score_board_points = [(0,0), (WIDTH, 0), (WIDTH, 0.05 * HEIGHT), (0, 0.05 * HEIGHT)]
+score_board = Poly(score_board_points, 'black')
+#tunnel_wall_left = Line(2*0.05*WIDTH, 0.4 * HEIGHT, 2*0.05*WIDTH, 0.65 * HEIGHT, 'white', 20)
+
 # tunnel_wall_left = Line(2*0.05*WIDTH, 0.4 * HEIGHT, 2*0.05*WIDTH, 0.65 * HEIGHT, 'white', 20)
 # tunnel_right_points = [(WIDTH - 0.15 * WIDTH, 0.25 * HEIGHT), (WIDTH - 0.15 * WIDTH + 0.015 * WIDTH, 0.25 * HEIGHT), (WIDTH - 0.15 * WIDTH, HEIGHT), ]
+
 tunnel_window_left = Line(0, 0.4 * HEIGHT, 0, 0.7 * HEIGHT, (255, 20, 147), 20)
 tunnel_window_right = Line(WIDTH - 0.15 * WIDTH, 0.25 * HEIGHT, WIDTH - 0.15 * WIDTH, HEIGHT, (255, 20, 147), 15)
 # tunnel_left = Line(2*0.05*WIDTH, 0.65 * HEIGHT, 4*0.045*WIDTH, 0.7 * HEIGHT, 'white', 20)
@@ -649,7 +663,7 @@ while run:
         ball = Ball(WIDTH * 0.925, HEIGHT * 0.95, 0.03 * WIDTH, 'blue', "planet.png", ball_mass, force_at_beginning, .9,
                     y_speed_0,
                     x_speed_0, 1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt, direction)
-        line_obstacles.remove(door)
+        #line_obstacles.remove(door)
 
 
         ball.draw()
@@ -660,7 +674,7 @@ while run:
     if(ball.x_pos < 0.75 * WIDTH - ball.radius):
 
         door.draw()
-        line_obstacles.append(door)
+        #line_obstacles.append(door)
     
     left.draw()
     right.draw()
