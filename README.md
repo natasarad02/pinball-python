@@ -17,7 +17,7 @@ Cilj je sakupiti što više poena i sprečiti kuglicu da padne dole.
 
 ## Mehanika igre
 ### Pomeranje Kuglice
-Ojlerove jednačine koriste se za modeliranje rotacije i translacije kuglice. Ovaj matematički pristup omogućava nam precizno praćenje kretanja kuglice u trodimenzionalnom prostoru. Verleov integrator koristi se za numeričko rešavanje Ojlerovih jednačina, čime se postiže stabilna simulacija kretanja kuglice.
+Ojlerove jednačine koriste se za modeliranje rotacije i translacije kuglice. Ovaj matematički pristup omogućava nam precizno praćenje kretanja kuglice u dvodimenzionalnom prostoru.
 
 ### Rotacija
 Rotacija loptice zavisi od trenutne translacione brzine i pravca odbijanja od prepreka. Ovo se postiže primenom trigonometrijskih funkcija i vektorskih operacija. Dinamička rotacija doprinosi realističnosti i dinamici igre.
