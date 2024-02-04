@@ -33,10 +33,10 @@ new_height = int(WIDTH / aspect_ratio)
 score_image = pygame.transform.scale(original_score_image, (WIDTH, new_height))
 kraj = pygame.transform.scale(pygame.image.load("kraj.png"), (WIDTH, HEIGHT))
 
-board_angle = math.radians(15)
+board_angle = math.radians(30)
 g = 9.81
 ball_gravity = g * math.sin(board_angle)
-pushing_force = 80
+pushing_force = 90
 gravity_vector = pygame.math.Vector2(0, ball_gravity)
 pushing_force_vector = pygame.math.Vector2(0, 1)
 ball_mass = 3
@@ -79,6 +79,9 @@ def gravity(ball, ball_gravity, gravity_vector, direction, dt):
     acceleration_y = force_y / ball.mass
     ball.x_speed += acceleration_x * dt
     ball.y_speed += acceleration_y * dt
+    if ball.y_speed >= 35:
+        ball.y_speed -= acceleration_y*dt
+    print("Brzine: ", ball.x_speed, ball.y_speed)
 
 
 
@@ -107,9 +110,11 @@ def gravity_circle(ball, ball_gravity, gravity_vector, direction, dt):
     acceleration_y = force_y / ball.mass
     ball.x_speed += acceleration_x * dt
     ball.y_speed += acceleration_y * dt
+    if ball.y_speed >= 35:
+        ball.y_speed -= acceleration_y*dt
 
 def gravity_poly(ball, ball_gravity, gravity_vector, direction, dt):
-    force_reaction = 0.7 * ball.force
+    force_reaction = 0.55 * ball.force
     if ball.direction[0] < 0:
         angle = math.radians(direction.angle_to(pygame.math.Vector2(-1, 0)))
     else:
@@ -133,10 +138,16 @@ def gravity_poly(ball, ball_gravity, gravity_vector, direction, dt):
     acceleration_y = force_y / ball.mass
     ball.x_speed += acceleration_x * dt
     ball.y_speed += acceleration_y * dt
+    if ball.y_speed >= 35:
+        ball.y_speed -= acceleration_y*dt
 
 
 def gravity_flipper(ball, ball_gravity, gravity_vector, direction, dt):
-    force_reaction = 0.7 * ball.force
+    if 0.19 * WIDTH < ball.direction[0] < 0.76 * WIDTH:
+        force_reaction = 0.6 * ball.force
+    else:
+        force_reaction = 0.5 * ball.force
+
     if ball.direction[0] < 0:
         angle = math.radians(direction.angle_to(pygame.math.Vector2(-1, 0)))
     else:
@@ -159,6 +170,8 @@ def gravity_flipper(ball, ball_gravity, gravity_vector, direction, dt):
     acceleration_y = force_y / ball.mass
     ball.x_speed += acceleration_x * dt
     ball.y_speed += acceleration_y * dt
+    if ball.y_speed >= 35:
+        ball.y_speed -= acceleration_y*dt
 
 
 

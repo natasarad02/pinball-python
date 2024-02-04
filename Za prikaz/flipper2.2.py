@@ -29,15 +29,15 @@ aspect_ratio = original_score_image.get_width() / original_score_image.get_heigh
 new_height = int(WIDTH / aspect_ratio)
 score_image = pygame.transform.scale(original_score_image, (WIDTH, new_height))
 
-board_angle = math.radians(15)
+board_angle = math.radians(30)
 g = 9.81
 ball_gravity = g * math.sin(board_angle)
-pushing_force = 60
+pushing_force = 90
 gravity_vector = pygame.math.Vector2(0, ball_gravity)
 pushing_force_vector = pygame.math.Vector2(0, 1)
-ball_mass = 3
+ball_mass = 4.5
 #print(ball_mass * ball_gravity)
-dt = 0.5
+dt = 0.4
 force_at_beginning = pushing_force # - ball_mass * ball_gravity
 acceleration_0 = force_at_beginning / ball_mass
 x_speed_0 = 0  # acceleration_0  * dt * math.sqrt(2)/2
@@ -51,7 +51,7 @@ global total_points
 total_points = 0
 
 def gravity(ball, ball_gravity, gravity_vector, direction, dt):
-    force_reaction = 0.5 * ball.force
+    force_reaction = 0.4 * ball.force
     if ball.direction[0] < 0:
         angle = math.radians(direction.angle_to(pygame.math.Vector2(-1, 0)))
     else:
@@ -73,10 +73,36 @@ def gravity(ball, ball_gravity, gravity_vector, direction, dt):
     acceleration_y = force_y / ball.mass
     ball.x_speed += acceleration_x * dt
     ball.y_speed += acceleration_y * dt
+    if ball.y_speed >= 35:
+        ball.y_speed -= acceleration_y*dt
 
 
 
 def gravity_circle(ball, ball_gravity, gravity_vector, direction, dt):
+    force_reaction = 0.35 * ball.force
+    if ball.direction[0] < 0:
+        angle = math.radians(direction.angle_to(pygame.math.Vector2(-1, 0)))
+    else:
+        angle = math.radians(direction.angle_to(pygame.math.Vector2(1, 0)))
+
+    force_x = force_reaction * math.cos(angle)
+    force_y = force_reaction * math.sin(angle)
+    force_g = ball.mass * ball_gravity
+    ball.force = math.sqrt(force_x ** 2 + force_y ** 2)
+
+
+    if ball.direction[1] < 0:
+        force_y += force_g
+    else:
+        force_y = force_y - force_g
+    acceleration_x = force_x / ball.mass
+    acceleration_y = force_y / ball.mass
+    ball.x_speed += acceleration_x * dt
+    ball.y_speed += acceleration_y * dt
+    if ball.y_speed >= 35:
+        ball.y_speed -= acceleration_y*dt
+
+def gravity_poly(ball, ball_gravity, gravity_vector, direction, dt):
     force_reaction = 0.5 * ball.force
     if ball.direction[0] < 0:
         angle = math.radians(direction.angle_to(pygame.math.Vector2(-1, 0)))
@@ -93,37 +119,20 @@ def gravity_circle(ball, ball_gravity, gravity_vector, direction, dt):
         force_y += force_g
     else:
         force_y = force_y - force_g
-    acceleration_x = force_x / ball.mass
-    acceleration_y = force_y / ball.mass
-    ball.x_speed += acceleration_x * dt
-    ball.y_speed += acceleration_y * dt
-
-def gravity_poly(ball, ball_gravity, gravity_vector, direction, dt):
-    force_reaction = 0.7 * ball.force
-    if ball.direction[0] < 0:
-        angle = math.radians(direction.angle_to(pygame.math.Vector2(-1, 0)))
-    else:
-        angle = math.radians(direction.angle_to(pygame.math.Vector2(1, 0)))
-
-    force_x = force_reaction * math.cos(angle)
-    force_y = force_reaction * math.sin(angle)
-    force_g = ball.mass * ball_gravity
-    ball.force = math.sqrt(force_x ** 2 + force_y ** 2)
-
-
-    if ball.direction[1] < 0:
-        force_y += force_g
-    else:
-        force_y = force_y - force_g
 
     acceleration_x = force_x / ball.mass
     acceleration_y = force_y / ball.mass
     ball.x_speed += acceleration_x * dt
     ball.y_speed += acceleration_y * dt
+    if ball.y_speed >= 35:
+        ball.y_speed -= acceleration_y*dt
 
 
 def gravity_flipper(ball, ball_gravity, gravity_vector, direction, dt):
-    force_reaction = 0.7 * ball.force
+    if 0.19 * WIDTH < ball.direction[0] < 0.76 * WIDTH:
+        force_reaction = 0.55 * ball.force
+    else:
+        force_reaction = 0.45 * ball.force
     if ball.direction[0] < 0:
         angle = math.radians(direction.angle_to(pygame.math.Vector2(-1, 0)))
     else:
@@ -145,6 +154,8 @@ def gravity_flipper(ball, ball_gravity, gravity_vector, direction, dt):
     acceleration_y = force_y / ball.mass
     ball.x_speed += acceleration_x * dt
     ball.y_speed += acceleration_y * dt
+    if ball.y_speed >= 35:
+        ball.y_speed -= acceleration_y*dt
 
 
 
@@ -458,6 +469,7 @@ class Ball(Circle):
         for other_ball in balls:
             if self != other_ball:
                 self.ball_collision(other_ball)
+
 
         for i in range(len(line_obstacles)):
             self.incident_angle, isCollided, reflection_vector = line_obstacles[i].is_collided(self)
