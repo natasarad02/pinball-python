@@ -171,12 +171,11 @@ def rotation(ball):
 
         # self.rotation_angle += 40  # +omega * dt, omega += moment_sile/moment_inercije
 
-        ball.rotation_angle += math.degrees(omega * ball.dt)  # 20  # Adjust the rotation angle as needed
+        ball.rotation_angle += math.degrees(omega * ball.dt)  # 20
 
     elif rotation_direction == "Counter-clockwise":
-        ball.rotation_angle -= math.degrees(omega * ball.dt)  # 20  # Adjust the rotation angle as needed
+        ball.rotation_angle -= math.degrees(omega * ball.dt)  # 20
 
-    # Update the center of the image based on the circle's position
     ball.rect.center = (ball.x_pos, ball.y_pos)
 
 
@@ -538,33 +537,33 @@ class Ball(Circle):
         self.x_pos += self.direction[0] * self.x_speed * self.dt
         self.y_pos += self.direction[1] * self.y_speed * self.dt
 
-        # Collision with window edges
+
 
     # def draw(self):
     #   self.circle = pygame.draw.circle(self.screen, self.color, (self.x_pos, self.y_pos), self.radius)
 
 
 def get_rotation_direction(previous_direction, current_direction):
-    # Determine the rotation direction based on the previous and current direction
+
     if previous_direction == (0, 0) or current_direction == (0, 0):
         return "No rotation"
 
     if previous_direction[0] > 0 and current_direction[1] > 0:
-        return "Counter-clockwise"  # Ball moving right and down
+        return "Counter-clockwise"
     elif previous_direction[1] > 0 and current_direction[0] < 0:
-        return "Counter-clockwise"  # Ball moving down and left
+        return "Counter-clockwise"
     elif previous_direction[0] < 0 and current_direction[1] < 0:
-        return "Counter-clockwise"  # Ball moving left and up
+        return "Counter-clockwise"
     elif previous_direction[1] < 0 and current_direction[0] > 0:
-        return "Counter-clockwise"  # Ball moving up and right
+        return "Counter-clockwise"
     elif previous_direction[0] > 0 and current_direction[1] < 0:
-        return "Clockwise"  # Ball moving right and up
+        return "Clockwise"
     elif previous_direction[1] < 0 and current_direction[0] < 0:
-        return "Clockwise"  # Ball moving up and left
+        return "Clockwise"
     elif previous_direction[0] < 0 and current_direction[1] > 0:
-        return "Clockwise"  # Ball moving left and down
+        return "Clockwise"
     elif previous_direction[1] > 0 and current_direction[0] > 0:
-        return "Clockwise"  # Ball moving down and right
+        return "Clockwise"
 
     else:
         return "No rotation"

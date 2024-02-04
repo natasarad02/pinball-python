@@ -64,7 +64,7 @@ y_max_speed = 34.19
 
 
 def gravity(ball, ball_gravity, gravity_vector, direction, dt):
-    force_reaction = 0.5 * ball.force
+    force_reaction = 0.4 * ball.force
     if ball.direction[0] < 0:
         angle = math.radians(direction.angle_to(pygame.math.Vector2(-1, 0)))
     else:
@@ -119,7 +119,9 @@ def gravity_circle(ball, ball_gravity, gravity_vector, direction, dt):
     ball.y_speed += acceleration_y * dt
 
 def gravity_poly(ball, ball_gravity, gravity_vector, direction, dt):
+
     force_reaction = 0.6 * ball.force
+
     if ball.direction[0] < 0:
         angle = math.radians(direction.angle_to(pygame.math.Vector2(-1, 0)))
     else:
@@ -147,7 +149,9 @@ def gravity_poly(ball, ball_gravity, gravity_vector, direction, dt):
 
 def gravity_flipper(ball, ball_gravity, gravity_vector, direction, dt):
 
+
     force_reaction = 0.7 * ball.force
+
     if ball.direction[0] < 0:
         angle = math.radians(direction.angle_to(pygame.math.Vector2(-1, 0)))
     else:

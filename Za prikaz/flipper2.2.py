@@ -409,10 +409,10 @@ class Ball(Circle):
         # izmenjeno dole
         self.image_original = pygame.image.load(picture)
         self.image_original = pygame.transform.scale(self.image_original,
-                                                     (2 * radius, 2 * radius))  # Scale the original image
-        self.image = self.image_original.copy()  # Use a copy of the original image for drawing
+                                                     (2 * radius, 2 * radius))
+        self.image = self.image_original.copy()
         self.rect = self.image.get_rect(center=(x_pos, y_pos))
-        self.rotation_angle = 0  # Initial rotation angle
+        self.rotation_angle = 0
 
     def draw(self):
         rotated_image = pygame.transform.rotate(self.image_original, self.rotation_angle)
@@ -424,26 +424,26 @@ class Ball(Circle):
         sum_radii_squared = (self.radius + other_ball.radius) ** 2
 
         if distance_squared <= sum_radii_squared:
-            # Calculate collision normal
+
             collision_normal = pygame.math.Vector2(self.x_pos - other_ball.x_pos, self.y_pos - other_ball.y_pos)
             collision_normal.normalize_ip()
 
-            # Calculate relative velocity
+
             relative_velocity = pygame.math.Vector2(self.x_speed - other_ball.x_speed, self.y_speed - other_ball.y_speed)
 
-            # Calculate relative velocity in the direction of the normal
+
             relative_velocity_normal = relative_velocity.dot(collision_normal)
 
-            # Calculate impulse (change in velocity)
+
             impulse = (2 * relative_velocity_normal) / (self.mass + other_ball.mass)
 
-            # Update velocities
+
             self.x_speed -= impulse * other_ball.mass * collision_normal.x
             self.y_speed -= impulse * other_ball.mass * collision_normal.y
             other_ball.x_speed += impulse * self.mass * collision_normal.x
             other_ball.y_speed += impulse * self.mass * collision_normal.y
 
-            # Move the balls apart to avoid sticking together
+
             overlap = 0.5 * (math.sqrt(distance_squared) - (self.radius + other_ball.radius))
             self.x_pos -= overlap * collision_normal.x
             self.y_pos -= overlap * collision_normal.y
@@ -456,7 +456,7 @@ class Ball(Circle):
         rotation(self)
 
         for other_ball in balls:
-            if self != other_ball:  # Avoid self-collision
+            if self != other_ball:
                 self.ball_collision(other_ball)
 
         for i in range(len(line_obstacles)):
@@ -562,21 +562,21 @@ def get_rotation_direction(previous_direction, current_direction):
         return "No rotation"
 
     if previous_direction[0] > 0 and current_direction[1] > 0:
-        return "Counter-clockwise"  # Ball moving right and down
+        return "Counter-clockwise"
     elif previous_direction[1] > 0 and current_direction[0] < 0:
-        return "Counter-clockwise"  # Ball moving down and left
+        return "Counter-clockwise"
     elif previous_direction[0] < 0 and current_direction[1] < 0:
-        return "Counter-clockwise"  # Ball moving left and up
+        return "Counter-clockwise"
     elif previous_direction[1] < 0 and current_direction[0] > 0:
-        return "Counter-clockwise"  # Ball moving up and right
+        return "Counter-clockwise"
     elif previous_direction[0] > 0 and current_direction[1] < 0:
-        return "Clockwise"  # Ball moving right and up
+        return "Clockwise"
     elif previous_direction[1] < 0 and current_direction[0] < 0:
-        return "Clockwise"  # Ball moving up and left
+        return "Clockwise"
     elif previous_direction[0] < 0 and current_direction[1] > 0:
-        return "Clockwise"  # Ball moving left and down
+        return "Clockwise"
     elif previous_direction[1] > 0 and current_direction[0] > 0:
-        return "Clockwise"  # Ball moving down and right
+        return "Clockwise"
 
     else:
         return "No rotation"
