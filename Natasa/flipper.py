@@ -649,7 +649,7 @@ while run:
         ball = Ball(WIDTH * 0.925, HEIGHT * 0.95, 0.03 * WIDTH, 'blue', "planet.png", ball_mass, force_at_beginning, .9,
                     y_speed_0,
                     x_speed_0, 1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt, direction)
-        #line_obstacles.remove(door)
+        line_obstacles.remove(door)
 
 
         ball.draw()
@@ -660,7 +660,7 @@ while run:
     if(ball.x_pos < 0.75 * WIDTH - ball.radius):
 
         door.draw()
-        #line_obstacles.append(door)
+        line_obstacles.append(door)
     
     left.draw()
     right.draw()
