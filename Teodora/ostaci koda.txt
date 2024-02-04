@@ -1,0 +1,11 @@
+ circle_obstacles_ball1 = circle_obstacles.append(ball2)
+    circle_obstacles_ball2 = circle_obstacles.append(ball)
+
+
+    for ball1 in active_balls:
+        if ball1 == ball:
+            ball.update(line_obstacles, circle_obstacles_ball1, poly_obstacles, flippers)
+        elif ball1 == ball2:
+            ball2.update(line_obstacles, circle_obstacles_ball2, poly_obstacles, flippers)
+
+----------------------------------------------------------------------------------------------------------------------------------

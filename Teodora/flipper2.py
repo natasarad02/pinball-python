@@ -10,7 +10,7 @@ screen_height = root.winfo_screenheight()
 
 HEIGHT = screen_height * 0.9
 WIDTH = screen_width * 0.4
-
+pygame.display.set_caption("Two balls pinball")
 pygame.init()
 
 screen = pygame.display.set_mode([WIDTH, HEIGHT])
@@ -18,178 +18,66 @@ wall_thickness = 10
 
 fps = 60
 
-print(128/WIDTH)
-print(130/WIDTH)
-print(136/WIDTH)
-print(150 / WIDTH)
 background_image = pygame.transform.scale(pygame.image.load("pozadina.png"), (WIDTH, HEIGHT))
-sun_image = pygame.transform.scale(pygame.image.load("sun.png"), (0.125 * WIDTH, 0.125 * WIDTH))
-moon_image = pygame.transform.scale(pygame.image.load("moon_img.png"), (0.127 * WIDTH, 0.127 * WIDTH))
-neptune_image = pygame.transform.scale(pygame.image.load("neptune.png"), (0.132 * WIDTH, 0.132 * WIDTH))
-hexagon_image = pygame.transform.scale(pygame.image.load("yoda.png"), (0.146 * WIDTH, 0.146 * WIDTH))
+kraj = pygame.transform.scale(pygame.image.load("kraj.png"), (WIDTH, HEIGHT))
+sun_image = pygame.transform.scale(pygame.image.load("sun.png"), (64, 64))
+moon_image = pygame.transform.scale(pygame.image.load("moon_img.png"), (65, 65))
+neptune_image = pygame.transform.scale(pygame.image.load("neptune.png"), (68, 68))
+hexagon_image = pygame.transform.scale(pygame.image.load("yoda.png"), (83, 83))
 original_score_image = pygame.image.load("score.png")
 aspect_ratio = original_score_image.get_width() / original_score_image.get_height()
 new_height = int(WIDTH / aspect_ratio)
 score_image = pygame.transform.scale(original_score_image, (WIDTH, new_height))
 
-board_angle = math.radians(30)
+board_angle = math.radians(45)
 g = 9.81
 ball_gravity = g * math.sin(board_angle)
 pushing_force = 100
 gravity_vector = pygame.math.Vector2(0, ball_gravity)
 pushing_force_vector = pygame.math.Vector2(0, 1)
-ball_mass = 3
-print(ball_mass * ball_gravity)
+ball_mass = 2
 dt = 0.5
-force_at_beginning = pushing_force  - ball_mass * ball_gravity
+force_at_beginning = pushing_force - ball_mass * ball_gravity
 acceleration_0 = force_at_beginning / ball_mass
-
-x_speed_0 = 0 #acceleration_0  * dt * math.sqrt(2)/2
-y_speed_0 = 0 #acceleration_0 * dt * math.sqrt(2)/2
-force_at_beginning = pushing_force # - ball_mass * ball_gravity
-acceleration_0 = force_at_beginning / ball_mass
-# acceleration_0_x = acceleration_0 * math.sqrt(2) / 2
-# acceleration_0_y = acceleration_0 * math.sqrt(2) / 2
+#acceleration_0_x = acceleration_0 * math.sqrt(2) / 2
+#acceleration_0_y = acceleration_0 * math.sqrt(2) / 2
 x_speed_0 = 0  # acceleration_0  * dt * math.sqrt(2)/2
 y_speed_0 = 0  # acceleration_0 * dt * math.sqrt(2)/2
-
 
 y_speed_vector = pygame.math.Vector2(y_speed_0)
 x_speed_vector = pygame.math.Vector2(x_speed_0)
 direction = x_speed_vector + y_speed_vector + gravity_vector
 direction = direction.normalize()
-x_max_speed = 31.74
-y_max_speed = 34.19
 
 
-
-def gravity(ball, ball_gravity, gravity_vector, direction, dt):
-    force_reaction = 0.5 * ball.force
-    if ball.direction[0] < 0:
-        angle = math.radians(direction.angle_to(pygame.math.Vector2(-1, 0)))
-    else:
-        angle = math.radians(direction.angle_to(pygame.math.Vector2(1, 0)))
-
-
-    force_x = force_reaction * math.cos(angle)
-    force_y = force_reaction * math.sin(angle)
-    ball.force = math.sqrt(force_x ** 2 + force_y ** 2)
-    force_g = ball.mass * ball_gravity
-
-    if ball.direction[1] < 0:
-        force_y += force_g
-    else:
-        force_y = abs(force_y - force_g)
-
-   # print("Ugao: ", math.degrees(angle), " x: ", force_x, " y: ", force_y, " g: ", force_g)
-    #
+def gravity(acceleration, ball_gravity, gravity_vector, direction, dt):
+    angle = gravity_vector.angle_to(direction)
+    acceleration *= 0.8
+    x_speed = acceleration * dt  # * math.sin(math.radians(angle))
+    y_speed = acceleration * dt
+    #direction += gravity_vector
+    #direction = [direction.x, direction.y]
+    return x_speed, y_speed, direction
 
 
-    acceleration_x = force_x / ball.mass
-    acceleration_y = force_y / ball.mass
-    ball.x_speed += acceleration_x * dt
-    ball.y_speed += acceleration_y * dt
+def gravity_poly(acceleration, ball_gravity, gravity_vector, direction, dt):
+    angle = gravity_vector.angle_to(direction)
+    acceleration *= 1.4
+    x_speed = acceleration * dt  # * math.sin(math.radians(angle))
+    y_speed = acceleration * dt
+    #direction += gravity_vector
+    #direction = [direction.x, direction.y]
+    return x_speed, y_speed, direction
 
 
-
-def gravity_circle(ball, ball_gravity, gravity_vector, direction, dt):
-    force_reaction = 0.5 * ball.force
-    if ball.direction[0] < 0:
-        angle = math.radians(direction.angle_to(pygame.math.Vector2(-1, 0)))
-    else:
-        angle = math.radians(direction.angle_to(pygame.math.Vector2(1, 0)))
-
-    force_x = force_reaction * math.cos(angle)
-    force_y = force_reaction * math.sin(angle)
-    force_g = ball.mass * ball_gravity
-    ball.force = math.sqrt(force_x ** 2 + force_y ** 2)
-
-
-    if ball.direction[1] < 0:
-        force_y += force_g
-    else:
-        force_y = force_y - force_g
-
-    print("Ugao: ", math.degrees(angle), " x: ", force_x, " y: ", force_y, " g: ", force_g)
-    #ball.force = math.sqrt(force_x ** 2 + force_y ** 2)
-
-    acceleration_x = force_x / ball.mass
-    acceleration_y = force_y / ball.mass
-    ball.x_speed += acceleration_x * dt
-    ball.y_speed += acceleration_y * dt
-
-def gravity_poly(ball, ball_gravity, gravity_vector, direction, dt):
-    force_reaction = 0.7 * ball.force
-    if ball.direction[0] < 0:
-        angle = math.radians(direction.angle_to(pygame.math.Vector2(-1, 0)))
-    else:
-        angle = math.radians(direction.angle_to(pygame.math.Vector2(1, 0)))
-
-    force_x = force_reaction * math.cos(angle)
-    force_y = force_reaction * math.sin(angle)
-    force_g = ball.mass * ball_gravity
-    ball.force = math.sqrt(force_x ** 2 + force_y ** 2)
-
-
-    if ball.direction[1] < 0:
-        force_y += force_g
-    else:
-        force_y = force_y - force_g
-
-    print("Ugao: ", math.degrees(angle), " x: ", force_x, " y: ", force_y, " g: ", force_g)
-
-    #ball.force = math.sqrt(force_x ** 2 + force_y ** 2)
-    acceleration_x = force_x / ball.mass
-    acceleration_y = force_y / ball.mass
-    ball.x_speed += acceleration_x * dt
-    ball.y_speed += acceleration_y * dt
-
-
-def gravity_flipper(ball, ball_gravity, gravity_vector, direction, dt):
-    force_reaction = 0.7 * ball.force
-    if ball.direction[0] < 0:
-        angle = math.radians(direction.angle_to(pygame.math.Vector2(-1, 0)))
-    else:
-        angle = math.radians(direction.angle_to(pygame.math.Vector2(1, 0)))
-
-    force_x = force_reaction * math.cos(angle)
-    force_y = force_reaction * math.sin(angle)
-    force_g = ball.mass * ball_gravity
-    ball.force = math.sqrt(force_x ** 2 + force_y ** 2)
-
-    if ball.direction[1] < 0:
-        force_y += force_g
-    else:
-        force_y = force_y - force_g
-
-    print("Ugao: ", math.degrees(angle), " x: ", force_x, " y: ", force_y, " g: ", force_g)
-
-   # ball.force = math.sqrt(force_x ** 2 + force_y ** 2)
-    acceleration_x = force_x / ball.mass
-    acceleration_y = force_y / ball.mass
-    ball.x_speed += acceleration_x * dt
-    ball.y_speed += acceleration_y * dt
-
-
-
-
-def rotation(ball):
-
-    omega = math.sqrt(ball.x_speed**2 + ball.y_speed**2)/ball.radius
-    rotation_direction = get_rotation_direction((0, -1), ball.direction)
-    if rotation_direction == "Clockwise":
-
-        # self.rotation_angle += 40  # +omega * dt, omega += moment_sile/moment_inercije
-
-        ball.rotation_angle += math.degrees(omega * ball.dt)  # 20  # Adjust the rotation angle as needed
-
-    elif rotation_direction == "Counter-clockwise":
-        ball.rotation_angle -= math.degrees(omega * ball.dt)  # 20  # Adjust the rotation angle as needed
-
-    # Update the center of the image based on the circle's position
-    ball.rect.center = (ball.x_pos, ball.y_pos)
-
-
+def gravity_flipper(acceleration, ball_gravity, gravity_vector, direction, dt):
+    angle = gravity_vector.angle_to(direction)
+    acceleration *= 1.2
+    x_speed = acceleration * dt  # * math.sin(math.radians(angle))
+    y_speed = acceleration * dt
+    #direction += gravity_vector
+    #direction = [direction.x, direction.y]
+    return x_speed, y_speed, direction
 
 
 def Sign(x):
@@ -216,11 +104,6 @@ class Line:
 
     def draw(self):
         pygame.draw.line(screen, self.color, (self.a_x, self.a_y), (self.b_x, self.b_y), self.width)
-
-    def transparent(self):
-        self.color = (0, 0, 0, 0)
-    def pink(self):
-        self.color = (255, 20, 147)
 
     def is_collided(self, ball):
         if ball.x_pos >= self.a_x - ball.radius and ball.x_pos <= self.b_x + ball.radius and self.a_x != self.b_x:
@@ -301,6 +184,7 @@ class Line:
         else:
             return None, False, None
 
+
 def RotatePoly(points, angle):
     rotated_points = []
     theta = math.radians(angle)
@@ -357,12 +241,10 @@ class Poly:
                 max = current_projection
 
         if poly_to_circle.magnitude() - max - ball.radius > 0 and poly_to_circle.magnitude() > 0:
-            return None, None, False
+            return None, False
         else:
             reflection_vector = -poly_to_circle.reflect(poly_to_circle_norm)
-            incident_vector = pygame.math.Vector2(ball.direction[0], ball.direction[1])
-            incident_angle = incident_vector.angle_to(poly_to_circle_norm)
-            return incident_angle, reflection_vector, True
+            return reflection_vector, True
 
     def draw(self):
         pygame.draw.polygon(screen, self.color, self.points)
@@ -411,8 +293,7 @@ class Circle:
 
 
 class Ball(Circle):
-    def __init__(self, x_pos, y_pos, radius, color, picture, mass, force, retention, y_speed, x_speed, id, friction,
-                 HEIGHT,
+    def __init__(self, x_pos, y_pos, radius, color, picture, mass, force, retention, y_speed, x_speed, id, friction, HEIGHT,
                  WIDTH, fps, acceleration, dt, direction):
 
         super().__init__(x_pos, y_pos, radius, color)
@@ -421,7 +302,7 @@ class Ball(Circle):
 
         self.id = id
         self.circle = ''
-        self.friction = friction
+        self.friction = friction 
         self.screen = pygame.display.set_mode([WIDTH, HEIGHT])
         self.force = force
         self.x_speed = x_speed
@@ -429,18 +310,17 @@ class Ball(Circle):
         self.dt = dt
         self.fps = fps
         self.HEIGHT = HEIGHT
-        self.WIDTH = WIDTH
+        self.WIDTH= WIDTH
         self.wall_thickness = 10
         self.acceleration = acceleration
         self.force = force
         self.in_free_fall = True
         self.direction = [0, -1]
-        self.y_speed = y_speed
-        self.x_speed = x_speed
-        # izmenjeno dole
-        self.image_original = pygame.image.load(picture)
-        self.image_original = pygame.transform.scale(self.image_original,
-                                                     (2 * radius, 2 * radius))  # Scale the original image
+        self.y_speed =  y_speed
+        self.x_speed =  x_speed
+        #izmenjeno dole
+        self.image_original = pygame.image.load(picture )
+        self.image_original = pygame.transform.scale(self.image_original, (2 * radius, 2 * radius))  # Scale the original image
         self.image = self.image_original.copy()  # Use a copy of the original image for drawing
         self.rect = self.image.get_rect(center=(x_pos, y_pos))
         self.rotation_angle = 0  # Initial rotation angle
@@ -450,22 +330,60 @@ class Ball(Circle):
         rotated_rect = rotated_image.get_rect(center=self.rect.center)
         self.screen.blit(rotated_image, rotated_rect)
 
-    def update(self, line_obstacles, circle_obstacles, poly_obstacles, flippers):
-        #rotation_params(self)
-        rotation(self)
+    def ball_collision(self, other_ball):
+        distance_squared = (self.x_pos - other_ball.x_pos) ** 2 + (self.y_pos - other_ball.y_pos) ** 2
+        sum_radii_squared = (self.radius + other_ball.radius) ** 2
 
+        if distance_squared <= sum_radii_squared:
+            # Calculate collision normal
+            collision_normal = pygame.math.Vector2(self.x_pos - other_ball.x_pos, self.y_pos - other_ball.y_pos)
+            collision_normal.normalize_ip()
 
+            # Calculate relative velocity
+            relative_velocity = pygame.math.Vector2(self.x_speed - other_ball.x_speed, self.y_speed - other_ball.y_speed)
 
+            # Calculate relative velocity in the direction of the normal
+            relative_velocity_normal = relative_velocity.dot(collision_normal)
+
+            # Calculate impulse (change in velocity)
+            impulse = (2 * relative_velocity_normal) / (self.mass + other_ball.mass)
+
+            # Update velocities
+            self.x_speed -= impulse * other_ball.mass * collision_normal.x
+            self.y_speed -= impulse * other_ball.mass * collision_normal.y
+            other_ball.x_speed += impulse * self.mass * collision_normal.x
+            other_ball.y_speed += impulse * self.mass * collision_normal.y
+
+            # Move the balls apart to avoid sticking together
+            overlap = 0.5 * (math.sqrt(distance_squared) - (self.radius + other_ball.radius))
+            self.x_pos -= overlap * collision_normal.x
+            self.y_pos -= overlap * collision_normal.y
+            other_ball.x_pos += overlap * collision_normal.x
+            other_ball.y_pos += overlap * collision_normal.y
+
+    def update(self, line_obstacles, circle_obstacles, poly_obstacles, flippers, balls):
+        # Collision with obstacle_circle
+
+        rotation_direction = get_rotation_direction((0, -1), self.direction)
+        if rotation_direction == "Clockwise":
+            self.rotation_angle += 20  # Adjust the rotation angle as needed
+        elif rotation_direction == "Counter-clockwise":
+            self.rotation_angle -= 20  # Adjust the rotation angle as needed
+
+        # Update the center of the image based on the circle's position
+        self.rect.center = (self.x_pos, self.y_pos)
+
+        for other_ball in balls:
+            if self != other_ball:  # Avoid self-collision
+                self.ball_collision(other_ball)
 
         for i in range(len(line_obstacles)):
-            self.incident_angle, isCollided, reflection_vector = line_obstacles[i].is_collided(self)
+            incident_angle, isCollided, reflection_vector = line_obstacles[i].is_collided(self)
             # print(incident_angle)
-
 
             if isCollided:
                 print("Collision")
-
-                print(math.degrees(self.incident_angle))
+                print(math.degrees(incident_angle))
                 print(reflection_vector)
                 old_direction = self.direction
                 self.direction = [reflection_vector.x,
@@ -474,13 +392,11 @@ class Ball(Circle):
                 length = math.sqrt(self.direction[0] ** 2 + self.direction[1] ** 2)
                 reflection = [self.direction[0] / length, self.direction[1] / length]
                 self.direction = reflection
-                direction = pygame.math.Vector2(self.direction[0], self.direction[1])
-                gravity(self, ball_gravity, gravity_vector, direction, dt)
-                rotation(self)
-
+                direction = pygame.math.Vector2(self.direction)
+                self.x_speed, self.y_speed, self.direction = gravity(self.acceleration, ball_gravity, gravity_vector,
+                                                                     direction, dt)
         for i in range(len(flippers)):
-
-            self.incident_angle, reflection_vector, isCollided = flippers[i].is_collided(self)
+            reflection_vector, isCollided = flippers[i].is_collided(self)
             if isCollided:
                 self.direction = [reflection_vector.x,
                                   reflection_vector.y]  # [math.cos(reflection_angle), math.sin(reflection_angle)]
@@ -490,35 +406,26 @@ class Ball(Circle):
                 self.direction = reflection
 
                 direction = pygame.math.Vector2(self.direction)
-                gravity_flipper(self, ball_gravity, gravity_vector, direction, dt)
-                rotation(self)
-
+                self.x_speed, self.y_speed, self.direction = gravity(self.acceleration, ball_gravity,
+                                                                     gravity_vector, direction, dt)
 
         for i in range(len(poly_obstacles)):
-            self.incident_angle, reflection_vector, isCollided = poly_obstacles[i].is_collided(self)
+            reflection_vector, isCollided = poly_obstacles[i].is_collided(self)
             if isCollided:
-                # self.x_speed = 0
-                # self.y_speed = 0
-
                 self.direction = [reflection_vector.x,
                                   reflection_vector.y]  # [math.cos(reflection_angle), math.sin(reflection_angle)]
                 length = math.sqrt(self.direction[0] ** 2 + self.direction[1] ** 2)
                 reflection = [self.direction[0] / length, self.direction[1] / length]
-
                 self.direction = reflection
-
                 direction = pygame.math.Vector2(self.direction)
-                gravity_poly(self, ball_gravity, gravity_vector, direction, dt)
-                rotation(self)
-
+                self.x_speed, self.y_speed, self.direction = gravity(self.acceleration, ball_gravity, gravity_vector,
+                                                                     direction, dt)
 
         for i in range(len(circle_obstacles)):
 
             distance_squared1 = (self.x_pos - circle_obstacles[i].x_pos) ** 2 + (
-                    self.y_pos - circle_obstacles[i].y_pos) ** 2
+                        self.y_pos - circle_obstacles[i].y_pos) ** 2
             sum_radii_squared1 = (self.radius + circle_obstacles[i].radius) ** 2
-            # self.x_speed += self.acceleration * 0.5
-            # self.y_speed += self.acceleration * 0.5
             if distance_squared1 <= sum_radii_squared1:
                 normal_vector = [self.x_pos - circle_obstacles[i].x_pos, self.y_pos - circle_obstacles[i].y_pos]
                 magnitude = math.sqrt(normal_vector[0] ** 2 + normal_vector[1] ** 2)
@@ -532,12 +439,8 @@ class Ball(Circle):
                 self.direction = reflection
 
                 direction = pygame.math.Vector2(self.direction)
-                incident_vector = pygame.math.Vector2(self.direction[0], self.direction[1])
-                self.incident_angle = incident_vector.angle_to(normal_vector)
-                gravity_circle(self, ball_gravity, gravity_vector, direction, dt)
-
-                rotation(self)
-
+                self.x_speed, self.y_speed, self.direction = gravity(self.acceleration, ball_gravity, gravity_vector,
+                                                                     direction, dt)
 
         self.x_pos += self.direction[0] * self.x_speed * self.dt
         self.y_pos += self.direction[1] * self.y_speed * self.dt
@@ -547,37 +450,38 @@ class Ball(Circle):
     # def draw(self):
     #   self.circle = pygame.draw.circle(self.screen, self.color, (self.x_pos, self.y_pos), self.radius)
 
-
 def get_rotation_direction(previous_direction, current_direction):
     # Determine the rotation direction based on the previous and current direction
-    if previous_direction == (0, 0) or current_direction == (0, 0):
-        return "No rotation"
+        if previous_direction == (0, 0) or current_direction == (0, 0):
+            return "No rotation"
+        
+        if previous_direction[0] > 0 and current_direction[1] > 0:
+            return "Counter-clockwise"  # Ball moving right and down
+        elif previous_direction[1] > 0 and current_direction[0] < 0:
+            return "Counter-clockwise"  # Ball moving down and left
+        elif previous_direction[0] < 0 and current_direction[1] < 0:
+            return "Counter-clockwise"  # Ball moving left and up
+        elif previous_direction[1] < 0 and current_direction[0] > 0:
+            return "Counter-clockwise"  # Ball moving up and right
+        elif previous_direction[0] > 0 and current_direction[1] < 0:
+            return "Clockwise"  # Ball moving right and up
+        elif previous_direction[1] < 0 and current_direction[0] < 0:
+            return "Clockwise"  # Ball moving up and left
+        elif previous_direction[0] < 0 and current_direction[1] > 0:
+            return "Clockwise"  # Ball moving left and down
+        elif previous_direction[1] > 0 and current_direction[0] > 0:
+            return "Clockwise"  # Ball moving down and right
 
-    if previous_direction[0] > 0 and current_direction[1] > 0:
-        return "Counter-clockwise"  # Ball moving right and down
-    elif previous_direction[1] > 0 and current_direction[0] < 0:
-        return "Counter-clockwise"  # Ball moving down and left
-    elif previous_direction[0] < 0 and current_direction[1] < 0:
-        return "Counter-clockwise"  # Ball moving left and up
-    elif previous_direction[1] < 0 and current_direction[0] > 0:
-        return "Counter-clockwise"  # Ball moving up and right
-    elif previous_direction[0] > 0 and current_direction[1] < 0:
-        return "Clockwise"  # Ball moving right and up
-    elif previous_direction[1] < 0 and current_direction[0] < 0:
-        return "Clockwise"  # Ball moving up and left
-    elif previous_direction[0] < 0 and current_direction[1] > 0:
-        return "Clockwise"  # Ball moving left and down
-    elif previous_direction[1] > 0 and current_direction[0] > 0:
-        return "Clockwise"  # Ball moving down and right
+        else:
+            return "No rotation"
 
-    else:
-        return "No rotation"
-
-
-ball = Ball(WIDTH * 0.925, HEIGHT * 0.95, 0.03 * WIDTH, 'blue', "planet.png", ball_mass, force_at_beginning, .9,
-            y_speed_0, x_speed_0,
+ball = Ball(WIDTH * 0.925, HEIGHT * 0.95, 0.03 * WIDTH, 'blue', "planet.png", ball_mass, force_at_beginning, .9, y_speed_0, x_speed_0,
+            1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt, direction)
+ball2 = Ball(WIDTH * 0.925, HEIGHT * 0.95, 0.03 * WIDTH, 'red', "jupiter.png", ball_mass, force_at_beginning, .9, y_speed_0, x_speed_0,
             1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt, direction)
 # ball = Ball(250, 550, 0.03*WIDTH, 'blue', 100, 6000, .9, 2, 2, 1, 0.02, HEIGHT, WIDTH, fps)
+inactive_balls = [ball, ball2]
+active_balls = []
 
 circle_obstacle1 = Circle(WIDTH * 0.24, 0.33 * HEIGHT, 0.055 * WIDTH, (29, 7, 73))
 circle_obstacle2 = Circle(0.494 * WIDTH, 0.159 * HEIGHT, 0.055 * WIDTH, (29, 7, 73))
@@ -605,31 +509,21 @@ left_flipper = Flipper(left_flipper_points, (255, 20, 147))
 right_flipper = Flipper(right_flipper_points, (255, 20, 147))
 print(20 / HEIGHT)
 
-line_wall_left_points = [(0, 0.695 * HEIGHT), (0.22 * WIDTH, 0.785 * HEIGHT), (0.22 * WIDTH, 0.79 * HEIGHT),
-                         (0, 0.71 * HEIGHT)]
+line_wall_left_points = [(0, 0.695 * HEIGHT), (0.22 * WIDTH, 0.785 * HEIGHT), (0.22 * WIDTH, 0.79 * HEIGHT), (0, 0.71 * HEIGHT)]
 line_wall_left = Poly(line_wall_left_points, (255, 20, 147))
-
-line_wall_right_points = [(0.75 * WIDTH, 0.78 * HEIGHT), (WIDTH - 0.15 * WIDTH, 0.695 * HEIGHT),
-                          (WIDTH - 0.15 * WIDTH, 0.71 * HEIGHT), (0.75 * WIDTH, 0.795 * HEIGHT)]
+line_wall_right_points = [(0.75 * WIDTH, 0.78 * HEIGHT), (WIDTH - 0.15 * WIDTH, 0.695 * HEIGHT), (WIDTH - 0.15 * WIDTH, 0.71 * HEIGHT), (0.75 * WIDTH, 0.795 * HEIGHT)]
 line_wall_right = Poly(line_wall_right_points, (255, 20, 147))
 
-tunnel_top_wall_points = [(0.8 * WIDTH, 0.2 * HEIGHT), (0.815 * WIDTH, 0.2 * HEIGHT),
-                          (WIDTH - 0.15 * WIDTH, 0.25 * HEIGHT), (WIDTH - 0.15 * WIDTH - 0.015 * WIDTH, 0.25 * HEIGHT)]
+tunnel_top_wall_points = [(0.8 * WIDTH, 0.2 * HEIGHT), (0.815 * WIDTH, 0.2 * HEIGHT), (WIDTH - 0.15 * WIDTH, 0.25 * HEIGHT), (WIDTH - 0.15 * WIDTH - 0.015 * WIDTH, 0.25 * HEIGHT)]
 tunnel_top_wall = Poly(tunnel_top_wall_points, (255, 20, 147))
-# tunnel_top_window_points = [(0.9 * WIDTH, 0), (WIDTH, 0.25 * HEIGHT), (WIDTH, 0.265 * HEIGHT), (0.9 * WIDTH, 0.015 * HEIGHT)]
-# tunnel_top_window_wall = Poly(tunnel_top_window_points, (255, 20, 147))
+#tunnel_top_window_points = [(0.9 * WIDTH, 0), (WIDTH, 0.25 * HEIGHT), (WIDTH, 0.265 * HEIGHT), (0.9 * WIDTH, 0.015 * HEIGHT)]
+#tunnel_top_window_wall = Poly(tunnel_top_window_points, (255, 20, 147))
 
 tunnel_top_window_wall_small = Line(0.83 * WIDTH, 0, WIDTH, 0.15 * HEIGHT, (255, 20, 147), 15)
-<<<<<<< HEAD
-score_board_points = [(0,0), (WIDTH, 0), (WIDTH, 0.05 * HEIGHT), (0, 0.05 * HEIGHT)]
-score_board = Poly(score_board_points, 'black')
-#tunnel_wall_left = Line(2*0.05*WIDTH, 0.4 * HEIGHT, 2*0.05*WIDTH, 0.65 * HEIGHT, 'white', 20)
-=======
 score_board_points = [(0, 0), (WIDTH, 0), (WIDTH, 0.05 * HEIGHT), (0, 0.05 * HEIGHT)]
 score_board = Poly(score_board_points, 'pink')
 # tunnel_wall_left = Line(2*0.05*WIDTH, 0.4 * HEIGHT, 2*0.05*WIDTH, 0.65 * HEIGHT, 'white', 20)
-# tunnel_right_points = [(WIDTH - 0.15 * WIDTH, 0.25 * HEIGHT), (WIDTH - 0.15 * WIDTH + 0.015 * WIDTH, 0.25 * HEIGHT), (WIDTH - 0.15 * WIDTH, HEIGHT), ]
->>>>>>> 214a3fbbbd9e13b30aec0bea59beea011e24bf05
+#tunnel_right_points = [(WIDTH - 0.15 * WIDTH, 0.25 * HEIGHT), (WIDTH - 0.15 * WIDTH + 0.015 * WIDTH, 0.25 * HEIGHT), (WIDTH - 0.15 * WIDTH, HEIGHT), ]
 tunnel_window_left = Line(0, 0.4 * HEIGHT, 0, 0.7 * HEIGHT, (255, 20, 147), 20)
 tunnel_window_right = Line(WIDTH - 0.15 * WIDTH, 0.25 * HEIGHT, WIDTH - 0.15 * WIDTH, HEIGHT, (255, 20, 147), 15)
 # tunnel_left = Line(2*0.05*WIDTH, 0.65 * HEIGHT, 4*0.045*WIDTH, 0.7 * HEIGHT, 'white', 20)
@@ -647,36 +541,37 @@ hexagon_points = [(0.4 * WIDTH, 0.45 * HEIGHT), (0.44 * WIDTH, 0.4 * HEIGHT), (0
 trapezoid_left = Poly(trapezoid_points_left, (0, 102, 204))
 trapezoid_right = Poly(trapezoid_points_right, (0, 102, 204))
 hexagon = Poly(hexagon_points, 'dark gray')
-poly_obstacles = [trapezoid_left, trapezoid_right, hexagon, line_wall_left, line_wall_right,
-                  tunnel_top_wall]  # [trapezoid_left, trapezoid_right, hexagon]
+poly_obstacles = [trapezoid_left, trapezoid_right, hexagon, line_wall_left, line_wall_right,  tunnel_top_wall]  # [trapezoid_left, trapezoid_right, hexagon]
+lives = 1
+score = 1000 #promeniti
+font = pygame.font.Font(None, 60)
+#-----------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
 run = True
-door = Line(0.8 * WIDTH, 0.05 * HEIGHT, 0.8 * WIDTH, 0.2 * HEIGHT, (255, 20, 147), 20)
-
 while run:
 
     screen.blit(background_image, (0, 0))
 
     timer.tick(fps)
-
+    
     ball.draw()
-    if (ball.y_pos > HEIGHT):
-        door.transparent()
-        ball = Ball(WIDTH * 0.925, HEIGHT * 0.95, 0.03 * WIDTH, 'blue', "planet.png", ball_mass, force_at_beginning, .9,
-                    y_speed_0,
+    
+    if(ball2 in active_balls):
+        ball2.draw()
+
+    if(ball.x_pos < 0.8 * WIDTH):
+        ball2.draw()
+
+
+    if (ball.y_pos > HEIGHT and ball2.y_pos > HEIGHT): #izmeniti na to ako su obe lopte ...
+        ball = Ball(WIDTH * 0.925, HEIGHT * 0.95, 0.03 * WIDTH, 'blue', "planet.png", ball_mass, force_at_beginning, .9, y_speed_0,
                     x_speed_0, 1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt, direction)
-        line_obstacles.remove(door)
-
-
+        ball2 = Ball(WIDTH * 0.925, HEIGHT * 0.95, 0.03 * WIDTH, 'red', "jupiter.png", ball_mass, force_at_beginning, .9, y_speed_0, x_speed_0,
+                    1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt, direction)
+        active_balls = []
+        lives -=1
         ball.draw()
-        door.draw()
-        door.pink()
 
-    
-    if(ball.x_pos < 0.75 * WIDTH - ball.radius):
-
-        door.draw()
-        line_obstacles.append(door)
-    
     left.draw()
     right.draw()
     top.draw()
@@ -699,7 +594,7 @@ while run:
     trapezoid_left.draw()
     trapezoid_right.draw()
     hexagon.draw()
-    yoda_pos = (WIDTH * 0.42, 0.393 * HEIGHT)
+    yoda_pos = (WIDTH * 0.423, 0.3975 * HEIGHT)
     screen.blit(hexagon_image, yoda_pos)
 
     left_flipper.draw()
@@ -714,7 +609,14 @@ while run:
     score_board.draw()
     screen.blit(score_image, (0, 0))
     # line4.draw()
-    ball.update(line_obstacles, circle_obstacles, poly_obstacles, flippers)
+    ball.update(line_obstacles, circle_obstacles, poly_obstacles, flippers, active_balls)
+    ball2.update(line_obstacles, circle_obstacles, poly_obstacles, flippers, active_balls)
+
+    if(lives==0):
+        screen.blit(kraj, (0, 0))
+        score_text = font.render("{}".format(score), True, (255, 255, 255))
+        screen.blit(score_text, (WIDTH*0.2, HEIGHT*0.42))
+
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -725,10 +627,18 @@ while run:
             elif event.key == pygame.K_RIGHT:
                 right_flipper.rotate_right()
             elif event.key == pygame.K_SPACE:
-                ball.x_speed = ball.acceleration * dt
-                ball.y_speed = ball.acceleration * dt
-
-                print(ball.y_speed)
+                if(len(active_balls)==0):
+                    ball.x_speed = ball.acceleration * dt
+                    ball.y_speed = ball.acceleration * dt
+                    active_balls.append(ball)
+                    #pygame.time.delay(1000)
+                    print(ball.y_speed)
+                    
+                elif(len(active_balls)==1):
+                    ball2.x_speed = ball2.acceleration * dt
+                    ball2.y_speed = ball2.acceleration * dt
+                    print(ball2.y_speed)
+                    active_balls.append(ball2)
 
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
