@@ -18,11 +18,15 @@ wall_thickness = 10
 
 fps = 60
 
+print(128/WIDTH)
+print(130/WIDTH)
+print(136/WIDTH)
+print(150 / WIDTH)
 background_image = pygame.transform.scale(pygame.image.load("pozadina.png"), (WIDTH, HEIGHT))
-sun_image = pygame.transform.scale(pygame.image.load("sun.png"), (64, 64))
-moon_image = pygame.transform.scale(pygame.image.load("moon_img.png"), (65, 65))
-neptune_image = pygame.transform.scale(pygame.image.load("neptune.png"), (68, 68))
-hexagon_image = pygame.transform.scale(pygame.image.load("yoda.png"), (83, 83))
+sun_image = pygame.transform.scale(pygame.image.load("sun.png"), (0.125 * WIDTH, 0.125 * WIDTH))
+moon_image = pygame.transform.scale(pygame.image.load("moon_img.png"), (0.127 * WIDTH, 0.127 * WIDTH))
+neptune_image = pygame.transform.scale(pygame.image.load("neptune.png"), (0.132 * WIDTH, 0.132 * WIDTH))
+hexagon_image = pygame.transform.scale(pygame.image.load("yoda.png"), (0.146 * WIDTH, 0.146 * WIDTH))
 original_score_image = pygame.image.load("score.png")
 aspect_ratio = original_score_image.get_width() / original_score_image.get_height()
 new_height = int(WIDTH / aspect_ratio)
@@ -680,7 +684,7 @@ while run:
     trapezoid_left.draw()
     trapezoid_right.draw()
     hexagon.draw()
-    yoda_pos = (WIDTH * 0.423, 0.3975 * HEIGHT)
+    yoda_pos = (WIDTH * 0.42, 0.393 * HEIGHT)
     screen.blit(hexagon_image, yoda_pos)
 
     left_flipper.draw()
