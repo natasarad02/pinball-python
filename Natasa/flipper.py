@@ -28,13 +28,13 @@ aspect_ratio = original_score_image.get_width() / original_score_image.get_heigh
 new_height = int(WIDTH / aspect_ratio)
 score_image = pygame.transform.scale(original_score_image, (WIDTH, new_height))
 
-board_angle = math.radians(math.degrees(30))
+board_angle = math.radians(30)
 g = 9.81
 ball_gravity = g * math.sin(board_angle)
 pushing_force = 100
 gravity_vector = pygame.math.Vector2(0, ball_gravity)
 pushing_force_vector = pygame.math.Vector2(0, 1)
-ball_mass = 2
+ball_mass = 3
 print(ball_mass * ball_gravity)
 dt = 0.5
 force_at_beginning = pushing_force # - ball_mass * ball_gravity
@@ -51,45 +51,111 @@ direction = direction.normalize()
 
 
 def gravity(ball, ball_gravity, gravity_vector, direction, dt):
-    angle = gravity_vector.angle_to(direction)
-    ball.acceleration *= 1
-    ball.x_speed = ball.acceleration * dt  # * math.sin(math.radians(angle))
-    if ball.direction[1] > 0:
-        ball.y_speed = (ball.acceleration + ball_gravity) * dt
+    force_reaction = 0.5 * ball.force
+    if ball.direction[0] < 0:
+        angle = math.radians(direction.angle_to(pygame.math.Vector2(-1, 0)))
     else:
-        ball.y_speed = abs(ball.acceleration - ball_gravity) * dt
+        angle = math.radians(direction.angle_to(pygame.math.Vector2(1, 0)))
 
-    # direction += gravity_vector
-    # direction = [direction.x, direction.y]
-    #return x_speed, y_speed, direction
+    force_x = force_reaction * math.cos(angle)
+    force_y = force_reaction * math.sin(angle)
+    ball.force = math.sqrt(force_x ** 2 + force_y ** 2)
+    force_g = ball.mass * ball_gravity
+
+
+    if ball.direction[1] < 0:
+        force_y += force_g
+    else:
+        force_y = abs(force_y - force_g)
+
+   # print("Ugao: ", math.degrees(angle), " x: ", force_x, " y: ", force_y, " g: ", force_g)
+    #
+
+
+    acceleration_x = force_x / ball.mass
+    acceleration_y = force_y / ball.mass
+    ball.x_speed += acceleration_x * dt
+    ball.y_speed += acceleration_y * dt
+
+
 
 def gravity_circle(ball, ball_gravity, gravity_vector, direction, dt):
-    angle = gravity_vector.angle_to(direction)
-    ball.acceleration *= 1
-    ball.x_speed = ball.acceleration * dt  # * math.sin(math.radians(angle))
-    if ball.direction[1] > 0:
-        ball.y_speed = (ball.acceleration + ball_gravity) * dt
+    force_reaction = 0.5 * ball.force
+    if ball.direction[0] < 0:
+        angle = math.radians(direction.angle_to(pygame.math.Vector2(-1, 0)))
     else:
-        ball.y_speed = abs(ball.acceleration - ball_gravity) * dt
+        angle = math.radians(direction.angle_to(pygame.math.Vector2(1, 0)))
+
+    force_x = force_reaction * math.cos(angle)
+    force_y = force_reaction * math.sin(angle)
+    force_g = ball.mass * ball_gravity
+    ball.force = math.sqrt(force_x ** 2 + force_y ** 2)
+
+
+    if ball.direction[1] < 0:
+        force_y += force_g
+    else:
+        force_y = force_y - force_g
+
+    print("Ugao: ", math.degrees(angle), " x: ", force_x, " y: ", force_y, " g: ", force_g)
+    #ball.force = math.sqrt(force_x ** 2 + force_y ** 2)
+
+    acceleration_x = force_x / ball.mass
+    acceleration_y = force_y / ball.mass
+    ball.x_speed += acceleration_x * dt
+    ball.y_speed += acceleration_y * dt
 
 def gravity_poly(ball, ball_gravity, gravity_vector, direction, dt):
-    angle = gravity_vector.angle_to(direction)
-    ball.acceleration *= 1
-    ball.x_speed = ball.acceleration * dt  # * math.sin(math.radians(angle))
-    if ball.direction[1] > 0:
-        ball.y_speed = (ball.acceleration + ball_gravity) * dt
+    force_reaction = 0.7 * ball.force
+    if ball.direction[0] < 0:
+        angle = math.radians(direction.angle_to(pygame.math.Vector2(-1, 0)))
     else:
-        ball.y_speed = abs(ball.acceleration - ball_gravity) * dt
+        angle = math.radians(direction.angle_to(pygame.math.Vector2(1, 0)))
+
+    force_x = force_reaction * math.cos(angle)
+    force_y = force_reaction * math.sin(angle)
+    force_g = ball.mass * ball_gravity
+    ball.force = math.sqrt(force_x ** 2 + force_y ** 2)
+
+
+    if ball.direction[1] < 0:
+        force_y += force_g
+    else:
+        force_y = force_y - force_g
+
+    print("Ugao: ", math.degrees(angle), " x: ", force_x, " y: ", force_y, " g: ", force_g)
+
+    #ball.force = math.sqrt(force_x ** 2 + force_y ** 2)
+    acceleration_x = force_x / ball.mass
+    acceleration_y = force_y / ball.mass
+    ball.x_speed += acceleration_x * dt
+    ball.y_speed += acceleration_y * dt
 
 
 def gravity_flipper(ball, ball_gravity, gravity_vector, direction, dt):
-    angle = gravity_vector.angle_to(direction)
-    ball.acceleration *= 1
-    ball.x_speed = ball.acceleration * dt  # * math.sin(math.radians(angle))
-    if ball.direction[1] > 0:
-        ball.y_speed = (ball.acceleration + ball_gravity) * dt
+    force_reaction = 0.7 * ball.force
+    if ball.direction[0] < 0:
+        angle = math.radians(direction.angle_to(pygame.math.Vector2(-1, 0)))
     else:
-        ball.y_speed = abs(ball.acceleration - ball_gravity) * dt
+        angle = math.radians(direction.angle_to(pygame.math.Vector2(1, 0)))
+
+    force_x = force_reaction * math.cos(angle)
+    force_y = force_reaction * math.sin(angle)
+    force_g = ball.mass * ball_gravity
+    ball.force = math.sqrt(force_x ** 2 + force_y ** 2)
+
+    if ball.direction[1] < 0:
+        force_y += force_g
+    else:
+        force_y = force_y - force_g
+
+    print("Ugao: ", math.degrees(angle), " x: ", force_x, " y: ", force_y, " g: ", force_g)
+
+   # ball.force = math.sqrt(force_x ** 2 + force_y ** 2)
+    acceleration_x = force_x / ball.mass
+    acceleration_y = force_y / ball.mass
+    ball.x_speed += acceleration_x * dt
+    ball.y_speed += acceleration_y * dt
 
 
 
@@ -395,7 +461,7 @@ class Ball(Circle):
                 length = math.sqrt(self.direction[0] ** 2 + self.direction[1] ** 2)
                 reflection = [self.direction[0] / length, self.direction[1] / length]
                 self.direction = reflection
-                direction = pygame.math.Vector2(self.direction)
+                direction = pygame.math.Vector2(self.direction[0], self.direction[1])
                 gravity(self, ball_gravity, gravity_vector, direction, dt)
                 rotation(self)
 
@@ -579,7 +645,7 @@ while run:
         ball = Ball(WIDTH * 0.925, HEIGHT * 0.95, 0.03 * WIDTH, 'blue', "planet.png", ball_mass, force_at_beginning, .9,
                     y_speed_0,
                     x_speed_0, 1, 0.02, HEIGHT, WIDTH, fps, acceleration_0, dt, direction)
-       # line_obstacles.remove(door)
+        #line_obstacles.remove(door)
 
 
         ball.draw()
@@ -587,10 +653,10 @@ while run:
         door.pink()
 
     
-    if(ball.x_pos < 0.75 * WIDTH):
+    if(ball.x_pos < 0.75 * WIDTH - ball.radius):
 
         door.draw()
-       # line_obstacles.append(door)
+        #line_obstacles.append(door)
     
     left.draw()
     right.draw()
