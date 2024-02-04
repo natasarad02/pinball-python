@@ -22,15 +22,14 @@ fps = 60
 board_angle = math.radians(30)
 g = 9.81
 ball_gravity = g * math.sin(board_angle)
-pushing_force = 120
+pushing_force = 100
 gravity_vector = pygame.math.Vector2(0, ball_gravity)
 pushing_force_vector = pygame.math.Vector2(0, 1)
 ball_mass = 2
 dt = 0.5
-force_at_beginning = pushing_force + ball_mass * ball_gravity * math.sqrt(2)/2
+force_at_beginning = pushing_force  - ball_mass * ball_gravity
 acceleration_0 = force_at_beginning / ball_mass
-acceleration_0_x = acceleration_0 * math.sqrt(2)/2
-acceleration_0_y = acceleration_0 * math.sqrt(2)/2
+
 x_speed_0 = 0 #acceleration_0  * dt * math.sqrt(2)/2
 y_speed_0 = 0 #acceleration_0 * dt * math.sqrt(2)/2
 
@@ -38,23 +37,34 @@ y_speed_vector = pygame.math.Vector2(y_speed_0)
 x_speed_vector = pygame.math.Vector2(x_speed_0)
 direction = x_speed_vector + y_speed_vector + gravity_vector
 direction = direction.normalize()
+x_max_speed = 31.74
+y_max_speed = 34.19
 
 def gravity(acceleration, ball_gravity, gravity_vector, direction, dt):
 
     angle = gravity_vector.angle_to(direction)
-    acceleration *= 1
+    acceleration *= 0.9
+
+
     x_speed = acceleration * dt # * math.sin(math.radians(angle))
     y_speed = (acceleration + ball_gravity) * dt
     #direction += gravity_vector
     #direction = [direction.x, direction.y]
+    #print(x_speed, y_speed)
     return x_speed, y_speed, direction
 
 def gravity_poly(acceleration, ball_gravity, gravity_vector, direction, dt):
 
     angle = gravity_vector.angle_to(direction)
-    acceleration *= 1.2
-    x_speed = acceleration * dt # * math.sin(math.radians(angle))
-    y_speed = (acceleration + ball_gravity) * dt
+    acceleration *= 1.1
+    if(acceleration * dt >= x_max_speed):
+        acceleration /= 1.1
+        x_speed = acceleration * dt # * math.sin(math.radians(angle))
+        y_speed = (acceleration + ball_gravity) * dt
+    else:
+        x_speed = acceleration * dt  # * math.sin(math.radians(angle))
+        y_speed = (acceleration + ball_gravity) * dt
+
     #direction += gravity_vector
     #direction = [direction.x, direction.y]
     return x_speed, y_speed, direction
@@ -76,6 +86,7 @@ def Sign(x):
         return x/abs(x)
     else:
         return 0
+
 class Line:
     def __init__(self, a_x, a_y, b_x, b_y, color, width):
         self.a_x = a_x
@@ -475,7 +486,7 @@ tunnel_top_wall = Line(0.8 * WIDTH, 0.2 * HEIGHT, WIDTH - 0.15 * WIDTH, 0.25 * H
 tunnel_top_window_wall = Line(0.9 * WIDTH, 0, WIDTH, 0.25 * HEIGHT, (255, 20, 147), 15)
 tunnel_top_window_wall_small = Line(0.83 * WIDTH, 0, WIDTH, 0.15 * HEIGHT, (255, 20, 147), 15)
 score_board_points = [(0,0), (WIDTH, 0), (WIDTH, 0.05 * HEIGHT), (0, 0.05 * HEIGHT)]
-score_board = Poly(score_board_points, 'pink')
+score_board = Poly(score_board_points, 'black')
 #tunnel_wall_left = Line(2*0.05*WIDTH, 0.4 * HEIGHT, 2*0.05*WIDTH, 0.65 * HEIGHT, 'white', 20)
 tunnel_window_left = Line(0, 0.4 * HEIGHT, 0, 0.7 * HEIGHT, (255, 20, 147), 20)
 tunnel_window_right = Line(WIDTH - 0.15 * WIDTH, 0.25 * HEIGHT, WIDTH - 0.15 * WIDTH, HEIGHT, (255, 20, 147), 15)
