@@ -296,7 +296,7 @@ class Ball(Circle):
         #self.speed = [self.x_speed, self.y_speed]
 
     def update(self, line_obstacles, circle_obstacles, poly_obstacles, flippers):
-        # Collision with obstacle_circle
+
 
         for i in range(len(line_obstacles)):
             incident_angle, isCollided, reflection_vector = line_obstacles[i].is_collided(self)
