@@ -31,7 +31,7 @@ saturn_image = pygame.transform.scale(pygame.image.load("saturn2.png"), (330, 18
 text_image = pygame.transform.scale(pygame.image.load("Untitled.png"), (650, 350))
 
 # Button dimensions
-button_width, button_height = 250, 50
+button_width, button_height = 255, 50
 button_margin = 20
 
 # Button positions
@@ -40,11 +40,12 @@ button_positions = [
     (WIDTH // 2 - button_width // 2, HEIGHT // 2),
     (WIDTH // 2 - button_width // 2, HEIGHT // 2 + button_height + button_margin),
     (WIDTH // 2 - button_width // 2, HEIGHT // 2 + 2 * (button_height + button_margin)),
+    (WIDTH // 2 - button_width // 2, HEIGHT // 2 + 3 * (button_height + button_margin)),  # Dodano peto dugme
 ]
 
 # Button labels and corresponding file names
-button_labels = ["Simulacija gravitacije", "Prvobitno odbijanje", "Prva verzija flipera", "Fliper Level 1"]
-file_names = ["gravitacija.py", "Prvobitno_odbijanje.py", "Medjukorak_flipera.py", "flipper.py"]
+button_labels = ["Simulacija gravitacije", "Prvobitno odbijanje", "Prva verzija flipera", "Konacna verzija", "Verzija sa dve kuglice"]
+file_names = ["gravitacija.py", "Prvobitno_odbijanje.py", "Medjukorak_flipera.py", "flipper.py", "flipper2.2.py"]
 
 # Star positions
 stars = [(random.randint(0, WIDTH + 100), random.randint(0, HEIGHT + 100)) for _ in range(1500)]
@@ -92,8 +93,8 @@ while True:
     for i, pos in enumerate(button_positions):
         x, y = pos
         button_color = (0, 102, 204) #blue
-        if i == len(button_positions) - 1:  # Check if it's the last button
-            button_color = (255, 20, 147)  # Change the color to a different shade of pink for the last button
+        if i >= len(button_positions) - 2: 
+            button_color = (255, 20, 147)  
         pygame.draw.rect(screen, button_color, (x, y, button_width, button_height))
         text = font.render(button_labels[i], True, WHITE)
         screen.blit(text, (x + button_width // 2 - text.get_width() // 2, y + button_height // 2 - text.get_height() // 2))
