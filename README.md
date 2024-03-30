@@ -1,5 +1,7 @@
 # Fliper Igra - Space Pinball
 
+
+
 Dobrodošli u Space Pinball! Ova igra je razvijena u Pythonu koristeći popularni modul Pygame. Pre nego što započnete, uverite se da imate instaliran Python i Pygame, i da su parametri prilagođeni vašoj rezoluciji.
 
 ## Preduslovi
@@ -45,3 +47,7 @@ Igra je inspirisana svemirom, koristeći Space elemente za stvaranje jedinstveno
 
 
 Uživajte u igri i osvojite najviše poena u svemirskom fliperu! 🌠
+
+Autori - Studenti sa smera računarstvo i automatika:
+1) Teodora Bečejac
+2) Nataša Radmilović
