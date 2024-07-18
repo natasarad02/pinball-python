@@ -49,5 +49,5 @@ Igra je inspirisana svemirom, koristeći Space elemente za stvaranje jedinstveno
 Uživajte u igri i osvojite najviše poena u svemirskom fliperu! 🌠
 
 Autori - Studenti sa smera računarstvo i automatika:
-1) Teodora Bečejac
-2) Nataša Radmilović
+1) Teodora Bečejac RA37/2021
+2) Nataša Radmilović RA20/2021
